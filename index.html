@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PromptSys Studio | Fábrica Livre</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,16 +12,8 @@
             theme: {
                 extend: {
                     colors: {
-                        dark: {
-                            bg: '#0F172A',
-                            panel: '#1E293B',
-                            border: '#334155'
-                        },
-                        brand: {
-                            400: '#38BDF8',
-                            500: '#0EA5E9',
-                            600: '#0284C7'
-                        }
+                        dark: { bg: '#0F172A', panel: '#1E293B', border: '#334155' },
+                        brand: { 400: '#38BDF8', 500: '#0EA5E9', 600: '#0284C7' }
                     }
                 }
             }
@@ -30,66 +22,56 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0F172A; color: #F8FAFC; }
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid #334155; }
-        
-        /* Estilos do Jogo do Alien */
-        #game-canvas {
-            display: block;
-            margin: 0 auto;
-            background: linear-gradient(to bottom, #0F172A, #1E293B);
-            border: 2px solid #334155;
-            border-radius: 1rem;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            max-width: 100%;
-        }
-        
-        /* Oculta scrollbar mas permite scroll */
+        #game-canvas { display: block; margin: 0 auto; background: linear-gradient(to bottom, #0F172A, #1E293B); border: 2px solid #334155; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-width: 100%; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden text-sm">
+<body class="h-screen flex flex-col text-sm overflow-hidden bg-dark-bg">
 
     <!-- Header Principal -->
-    <header class="glass-panel border-b border-dark-border px-6 py-3 flex items-center justify-between z-10 shrink-0">
-        <div class="flex items-center gap-4">
-            <div id="admin-trigger" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-lg shadow-brand-500/20 cursor-pointer" onclick="countAdminClicks()">
-                <i class="fa-solid fa-robot text-white text-xl"></i>
+    <header class="glass-panel border-b border-dark-border px-3 lg:px-6 py-3 flex items-center justify-between z-10 shrink-0">
+        <div class="flex items-center gap-2 lg:gap-4">
+            <div id="admin-trigger" class="w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-lg shadow-brand-500/20 cursor-pointer shrink-0" onclick="countAdminClicks()">
+                <i class="fa-solid fa-robot text-white text-base lg:text-xl"></i>
             </div>
-            <div>
-                <h1 class="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Fábrica Livre</h1>
-                <p class="text-xs text-slate-400">Zero-Build AI Studio</p>
+            <div class="hidden min-[380px]:block">
+                <h1 class="font-bold text-sm lg:text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Fábrica Livre</h1>
+                <p class="text-[9px] lg:text-xs text-slate-400">Zero-Build AI Studio</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-4">
-            <!-- Seletor de Motor IA -->
-            <div class="hidden md:flex items-center bg-dark-panel border border-dark-border rounded-lg px-3 py-1.5">
-                <i class="fa-solid fa-microchip text-slate-400 mr-2 text-xs"></i>
-                <select id="global-engine" class="bg-transparent text-slate-200 text-xs outline-none cursor-pointer">
-                    <option value="groq">☁️ Nuvem (Segura)</option>
-                    <option value="mock">🎮 Simulador Grátis</option>
-                    <!-- A opção Ollama será injetada aqui pelo Modo Deus -->
+        <div class="flex items-center gap-2 lg:gap-4">
+            <!-- Seletor de Motor IA (Compacto no Mobile) -->
+            <div class="flex items-center bg-dark-panel border border-dark-border rounded-lg px-2 lg:px-3 py-1.5 max-w-[100px] lg:max-w-none overflow-hidden">
+                <i class="fa-solid fa-microchip text-slate-400 mr-1 lg:mr-2 text-[10px] lg:text-xs"></i>
+                <select id="global-engine" class="bg-transparent text-slate-200 text-[10px] lg:text-xs outline-none cursor-pointer w-full text-ellipsis">
+                    <option value="groq">☁️ Nuvem</option>
+                    <option value="mock">🎮 Simulador</option>
                 </select>
             </div>
 
             <!-- Contador de Energia -->
-            <button onclick="openModal('modal-paywall')" class="flex items-center gap-2 bg-dark-panel border border-brand-500/30 hover:border-brand-500 transition-colors rounded-full px-4 py-1.5 group">
-                <i class="fa-solid fa-bolt text-yellow-400 group-hover:scale-110 transition-transform"></i>
-                <span id="energy-counter" class="font-bold text-white">500</span>
+            <button onclick="openModal('modal-paywall')" class="flex items-center gap-1 lg:gap-2 bg-dark-panel border border-brand-500/30 hover:border-brand-500 transition-colors rounded-full px-2 lg:px-4 py-1.5 group shrink-0">
+                <i class="fa-solid fa-bolt text-yellow-400 group-hover:scale-110 transition-transform text-xs lg:text-base"></i>
+                <span id="energy-counter" class="font-bold text-white text-xs lg:text-base">500</span>
             </button>
-            <button onclick="openModal('modal-share')" class="hidden sm:flex bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-lg font-medium transition-colors gap-2 items-center">
-                <i class="fa-solid fa-share-nodes"></i> Compartilhar
+
+            <!-- Botão Compartilhar (Só ícone no mobile) -->
+            <button onclick="openModal('modal-share')" class="flex bg-white/10 hover:bg-white/20 px-2 lg:px-4 py-1.5 rounded-lg font-medium transition-colors gap-2 items-center text-xs lg:text-sm shrink-0">
+                <i class="fa-solid fa-share-nodes"></i> <span class="hidden sm:inline">Compartilhar</span>
             </button>
         </div>
     </header>
 
-    <main class="flex-1 flex overflow-hidden">
+    <!-- Corpo Principal: Scroll interno no mobile para comportar Chat e App -->
+    <main class="flex-1 overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row w-full">
         
-        <!-- Painel Esquerdo: Chat / Engenharia de Prompt -->
-        <section class="w-full lg:w-[400px] flex flex-col border-r border-dark-border bg-dark-bg/50 shrink-0">
-            <div class="p-4 border-b border-dark-border glass-panel">
-                <h2 class="font-semibold text-slate-200 flex items-center gap-2">
+        <!-- Painel Esquerdo: Chat / Engenharia de Prompt (Fica em cima no celular) -->
+        <section class="h-[55vh] lg:h-full w-full lg:w-[400px] flex flex-col border-b lg:border-b-0 lg:border-r border-dark-border bg-dark-bg/50 shrink-0">
+            <div class="p-3 lg:p-4 border-b border-dark-border glass-panel shrink-0">
+                <h2 class="font-semibold text-slate-200 flex items-center gap-2 text-sm lg:text-base">
                     <i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Arquiteto de IA
                 </h2>
             </div>
@@ -100,52 +82,54 @@
                     <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0">
                         <i class="fa-solid fa-robot text-white text-xs"></i>
                     </div>
-                    <div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200">
+                    <div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-sm">
                         Olá, construtor! Descreva o micro-app ou agente que você quer criar hoje.
                     </div>
                 </div>
             </div>
 
             <!-- Área de Input -->
-            <div class="p-4 border-t border-dark-border bg-dark-panel relative">
+            <div class="p-3 lg:p-4 border-t border-dark-border bg-dark-panel relative shrink-0">
                 <div id="mic-status" class="absolute -top-6 left-4 text-xs text-green-400 font-bold hidden animate-pulse">
                     <i class="fa-solid fa-microphone"></i> Estou ouvindo...
                 </div>
                 <div class="flex gap-2">
-                    <button onclick="startVoiceRecognition()" class="w-12 h-12 rounded-xl bg-dark-border hover:bg-slate-600 flex items-center justify-center text-slate-300 transition-colors">
+                    <button onclick="startVoiceRecognition()" class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-dark-border hover:bg-slate-600 flex items-center justify-center text-slate-300 transition-colors shrink-0">
                         <i class="fa-solid fa-microphone"></i>
                     </button>
-                    <textarea id="chat-input" rows="1" class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none" placeholder="Digite ou fale sua ideia..."></textarea>
-                    <button onclick="sendChatMessage()" class="w-12 h-12 rounded-xl bg-brand-600 hover:bg-brand-500 flex items-center justify-center text-white transition-colors shadow-lg shadow-brand-500/20">
+                    <textarea id="chat-input" rows="1" class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-3 py-2 lg:px-4 lg:py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none text-sm" placeholder="Digite ou fale..."></textarea>
+                    <button onclick="sendChatMessage()" class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-brand-600 hover:bg-brand-500 flex items-center justify-center text-white transition-colors shadow-lg shadow-brand-500/20 shrink-0">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Painel Direito: Preview do App / Código -->
-        <section class="flex-1 flex flex-col relative bg-[#0b1121]">
+        <!-- Painel Direito: Preview do App / Código (Fica embaixo no celular) -->
+        <section class="h-[60vh] lg:h-full flex-1 flex flex-col relative bg-[#0b1121]">
             <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
             
-            <div class="p-4 border-b border-dark-border flex justify-between items-center bg-dark-bg/80 z-10 backdrop-blur-sm">
-                <div class="flex items-center gap-3">
-                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span class="ml-2 text-slate-400 font-mono text-xs">Preview do App</span>
+            <div class="p-3 lg:p-4 border-b border-dark-border flex justify-between items-center bg-dark-bg/80 z-10 backdrop-blur-sm shrink-0">
+                <div class="flex items-center gap-2 lg:gap-3">
+                    <div class="hidden min-[380px]:flex gap-2 mr-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    </div>
+                    <span class="text-slate-400 font-mono text-[10px] lg:text-xs truncate">Preview do App</span>
                 </div>
-                <button onclick="generateApp()" class="bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-bold px-4 py-1.5 rounded-lg text-xs transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+                <button onclick="generateApp()" class="bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-bold px-3 py-1.5 lg:px-4 rounded-lg text-xs transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2 shrink-0">
                     <i class="fa-solid fa-play"></i> Gerar App
                 </button>
             </div>
 
-            <div class="flex-1 p-4 md:p-8 flex items-center justify-center relative z-10">
-                <div id="app-placeholder" class="text-center">
-                    <div class="w-24 h-24 rounded-full bg-dark-panel border-2 border-dashed border-dark-border flex items-center justify-center mx-auto mb-4 text-4xl text-slate-600">
+            <div class="flex-1 p-4 lg:p-8 flex items-center justify-center relative z-10 h-full">
+                <div id="app-placeholder" class="text-center w-full px-4">
+                    <div class="w-16 h-16 lg:w-24 lg:h-24 rounded-full bg-dark-panel border-2 border-dashed border-dark-border flex items-center justify-center mx-auto mb-4 text-2xl lg:text-4xl text-slate-600">
                         <i class="fa-solid fa-code"></i>
                     </div>
-                    <h3 class="text-xl font-bold text-slate-300">Nenhum App Gerado</h3>
-                    <p class="text-slate-500 mt-2 max-w-sm">Descreva sua ideia no chat ao lado e clique em "Gerar App" para ver a mágica acontecer.</p>
+                    <h3 class="text-lg lg:text-xl font-bold text-slate-300">Nenhum App Gerado</h3>
+                    <p class="text-slate-500 mt-2 text-xs lg:text-sm max-w-sm mx-auto">Descreva sua ideia no chat ao lado e clique em "Gerar App".</p>
                 </div>
                 
                 <iframe id="app-preview" class="w-full h-full bg-white rounded-xl shadow-2xl hidden border-0"></iframe>
@@ -155,73 +139,65 @@
 
     <!-- MODAL: BOAS VINDAS -->
     <div id="modal-welcome" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-lg w-full p-8 shadow-2xl relative overflow-hidden">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-lg w-full p-6 lg:p-8 shadow-2xl relative overflow-hidden">
             <div class="absolute -top-20 -right-20 w-40 h-40 bg-brand-500 rounded-full blur-[80px] opacity-30"></div>
             
             <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/30">
-                    <i class="fa-solid fa-rocket text-3xl text-white"></i>
+                <div class="w-14 h-14 bg-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-rocket text-2xl text-white"></i>
                 </div>
-                <h2 class="text-2xl font-black text-white">Bem-vindo à Fábrica Livre</h2>
-                <p class="text-slate-400 mt-2">Crie aplicativos incríveis em segundos usando apenas a sua voz ou texto.</p>
+                <h2 class="text-xl lg:text-2xl font-black text-white">Bem-vindo à Fábrica Livre</h2>
+                <p class="text-slate-400 mt-2 text-sm">Crie aplicativos incríveis em segundos usando voz ou texto.</p>
             </div>
 
-            <div class="space-y-4 mb-8">
-                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border flex items-start gap-4">
-                    <div class="text-brand-400 text-xl"><i class="fa-solid fa-microphone"></i></div>
+            <div class="space-y-3 lg:space-y-4 mb-8">
+                <div class="bg-dark-bg p-3 lg:p-4 rounded-xl border border-dark-border flex items-start gap-3 lg:gap-4">
+                    <div class="text-brand-400 text-lg lg:text-xl"><i class="fa-solid fa-microphone"></i></div>
                     <div>
-                        <h4 class="font-bold text-white">1. Fale a sua ideia</h4>
-                        <p class="text-slate-400 text-xs">Use o microfone ou digite o que você quer construir no chat.</p>
+                        <h4 class="font-bold text-white text-sm">1. Fale a sua ideia</h4>
+                        <p class="text-slate-400 text-xs">Use o microfone ou digite no chat.</p>
                     </div>
                 </div>
-                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border flex items-start gap-4">
-                    <div class="text-yellow-400 text-xl"><i class="fa-solid fa-bolt"></i></div>
+                <div class="bg-dark-bg p-3 lg:p-4 rounded-xl border border-dark-border flex items-start gap-3 lg:gap-4">
+                    <div class="text-yellow-400 text-lg lg:text-xl"><i class="fa-solid fa-bolt"></i></div>
                     <div>
-                        <h4 class="font-bold text-white">2. Use sua Energia</h4>
-                        <p class="text-slate-400 text-xs">Você ganhou 500 Raios de bônus! Cada app criado gasta energia.</p>
-                    </div>
-                </div>
-                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border flex items-start gap-4">
-                    <div class="text-emerald-400 text-xl"><i class="fa-solid fa-money-bill-wave"></i></div>
-                    <div>
-                        <h4 class="font-bold text-white">3. Lucre com sua criação</h4>
-                        <p class="text-slate-400 text-xs">Exporte seus apps e venda. O código é 100% seu!</p>
+                        <h4 class="font-bold text-white text-sm">2. Use sua Energia</h4>
+                        <p class="text-slate-400 text-xs">Você ganhou 500 Raios grátis. Gerar apps gasta energia.</p>
                     </div>
                 </div>
             </div>
 
-            <button onclick="closeModal('modal-welcome')" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl transition-colors shadow-lg">
+            <button onclick="closeModal('modal-welcome')" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl transition-colors shadow-lg text-sm lg:text-base">
                 Entendi, vamos criar! 🚀
             </button>
         </div>
     </div>
 
     <!-- MODAL: PAYWALL -->
-    <div id="modal-paywall" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-4xl w-full p-6 md:p-10 shadow-2xl relative">
-            <button onclick="closeModal('modal-paywall')" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+    <div id="modal-paywall" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden overflow-y-auto">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-4xl w-full p-4 lg:p-10 shadow-2xl relative my-auto">
+            <button onclick="closeModal('modal-paywall')" class="absolute top-3 right-3 lg:top-4 lg:right-4 text-slate-400 hover:text-white">
                 <i class="fa-solid fa-xmark text-xl"></i>
             </button>
             
-            <div class="text-center max-w-2xl mx-auto mb-10">
-                <i class="fa-solid fa-battery-quarter text-5xl text-yellow-500 mb-4 animate-pulse"></i>
-                <h2 class="text-3xl font-black text-white tracking-tight">Sua Energia está acabando!</h2>
-                <p class="text-slate-400 mt-2 text-lg">Para continuar gerando aplicativos e agentes de IA incríveis, recarregue sua bateria ou assine o plano Ilimitado.</p>
+            <div class="text-center max-w-2xl mx-auto mb-6 lg:mb-10 mt-4 lg:mt-0">
+                <i class="fa-solid fa-battery-quarter text-4xl lg:text-5xl text-yellow-500 mb-2 lg:mb-4 animate-pulse"></i>
+                <h2 class="text-2xl lg:text-3xl font-black text-white tracking-tight">Energia no fim!</h2>
+                <p class="text-slate-400 mt-2 text-sm lg:text-lg">Recarregue sua bateria ou assine o Ilimitado para continuar.</p>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-6">
+            <div class="grid md:grid-cols-2 gap-4 lg:gap-6">
                 <!-- Pacote Casual -->
-                <div class="bg-dark-bg border border-dark-border rounded-2xl p-6 flex flex-col relative hover:border-brand-500 transition-colors">
-                    <h3 class="text-xl font-bold text-white mb-2">Recarga Rápida ⚡</h3>
-                    <p class="text-slate-400 text-sm mb-6">Ideal para testes rápidos e ideias casuais.</p>
-                    <div class="text-4xl font-black text-white mb-6">R$ 9,90 <span class="text-sm font-normal text-slate-500">/único</span></div>
+                <div class="bg-dark-bg border border-dark-border rounded-2xl p-4 lg:p-6 flex flex-col relative hover:border-brand-500 transition-colors">
+                    <h3 class="text-lg lg:text-xl font-bold text-white mb-2">Recarga Rápida ⚡</h3>
+                    <p class="text-slate-400 text-xs lg:text-sm mb-4 lg:mb-6">Ideal para testes e ideias casuais.</p>
+                    <div class="text-3xl lg:text-4xl font-black text-white mb-4 lg:mb-6">R$ 9,90 <span class="text-sm font-normal text-slate-500">/único</span></div>
                     
-                    <ul class="space-y-3 mb-8 flex-1">
-                        <li class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-check text-green-500"></i> + 1.000 Raios de Energia</li>
-                        <li class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-check text-green-500"></i> Acesso à Nuvem Groq</li>
-                        <li class="flex items-center gap-2 text-slate-500"><i class="fa-solid fa-xmark text-red-500/50"></i> Exportação Comercial</li>
+                    <ul class="space-y-2 lg:space-y-3 mb-6 lg:mb-8 flex-1 text-sm">
+                        <li class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-check text-green-500"></i> + 1.000 Raios</li>
+                        <li class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-check text-green-500"></i> Acesso Nuvem</li>
                     </ul>
-
+                    <!-- SEU LINK DO MERCADO PAGO AQUI -->
                     <a href="https://mpago.la/1hMvZHb" target="_blank" onclick="closeModal('modal-paywall')" class="block w-full bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors shadow-lg text-center">
                         Comprar Energia
                         <div class="flex items-center justify-center gap-2 mt-1 text-[10px] text-slate-600 font-normal">
@@ -231,21 +207,20 @@
                 </div>
 
                 <!-- Plano Pro -->
-                <div class="bg-gradient-to-b from-brand-900/40 to-dark-bg border border-brand-500 rounded-2xl p-6 flex flex-col relative shadow-2xl shadow-brand-500/20 transform md:-translate-y-4">
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                <div class="bg-gradient-to-b from-brand-900/40 to-dark-bg border border-brand-500 rounded-2xl p-4 lg:p-6 flex flex-col relative shadow-2xl shadow-brand-500/20 transform md:-translate-y-4 mt-4 md:mt-0">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-[10px] lg:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">
                         Mais Escolhido
                     </div>
-                    <h3 class="text-xl font-bold text-white mb-2">Passe Premium 👑</h3>
-                    <p class="text-brand-200 text-sm mb-6">Para construtores sérios e empresas.</p>
-                    <div class="text-4xl font-black text-white mb-6">R$ 49,90 <span class="text-sm font-normal text-brand-300">/mês</span></div>
+                    <h3 class="text-lg lg:text-xl font-bold text-white mb-2">Passe Premium 👑</h3>
+                    <p class="text-brand-200 text-xs lg:text-sm mb-4 lg:mb-6">Para construtores e empresas.</p>
+                    <div class="text-3xl lg:text-4xl font-black text-white mb-4 lg:mb-6">R$ 49,90 <span class="text-sm font-normal text-brand-300">/mês</span></div>
                     
-                    <ul class="space-y-3 mb-8 flex-1">
-                        <li class="flex items-center gap-2 text-white"><i class="fa-solid fa-infinity text-brand-400"></i> Energia Ilimitada (Sem pausas)</li>
-                        <li class="flex items-center gap-2 text-white"><i class="fa-solid fa-check text-brand-400"></i> Suporte Prioritário da IA</li>
-                        <li class="flex items-center gap-2 text-white"><i class="fa-solid fa-check text-brand-400"></i> Licença Comercial P/ Vendas</li>
+                    <ul class="space-y-2 lg:space-y-3 mb-6 lg:mb-8 flex-1 text-sm">
+                        <li class="flex items-center gap-2 text-white"><i class="fa-solid fa-infinity text-brand-400"></i> Energia Ilimitada</li>
+                        <li class="flex items-center gap-2 text-white"><i class="fa-solid fa-check text-brand-400"></i> Uso Comercial</li>
                     </ul>
-
-                    <a href="https://mpago.la/2fLHcpu" target="_blank" onclick="closeModal('modal-paywall')" class="block w-full bg-brand-500 text-white font-bold py-3 rounded-xl hover:bg-brand-400 transition-colors shadow-lg shadow-brand-500/50 text-center">
+                    <!-- SEU LINK DO MERCADO PAGO AQUI -->
+                    <a href="https://mpago.la/2fLHcpu" target="_blank" onclick="closeModal('modal-paywall')" class="block w-full bg-brand-500 text-white font-bold py-3 rounded-xl hover:bg-brand-400 transition-colors shadow-lg text-center">
                         Assinar Ilimitado
                         <div class="flex items-center justify-center gap-2 mt-1 text-[10px] text-brand-100 font-normal">
                             <i class="fa-brands fa-pix"></i> PIX <span class="mx-1">|</span> <i class="fa-regular fa-credit-card"></i> Cartão
@@ -258,9 +233,9 @@
 
     <!-- MODAL: ADMIN / BACKDOOR -->
     <div id="modal-admin" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-black border border-red-500/30 rounded-2xl max-w-sm w-full p-8 shadow-2xl shadow-red-500/10 text-center">
-            <i class="fa-solid fa-user-secret text-4xl text-red-500 mb-4"></i>
-            <h2 class="text-xl font-bold text-white mb-4 font-mono">AUTENTICAÇÃO DE SISTEMA</h2>
+        <div class="bg-black border border-red-500/30 rounded-2xl max-w-sm w-full p-6 lg:p-8 shadow-2xl shadow-red-500/10 text-center">
+            <i class="fa-solid fa-user-secret text-3xl lg:text-4xl text-red-500 mb-4"></i>
+            <h2 class="text-lg lg:text-xl font-bold text-white mb-4 font-mono">AUTENTICAÇÃO DE SISTEMA</h2>
             <input type="password" id="admin-serial" class="w-full bg-dark-bg border border-red-500/50 rounded-lg px-4 py-2 text-white text-center font-mono tracking-widest focus:outline-none focus:border-red-500 mb-4" placeholder="SERIAL KEY">
             <div class="flex gap-2">
                 <button onclick="closeModal('modal-admin')" class="flex-1 bg-dark-border text-white py-2 rounded-lg font-bold">Cancelar</button>
@@ -269,58 +244,62 @@
         </div>
     </div>
     
-    <!-- MODAL: COMPARTILHAR -->
+    <!-- MODAL: COMPARTILHAR (COM WHATSAPP) -->
     <div id="modal-share" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
             <h2 class="text-xl font-bold text-white mb-2">Compartilhe a Fábrica</h2>
-            <p class="text-slate-400 text-sm mb-4">Convide amigos para criar aplicativos incríveis.</p>
-        <div class="bg-dark-bg p-3 rounded-lg border border-dark-border flex items-center gap-2 mb-4">
-            <input type="text" value="" class="bg-transparent w-full text-slate-300 text-sm outline-none" readonly id="share-url">
-            <button onclick="copyShare()" class="text-brand-400 hover:text-brand-300 p-2"><i class="fa-regular fa-copy"></i></button>
-        </div>
-        <button onclick="closeModal('modal-share')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-xl transition-colors">Fechar</button>
+            <p class="text-slate-400 text-sm mb-4">Convide amigos para criar aplicativos.</p>
+            
+            <div class="bg-dark-bg p-3 rounded-lg border border-dark-border flex items-center gap-2 mb-4">
+                <input type="text" value="" class="bg-transparent w-full text-slate-300 text-xs sm:text-sm outline-none" readonly id="share-url">
+                <button onclick="copyShare()" class="text-brand-400 hover:text-brand-300 p-2"><i class="fa-regular fa-copy"></i></button>
+            </div>
+            
+            <!-- Botão do WhatsApp -->
+            <button onclick="shareWhatsApp()" class="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 mb-3 shadow-lg shadow-green-500/20 text-sm sm:text-base">
+                <i class="fa-brands fa-whatsapp text-lg"></i> Compartilhar no WhatsApp
+            </button>
+            
+            <button onclick="closeModal('modal-share')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-xl transition-colors text-sm sm:text-base">Fechar</button>
         </div>
     </div>
 
     <!-- MODAL: ERRO & JOGUINHO -->
     <div id="modal-error" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 hidden">
         <div class="text-center mb-6">
-            <h2 class="text-2xl font-black text-red-400 uppercase tracking-widest"><i class="fa-solid fa-triangle-exclamation"></i> Conexão Perdida</h2>
-            <p class="text-slate-300 mt-2">A IA tirou uma soneca ou o Servidor Ngrok está desligado.</p>
-            <p class="text-brand-400 font-bold mt-1">Divirta-se pulando enquanto tentamos reconectar! (Pressione Espaço ou Toque)</p>
+            <h2 class="text-xl lg:text-2xl font-black text-red-400 uppercase tracking-widest"><i class="fa-solid fa-triangle-exclamation"></i> Conexão Perdida</h2>
+            <p class="text-slate-300 mt-2 text-sm lg:text-base">A IA tirou uma soneca ou o Servidor Ngrok está desligado.</p>
+            <p class="text-brand-400 font-bold mt-1 text-xs lg:text-sm">Divirta-se pulando enquanto tentamos reconectar! (Pressione Espaço ou Toque na tela)</p>
         </div>
         
-        <canvas id="game-canvas" width="600" height="200"></canvas>
+        <div class="w-full max-w-[600px] overflow-hidden rounded-xl border-2 border-slate-700 bg-slate-900 mx-auto relative h-[150px] lg:h-[200px]">
+            <canvas id="game-canvas" class="w-full h-full object-cover"></canvas>
+        </div>
         
-        <button onclick="closeModal('modal-error')" class="mt-8 bg-dark-border hover:bg-slate-600 text-white px-8 py-3 rounded-xl font-bold transition-colors">
+        <button onclick="closeModal('modal-error')" class="mt-8 bg-dark-border hover:bg-slate-600 text-white px-6 py-3 rounded-xl font-bold transition-colors">
             Voltar para a Plataforma
         </button>
     </div>
 
-    <!-- Container de Toasts (Notificações) -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 
     <script>
         // ==========================================
-        // CONFIGURAÇÕES GERAIS
+        // CONFIGURAÇÕES GERAIS DA IA
         // ==========================================
-        // DICA: Coloque aqui o link que o Ngrok te deu! 
-        // Exemplo: "https://d739-177-38.ngrok-free.app/gerar"
+        // Aqui é onde o seu front-end (site) fala com o seu back-end (Ngrok/Python)
         const NGROK_URL = "SUA_URL_DO_NGROK_AQUI"; 
         
-        // ==========================================
-        // ESTADO DO APLICATIVO
-        // ==========================================
         let wallet = { energy: 500, isPremium: false };
         let adminClicks = 0;
         let adminTimer;
 
-        // Iniciar Boas Vindas ao carregar
+        // Auto-execução ao carregar a página
         window.addEventListener('DOMContentLoaded', () => {
             openModal('modal-welcome');
             updateEnergyUI();
             
-            // Capta a URL real do seu site automaticamente
+            // Pega a URL exata que o usuário está acessando e injeta no modal de share
             const shareInput = document.getElementById('share-url');
             if (shareInput) {
                 shareInput.value = window.location.origin;
@@ -328,7 +307,7 @@
         });
 
         // ==========================================
-        // FUNÇÕES UTILITÁRIAS
+        // FUNÇÕES UTILITÁRIAS E COMPARTILHAMENTO
         // ==========================================
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
@@ -337,16 +316,10 @@
                 error: 'bg-red-500/20 border-red-500/50 text-red-400',
                 info: 'bg-brand-500/20 border-brand-500/50 text-brand-400'
             };
-            
-            toast.className = `px-4 py-3 rounded-xl border backdrop-blur-md shadow-lg ${colors[type]} transform translate-y-10 opacity-0 transition-all duration-300`;
+            toast.className = `px-4 py-3 rounded-xl border backdrop-blur-md shadow-lg ${colors[type]} transform translate-y-10 opacity-0 transition-all duration-300 text-sm z-50`;
             toast.innerHTML = `<span class="font-medium">${message}</span>`;
-            
             document.getElementById('toast-container').appendChild(toast);
-            
-            requestAnimationFrame(() => {
-                toast.classList.remove('translate-y-10', 'opacity-0');
-            });
-
+            requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
             setTimeout(() => {
                 toast.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
@@ -355,16 +328,12 @@
 
         function openModal(id) {
             const modal = document.getElementById(id);
-            if (modal) {
-                modal.classList.remove('hidden');
-            }
+            if (modal) modal.classList.remove('hidden');
         }
 
         function closeModal(id) {
             const modal = document.getElementById(id);
-            if (modal) {
-                modal.classList.add('hidden');
-            }
+            if (modal) modal.classList.add('hidden');
         }
         
         function copyShare() {
@@ -372,6 +341,15 @@
             input.select();
             document.execCommand('copy');
             showToast('Link copiado! 🎉', 'success');
+        }
+
+        // Função de envio inteligente para WhatsApp
+        function shareWhatsApp() {
+            const url = window.location.origin;
+            const message = `Crie, construa micro-apps e agentes de IA em segundos usando apenas sua voz! 🚀\n\nTeste a Fábrica Livre agora, de graça: ${url}`;
+            const encodedMessage = encodeURIComponent(message);
+            window.open(`https://api.whatsapp.com/send?text=${encodedMessage}`, '_blank');
+            closeModal('modal-share');
         }
 
         // ==========================================
@@ -403,12 +381,10 @@
         function countAdminClicks() {
             adminClicks++;
             clearTimeout(adminTimer);
-            
             if (adminClicks >= 5) {
                 openModal('modal-admin');
                 adminClicks = 0;
             }
-            
             adminTimer = setTimeout(() => { adminClicks = 0; }, 1000);
         }
 
@@ -418,15 +394,15 @@
                 wallet.isPremium = true;
                 updateEnergyUI();
                 closeModal('modal-admin');
-                showToast('👑 MODO DEUS ATIVADO! Energia Infinita e IA Local Liberada.', 'success');
+                showToast('👑 MODO DEUS ATIVADO! Energia Infinita e Ollama Local Liberado.', 'success');
                 document.getElementById('admin-serial').value = '';
                 
-                // MÁGICA: Adiciona a opção Ollama nos menus APENAS para o Admin
+                // MÁGICA: Injeta a opção do Ollama Local APENAS se acertar a senha!
                 const sel = document.getElementById('global-engine');
                 if(sel && !sel.querySelector('option[value="ollama"]')) {
                     const opt = document.createElement('option');
                     opt.value = 'ollama';
-                    opt.innerText = '💻 Meu PC (Ollama Local)';
+                    opt.innerText = '💻 Meu PC (Ollama)';
                     sel.appendChild(opt);
                 }
             } else {
@@ -438,43 +414,39 @@
         // MICROFONE (VOZ PARA TEXTO)
         // ==========================================
         function startVoiceRecognition() {
-            if (!('webkitSpeechRecognition' in window)) {
-                showToast('❌ Seu navegador não suporta digitação por voz. Use o Google Chrome.', 'error');
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                showToast('❌ Seu navegador/celular não suporta essa função. Tente digitar!', 'error');
                 return;
             }
 
-            const statusIndicator = document.getElementById('mic-status');
-            const recognition = new webkitSpeechRecognition();
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const recognition = new SpeechRecognition();
             recognition.lang = 'pt-BR';
             recognition.continuous = false;
-            recognition.interimResults = false;
+            
+            const input = document.getElementById('chat-input');
+            const statusIndicator = document.getElementById('mic-status');
 
             recognition.onstart = function() {
                 statusIndicator.classList.remove('hidden');
-                document.getElementById('chat-input').placeholder = "Pode falar, estou ouvindo...";
-                document.getElementById('chat-input').focus();
+                input.placeholder = "Pode falar...";
             };
 
             recognition.onresult = function(event) {
                 const text = event.results[0][0].transcript;
-                const input = document.getElementById('chat-input');
                 input.value += (input.value ? ' ' : '') + text;
-                showToast('🎙️ Texto capturado com sucesso!', 'success');
+                showToast('🎙️ Voz capturada!', 'success');
             };
 
             recognition.onerror = function(event) {
-                if(event.error === 'not-allowed') {
-                    showToast('⚠️ Permissão do microfone negada. Clique no cadeado na barra de endereços para liberar.', 'error');
-                } else {
-                    showToast('❌ Erro no microfone: ' + event.error, 'error');
-                }
                 statusIndicator.classList.add('hidden');
-                document.getElementById('chat-input').placeholder = "Digite ou fale sua ideia...";
+                input.placeholder = "Digite ou fale...";
+                if(event.error === 'not-allowed') showToast('⚠️ Microfone bloqueado no celular/navegador.', 'error');
             };
 
             recognition.onend = function() {
                 statusIndicator.classList.add('hidden');
-                document.getElementById('chat-input').placeholder = "Digite ou fale sua ideia...";
+                input.placeholder = "Digite ou fale...";
             };
 
             recognition.start();
@@ -493,10 +465,8 @@
             const chatWindow = document.getElementById('chat-window');
             chatWindow.innerHTML += `
             <div class="flex items-start gap-3 flex-row-reverse">
-                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">
-                    <i class="fa-solid fa-user text-white text-xs"></i>
-                </div>
-                <div class="bg-brand-600 p-3 rounded-2xl rounded-tr-none text-white">${msg}</div>
+                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user text-white text-xs"></i></div>
+                <div class="bg-brand-600 p-3 rounded-2xl rounded-tr-none text-white text-sm">${msg}</div>
             </div>`;
             input.value = '';
             chatWindow.scrollTop = chatWindow.scrollHeight;
@@ -505,11 +475,7 @@
 
             if (engine === 'mock') {
                 setTimeout(() => {
-                    chatWindow.innerHTML += `
-                    <div class="flex items-start gap-3">
-                        <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div>
-                        <div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200">Oi! Estou no modo Simulador! Mude a chave lá em cima para a Nuvem!</div>
-                    </div>`;
+                    chatWindow.innerHTML += `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-sm">Estou no modo Simulador! Mude a chave para a Nuvem!</div></div>`;
                     chatWindow.scrollTop = chatWindow.scrollHeight;
                 }, 1000);
             } 
@@ -517,67 +483,39 @@
                 const loadingId = 'loading-' + Date.now();
                 chatWindow.innerHTML += `<div id="${loadingId}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Pensando no seu PC... 💻</div>`;
                 chatWindow.scrollTop = chatWindow.scrollHeight;
-                
                 try {
-                    const response = await fetch('http://localhost:11434/api/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ model: 'llama3', messages: [{ role: 'user', content: msg }], stream: false })
-                    });
-                    if (!response.ok) throw new Error('Erro no Ollama');
+                    const response = await fetch('http://localhost:11434/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'llama3', messages: [{ role: 'user', content: msg }], stream: false }) });
+                    if (!response.ok) throw new Error('Erro');
                     const data = await response.json();
                     document.getElementById(loadingId).remove();
                     appendBotMsg(data.message.content);
-                } catch (error) {
-                    document.getElementById(loadingId).remove();
-                    startErrorGame(); 
-                }
+                } catch (error) { document.getElementById(loadingId).remove(); startErrorGame(); }
             } 
             else if (engine === 'groq') {
                 const loadingId = 'loading-' + Date.now();
-                chatWindow.innerHTML += `<div id="${loadingId}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Comunicando com servidor seguro... ☁️</div>`;
+                chatWindow.innerHTML += `<div id="${loadingId}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Consultando Nuvem... ☁️</div>`;
                 chatWindow.scrollTop = chatWindow.scrollHeight;
-                
                 try {
                     if(NGROK_URL === "SUA_URL_DO_NGROK_AQUI") throw new Error("Ngrok não configurado!");
-                    
-                    const response = await fetch(NGROK_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            model: 'llama3-70b-8192', 
-                            messages: [{ role: 'user', content: msg }]
-                        })
-                    });
-                    if (!response.ok) throw new Error('Erro no Servidor Nuvem');
+                    const response = await fetch(NGROK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'llama3-70b-8192', messages: [{ role: 'user', content: msg }] }) });
+                    if (!response.ok) throw new Error('Erro');
                     const data = await response.json();
                     document.getElementById(loadingId).remove();
                     appendBotMsg(data.choices[0].message.content);
-                } catch (error) {
-                    document.getElementById(loadingId).remove();
-                    startErrorGame(); 
-                }
+                } catch (error) { document.getElementById(loadingId).remove(); startErrorGame(); }
             }
         }
 
         function appendBotMsg(content) {
             const chatWindow = document.getElementById('chat-window');
-            chatWindow.innerHTML += `
-            <div class="flex items-start gap-3">
-                <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div>
-                <div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 whitespace-pre-wrap">${content}</div>
-            </div>`;
+            chatWindow.innerHTML += `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-sm whitespace-pre-wrap">${content}</div></div>`;
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
         async function generateApp() {
             const chatWindow = document.getElementById('chat-window');
             const msgs = chatWindow.innerText;
-            if (msgs.length < 20) {
-                showToast('Descreva a ideia no chat primeiro!', 'error');
-                return;
-            }
-
+            if (msgs.length < 20) { showToast('Descreva a ideia no chat primeiro!', 'error'); return; }
             if (!consumeEnergy(50)) return;
 
             const engine = document.getElementById('global-engine').value;
@@ -588,45 +526,26 @@
 
             if (engine === 'mock') {
                 setTimeout(() => {
-                    const code = `<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"><\/script></head><body class="bg-slate-900 flex items-center justify-center h-screen"><div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl text-center"><h1 class="text-2xl font-black text-white mb-2">Simulador</h1><p class="text-slate-400">Mude para Nuvem para código real.</p></div></body></html>`;
-                    injectAppCode(code);
+                    injectAppCode(`<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"><\/script></head><body class="bg-slate-900 flex items-center justify-center h-screen p-4 text-center"><div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 w-full"><h1 class="text-2xl font-black text-white mb-2">Simulador</h1><p class="text-slate-400">Mude para Nuvem para gerar código real.</p></div></body></html>`);
                     btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`;
-                }, 2000);
+                }, 1500);
             } 
             else if (engine === 'ollama') {
                 try {
-                    const response = await fetch('http://localhost:11434/api/chat', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ model: 'llama3', messages: [{ role: 'user', content: prompt }], stream: false })
-                    });
-                    if (!response.ok) throw new Error('Erro no Ollama');
+                    const response = await fetch('http://localhost:11434/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'llama3', messages: [{ role: 'user', content: prompt }], stream: false }) });
+                    if (!response.ok) throw new Error('Erro');
                     const data = await response.json();
-                    let code = data.message.content.replace(/```html/g, '').replace(/```/g, '').trim(); 
-                    injectAppCode(code);
-                } catch (error) {
-                    startErrorGame(); 
-                } finally {
-                    btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`;
-                }
+                    injectAppCode(data.message.content.replace(/```html/g, '').replace(/```/g, '').trim());
+                } catch (error) { startErrorGame(); } finally { btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`; }
             }
             else if (engine === 'groq') {
                 try {
-                    if(NGROK_URL === "SUA_URL_DO_NGROK_AQUI") throw new Error("Ngrok não configurado!");
-                    const response = await fetch(NGROK_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ model: 'llama3-70b-8192', messages: [{ role: 'user', content: prompt }] })
-                    });
-                    if (!response.ok) throw new Error('Erro no Servidor Nuvem');
+                    if(NGROK_URL === "SUA_URL_DO_NGROK_AQUI") throw new Error("Ngrok não configurado");
+                    const response = await fetch(NGROK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'llama3-70b-8192', messages: [{ role: 'user', content: prompt }] }) });
+                    if (!response.ok) throw new Error('Erro');
                     const data = await response.json();
-                    let code = data.choices[0].message.content.replace(/```html/g, '').replace(/```/g, '').trim(); 
-                    injectAppCode(code);
-                } catch (error) {
-                    startErrorGame(); 
-                } finally {
-                    btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`;
-                }
+                    injectAppCode(data.choices[0].message.content.replace(/```html/g, '').replace(/```/g, '').trim());
+                } catch (error) { startErrorGame(); } finally { btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`; }
             }
         }
 
@@ -635,6 +554,11 @@
             const iframe = document.getElementById('app-preview');
             iframe.classList.remove('hidden');
             iframe.srcdoc = code;
+            
+            // Rola suavemente a tela para o Preview se estiver num celular
+            if(window.innerWidth < 1024) {
+                iframe.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
             showToast('✅ App gerado com sucesso!', 'success');
         }
 
@@ -647,94 +571,66 @@
             const canvas = document.getElementById('game-canvas');
             const ctx = canvas.getContext('2d');
             
-            let alien = { x: 50, y: 150, width: 30, height: 30, dy: 0, gravity: 0.6, jumpStrength: -10, isGrounded: true };
+            // Ajusta o tamanho real do canvas para responsividade
+            canvas.width = canvas.parentElement.clientWidth;
+            canvas.height = canvas.parentElement.clientHeight;
+            
+            let alien = { x: 50, y: canvas.height - 50, width: 25, height: 25, dy: 0, gravity: 0.6, jumpStrength: -10, isGrounded: true };
             let obstacles = [];
             let frameCount = 0;
             let score = 0;
             let isGameOver = false;
 
-            // Controles
             const jump = (e) => {
                 if(e && e.type === 'keydown' && e.code !== 'Space') return;
                 if(isGameOver) { resetGame(); return; }
-                if(alien.isGrounded) {
-                    alien.dy = alien.jumpStrength;
-                    alien.isGrounded = false;
-                }
+                if(alien.isGrounded) { alien.dy = alien.jumpStrength; alien.isGrounded = false; }
             };
             
             window.addEventListener('keydown', jump);
             canvas.addEventListener('mousedown', jump);
-            canvas.addEventListener('touchstart', jump);
+            canvas.addEventListener('touchstart', jump, {passive: true});
 
             function resetGame() {
-                alien.y = 150; alien.dy = 0;
-                obstacles = []; frameCount = 0; score = 0;
-                isGameOver = false;
+                alien.y = canvas.height - 50; alien.dy = 0;
+                obstacles = []; frameCount = 0; score = 0; isGameOver = false;
                 gameLoop();
-            }
-
-            function drawAlien() {
-                ctx.fillStyle = '#0EA5E9'; // Azul alien
-                ctx.beginPath();
-                ctx.arc(alien.x + 15, alien.y + 15, 15, 0, Math.PI * 2);
-                ctx.fill();
-                // Olho
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(alien.x + 20, alien.y + 10, 5, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            function drawObstacles() {
-                ctx.fillStyle = '#EF4444'; // Meteoro vermelho
-                obstacles.forEach(obs => {
-                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-                });
             }
 
             function gameLoop() {
                 if (isGameOver) return;
-                
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Física do Alien
+                // Física
                 alien.dy += alien.gravity;
                 alien.y += alien.dy;
-                
                 if (alien.y + alien.height >= canvas.height - 20) {
                     alien.y = canvas.height - 20 - alien.height;
                     alien.dy = 0;
                     alien.isGrounded = true;
                 }
 
-                // Gerar Obstáculos
+                // Obstáculos
                 frameCount++;
-                if (frameCount % 100 === 0) {
+                if (frameCount % 90 === 0) {
                     obstacles.push({ x: canvas.width, y: canvas.height - 50, width: 20, height: 30, speed: 4 + (score * 0.1) });
                 }
 
-                // Mover Obstáculos e Colisão
+                // Move e Colisão
                 for (let i = 0; i < obstacles.length; i++) {
                     obstacles[i].x -= obstacles[i].speed;
                     
-                    // Colisão
-                    if (alien.x < obstacles[i].x + obstacles[i].width &&
-                        alien.x + alien.width > obstacles[i].x &&
-                        alien.y < obstacles[i].y + obstacles[i].height &&
-                        alien.y + alien.height > obstacles[i].y) {
+                    if (alien.x < obstacles[i].x + obstacles[i].width && alien.x + alien.width > obstacles[i].x && alien.y < obstacles[i].y + obstacles[i].height && alien.y + alien.height > obstacles[i].y) {
                         isGameOver = true;
                         ctx.fillStyle = 'white';
-                        ctx.font = '20px font-mono';
-                        ctx.fillText('CRASH! Clique para reiniciar.', 150, 100);
-                        return; // para o loop
+                        ctx.font = 'bold 16px sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('CRASH! Clique para reiniciar.', canvas.width/2, canvas.height/2);
+                        ctx.textAlign = 'left';
+                        return; 
                     }
-                    
-                    // Pontuação
                     if(obstacles[i].x + obstacles[i].width < 0) {
-                        obstacles.splice(i, 1);
-                        score++;
-                        i--;
+                        obstacles.splice(i, 1); score++; i--;
                     }
                 }
 
@@ -742,12 +638,23 @@
                 ctx.fillStyle = '#334155';
                 ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
 
-                drawAlien();
-                drawObstacles();
-                
-                // Texto de Score
+                // Desenha Obstáculos
+                ctx.fillStyle = '#EF4444';
+                obstacles.forEach(obs => ctx.fillRect(obs.x, obs.y, obs.width, obs.height));
+
+                // Desenha Alien
+                ctx.fillStyle = '#0EA5E9';
+                ctx.beginPath();
+                ctx.arc(alien.x + alien.width/2, alien.y + alien.height/2, alien.width/2, 0, Math.PI * 2);
+                ctx.fill();
                 ctx.fillStyle = 'white';
-                ctx.font = '16px sans-serif';
+                ctx.beginPath();
+                ctx.arc(alien.x + alien.width/2 + 5, alien.y + alien.height/4, 4, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Placar
+                ctx.fillStyle = 'white';
+                ctx.font = '14px sans-serif';
                 ctx.fillText(`Pulos: ${score}`, 10, 25);
 
                 gameLoopId = requestAnimationFrame(gameLoop);
@@ -756,6 +663,15 @@
             cancelAnimationFrame(gameLoopId);
             resetGame();
         }
+        
+        // Recalcular tamanho do canvas se a tela for redimensionada
+        window.addEventListener('resize', () => {
+            if(!document.getElementById('modal-error').classList.contains('hidden')) {
+                const canvas = document.getElementById('game-canvas');
+                canvas.width = canvas.parentElement.clientWidth;
+                canvas.height = canvas.parentElement.clientHeight;
+            }
+        });
     </script>
 </body>
 </html>
