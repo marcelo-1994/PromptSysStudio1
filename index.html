@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fábrica Livre - Crie Robôs e Apps</title>
+    <title>PromptSys Studio | Fábrica Livre</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -12,393 +12,373 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: { 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed' },
-                        dark: { bg: '#0f172a', card: '#1e293b', border: '#334155', input: '#0f172a' }
+                        dark: {
+                            bg: '#0F172A',
+                            panel: '#1E293B',
+                            border: '#334155'
+                        },
+                        brand: {
+                            400: '#38BDF8',
+                            500: '#0EA5E9',
+                            600: '#0284C7'
+                        }
                     }
                 }
             }
         }
     </script>
     <style>
-        body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
-        ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .glow-effect { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
-        .mic-pulse { animation: pulse-red 1.5s infinite; }
-        @keyframes pulse-red {
-            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        body { font-family: 'Inter', sans-serif; background-color: #0F172A; color: #F8FAFC; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid #334155; }
+        
+        /* Estilos do Jogo do Alien */
+        #game-canvas {
+            display: block;
+            margin: 0 auto;
+            background: linear-gradient(to bottom, #0F172A, #1E293B);
+            border: 2px solid #334155;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            max-width: 100%;
         }
-        canvas { touch-action: none; }
+        
+        /* Oculta scrollbar mas permite scroll */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="h-screen flex flex-col overflow-hidden text-sm">
 
-    <!-- HEADER -->
-    <header class="glass-panel sticky top-0 z-40 border-b border-dark-border">
-        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
-            <div class="flex items-center gap-3 shrink-0">
-                <!-- EASTER EGG (MODO DEUS): Clique 5 vezes neste robô -->
-                <div id="secret-robot" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-pink-500 flex items-center justify-center text-white shadow-lg glow-effect rotate-3 cursor-pointer select-none transition-transform active:scale-95">
-                    <i class="fa-solid fa-robot text-2xl"></i>
-                </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <h1 class="font-black text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">Fábrica Livre</h1>
-                    </div>
-                    <p class="text-xs text-brand-400 font-medium">Crie Robôs e Apps como num jogo.</p>
-                </div>
+    <!-- Header Principal -->
+    <header class="glass-panel border-b border-dark-border px-6 py-3 flex items-center justify-between z-10 shrink-0">
+        <div class="flex items-center gap-4">
+            <div id="admin-trigger" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-lg shadow-brand-500/20 cursor-pointer" onclick="countAdminClicks()">
+                <i class="fa-solid fa-robot text-white text-xl"></i>
             </div>
+            <div>
+                <h1 class="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Fábrica Livre</h1>
+                <p class="text-xs text-slate-400">Zero-Build AI Studio</p>
+            </div>
+        </div>
 
-            <div class="flex items-center gap-3">
-                <!-- SELETOR DE MOTOR DE IA -->
-                <select id="global-engine" class="bg-dark-card border border-dark-border text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-brand-500 transition-colors cursor-pointer shadow-lg hidden md:block" onchange="handleProviderChange()">
-                    <option value="mock">Simulador Grátis</option>
-                    <option value="groq" selected>Nuvem (Groq IA)</option>
+        <div class="flex items-center gap-4">
+            <!-- Seletor de Motor IA -->
+            <div class="hidden md:flex items-center bg-dark-panel border border-dark-border rounded-lg px-3 py-1.5">
+                <i class="fa-solid fa-microchip text-slate-400 mr-2 text-xs"></i>
+                <select id="global-engine" class="bg-transparent text-slate-200 text-xs outline-none cursor-pointer">
+                    <option value="groq">☁️ Nuvem (Segura)</option>
+                    <option value="mock">🎮 Simulador Grátis</option>
+                    <!-- A opção Ollama será injetada aqui pelo Modo Deus -->
                 </select>
-
-                <div id="energy-badge" class="flex items-center gap-2 bg-dark-bg border border-dark-border px-4 py-2 rounded-xl cursor-pointer hover:border-brand-500 transition-colors" onclick="openModal('modal-paywall')">
-                    <i class="fa-solid fa-bolt text-yellow-400"></i>
-                    <span id="energy-count" class="font-bold text-white">500</span>
-                </div>
-                <button onclick="openModal('modal-share')" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-dark-border hover:bg-gray-700 rounded-xl font-bold transition">
-                    <i class="fa-solid fa-share-nodes"></i> Compartilhar
-                </button>
             </div>
+
+            <!-- Contador de Energia -->
+            <button onclick="openModal('modal-paywall')" class="flex items-center gap-2 bg-dark-panel border border-brand-500/30 hover:border-brand-500 transition-colors rounded-full px-4 py-1.5 group">
+                <i class="fa-solid fa-bolt text-yellow-400 group-hover:scale-110 transition-transform"></i>
+                <span id="energy-counter" class="font-bold text-white">500</span>
+            </button>
+            <button onclick="openModal('modal-share')" class="hidden sm:flex bg-white/10 hover:bg-white/20 px-4 py-1.5 rounded-lg font-medium transition-colors gap-2 items-center">
+                <i class="fa-solid fa-share-nodes"></i> Compartilhar
+            </button>
         </div>
     </header>
 
-    <!-- TABS -->
-    <div class="max-w-7xl mx-auto px-4 w-full mt-6">
-        <div class="flex flex-wrap gap-2 bg-dark-card p-2 rounded-2xl border border-dark-border">
-            <button onclick="switchTab('oficina')" id="tab-oficina" class="flex-1 min-w-[120px] py-3 rounded-xl font-bold transition-all bg-brand-600 text-white shadow-lg glow-effect">
-                <span class="text-xl mr-2">1️⃣</span> Oficina de Robôs
-            </button>
-            <button onclick="switchTab('chat')" id="tab-chat" class="flex-1 min-w-[120px] py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-dark-border transition-all">
-                <span class="text-xl mr-2">2️⃣</span> Bate-Papo
-            </button>
-            <button onclick="switchTab('fabrica')" id="tab-fabrica" class="flex-1 min-w-[120px] py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-dark-border transition-all">
-                <span class="text-xl mr-2">3️⃣</span> Fábrica de Apps
-            </button>
-        </div>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <main class="flex-1 max-w-7xl mx-auto px-4 w-full py-6">
+    <main class="flex-1 flex overflow-hidden">
         
-        <!-- TAB 1: OFICINA -->
-        <div id="content-oficina" class="space-y-6 animate-fade-in block">
-            <div class="bg-gradient-to-r from-brand-600/20 to-blue-500/20 border border-brand-500/30 rounded-[2rem] p-6 md:p-8 relative overflow-hidden">
-                <h2 class="text-3xl font-black mb-2 text-white"><span class="text-4xl">🤖</span> Monte seu Cérebro Digital</h2>
-                <p class="text-gray-300 max-w-2xl text-lg">Sem códigos complicados. Diga como ele deve ser e quais as regras, e nós fazemos a mágica acontecer para qualquer área (Saúde, Negócios, Jogos)!</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Identidade -->
-                <div class="bg-dark-card rounded-3xl p-6 border-2 border-dark-border hover:border-brand-500/50 transition-colors shadow-xl group">
-                    <label class="block font-black text-brand-400 mb-2 text-xl group-hover:scale-105 origin-left transition-transform">
-                        <span class="text-2xl mr-2">🎭</span> Quem é o Robô?
-                    </label>
-                    <p class="text-sm text-gray-400 mb-3">Ex: Um analista financeiro, Um personal trainer, Um programador de games.</p>
-                    <textarea id="f-persona" rows="3" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-white focus:outline-none focus:border-brand-500 transition resize-none"></textarea>
-                </div>
-                <!-- Tarefa -->
-                <div class="bg-dark-card rounded-3xl p-6 border-2 border-dark-border hover:border-brand-500/50 transition-colors shadow-xl group">
-                    <label class="block font-black text-brand-400 mb-2 text-xl group-hover:scale-105 origin-left transition-transform">
-                        <span class="text-2xl mr-2">🎯</span> O que ele deve fazer?
-                    </label>
-                    <p class="text-sm text-gray-400 mb-3">Ex: Analisar planilhas, montar treinos em casa, criar códigos de jogos.</p>
-                    <textarea id="f-task" rows="3" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-white focus:outline-none focus:border-brand-500 transition resize-none"></textarea>
-                </div>
-                <!-- Regras -->
-                <div class="bg-dark-card rounded-3xl p-6 border-2 border-dark-border hover:border-brand-500/50 transition-colors shadow-xl md:col-span-2 group">
-                    <label class="block font-black text-brand-400 mb-2 text-xl group-hover:scale-105 origin-left transition-transform">
-                        <span class="text-2xl mr-2">📜</span> Palavras Mágicas (Regras)
-                    </label>
-                    <p class="text-sm text-gray-400 mb-3">Ex: Seja amigável, nunca xingue, responda usando tópicos.</p>
-                    <textarea id="f-rules" rows="3" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-white focus:outline-none focus:border-brand-500 transition resize-none"></textarea>
-                </div>
-            </div>
-
-            <div class="flex gap-4">
-                <button onclick="generateSystem()" class="flex-1 py-5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white rounded-[2rem] font-black text-2xl transition shadow-lg glow-effect transform hover:-translate-y-1 active:scale-95 flex justify-center items-center gap-3">
-                    ✨ Criar Cérebro <span class="text-sm bg-black/30 px-3 py-1 rounded-full font-bold ml-2">Gasta 10 ⚡</span>
-                </button>
+        <!-- Painel Esquerdo: Chat / Engenharia de Prompt -->
+        <section class="w-full lg:w-[400px] flex flex-col border-r border-dark-border bg-dark-bg/50 shrink-0">
+            <div class="p-4 border-b border-dark-border glass-panel">
+                <h2 class="font-semibold text-slate-200 flex items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Arquiteto de IA
+                </h2>
             </div>
             
-            <div id="system-output" class="hidden mt-6 bg-dark-bg border-2 border-brand-500 rounded-3xl p-6 relative">
-                <h3 class="font-bold text-white mb-4 text-xl">🧠 Cérebro 100% Seu! (Livre de APIs Fechadas)</h3>
-                <p class="text-xs text-gray-400 mb-3">Código Universal! Esse cérebro funciona em qualquer área e em qualquer Inteligência (Groq, Ollama, Llama 3) sem te prender a uma única empresa.</p>
-                <textarea id="final-prompt" readonly rows="8" class="w-full bg-black/50 text-brand-400 font-mono border border-brand-500/30 rounded-xl p-4 text-sm focus:outline-none resize-none"></textarea>
-            </div>
-        </div>
-
-        <!-- TAB 2: CHAT -->
-        <div id="content-chat" class="hidden h-[70vh] flex flex-col bg-dark-card border-2 border-dark-border rounded-3xl overflow-hidden shadow-2xl relative">
-            <div class="p-4 border-b border-dark-border bg-dark-bg flex justify-between items-center">
-                <h3 class="font-bold text-lg"><span class="text-xl mr-2">💬</span> Bate-Papo</h3>
-                
-                <!-- Seletor de Motor no celular -->
-                <select id="mobile-engine-chat" class="bg-dark-card border border-dark-border text-white text-xs rounded-lg px-2 py-1 outline-none md:hidden" onchange="syncEngine(this.value)">
-                    <option value="mock">Simulador</option>
-                    <option value="groq" selected>Nuvem (Groq IA)</option>
-                </select>
-            </div>
-            
-            <div id="chat-window" class="flex-1 overflow-y-auto p-6 space-y-4 bg-[#0f172a]/50">
+            <div id="chat-window" class="flex-1 overflow-y-auto p-4 space-y-4">
+                <!-- Mensagem Inicial -->
                 <div class="flex items-start gap-3">
-                    <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0 shadow-lg glow-effect">
-                        <span class="text-xl">🤖</span>
+                    <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-robot text-white text-xs"></i>
                     </div>
-                    <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%] border border-white/10">
-                        Olá! Quer falar comigo? Aperte o microfone abaixo ou escreva! 🎙️
+                    <div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200">
+                        Olá, construtor! Descreva o micro-app ou agente que você quer criar hoje.
                     </div>
                 </div>
             </div>
 
-            <div class="p-4 border-t border-dark-border bg-dark-bg">
+            <!-- Área de Input -->
+            <div class="p-4 border-t border-dark-border bg-dark-panel relative">
+                <div id="mic-status" class="absolute -top-6 left-4 text-xs text-green-400 font-bold hidden animate-pulse">
+                    <i class="fa-solid fa-microphone"></i> Estou ouvindo...
+                </div>
                 <div class="flex gap-2">
-                    <input type="text" id="chat-input" placeholder="Escreva ou fale sua mensagem..." class="flex-1 bg-dark-card border-2 border-dark-border rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors">
-                    
-                    <button id="btn-voice-chat" onclick="toggleVoice('chat-input')" class="px-5 bg-dark-card border-2 border-dark-border hover:border-brand-500 text-white rounded-2xl transition flex items-center justify-center active:scale-95">
-                        <i class="fa-solid fa-microphone text-xl"></i>
-                    </button>
-                    
-                    <button onclick="sendChatMessage()" class="px-6 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-2xl transition shadow-lg active:scale-95">
-                        <i class="fa-solid fa-paper-plane text-xl"></i>
-                    </button>
-                </div>
-                <p id="voice-status-chat" class="text-xs text-green-400 mt-2 hidden text-center font-bold">Estou te ouvindo... 🎧</p>
-                <p id="voice-error-chat" class="text-xs text-red-400 mt-2 hidden text-center font-bold"></p>
-            </div>
-        </div>
-
-        <!-- TAB 3: FABRICA DE APPS -->
-        <div id="content-fabrica" class="hidden h-[75vh] flex flex-col bg-dark-card border-2 border-dark-border rounded-3xl overflow-hidden shadow-2xl">
-            <div class="p-4 border-b border-dark-border bg-dark-bg flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h3 class="font-bold text-lg"><span class="text-xl mr-2">🪄</span> Criador de Apps</h3>
-                
-                <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <!-- Seletor no Mobile -->
-                    <select id="mobile-engine-app" class="bg-dark-card border border-dark-border text-white text-xs rounded-lg px-2 py-1 outline-none md:hidden" onchange="syncEngine(this.value)">
-                        <option value="mock">Simulador</option>
-                        <option value="groq" selected>Nuvem (Groq IA)</option>
-                    </select>
-
-                    <input type="text" id="app-idea-input" placeholder="Ex: Faça uma calculadora..." class="flex-1 sm:w-64 bg-dark-card border-2 border-dark-border rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
-                    
-                    <button id="btn-voice-app" onclick="toggleVoice('app-idea-input')" class="p-2 px-3 bg-dark-card border-2 border-dark-border hover:border-brand-500 text-white rounded-xl transition active:scale-95">
+                    <button onclick="startVoiceRecognition()" class="w-12 h-12 rounded-xl bg-dark-border hover:bg-slate-600 flex items-center justify-center text-slate-300 transition-colors">
                         <i class="fa-solid fa-microphone"></i>
                     </button>
-
-                    <button onclick="generateApp()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition text-sm whitespace-nowrap shadow-lg active:scale-95">
-                        Criar App <span class="bg-black/30 px-2 py-1 rounded text-[10px] ml-1">20 ⚡</span>
+                    <textarea id="chat-input" rows="1" class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none" placeholder="Digite ou fale sua ideia..."></textarea>
+                    <button onclick="sendChatMessage()" class="w-12 h-12 rounded-xl bg-brand-600 hover:bg-brand-500 flex items-center justify-center text-white transition-colors shadow-lg shadow-brand-500/20">
+                        <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </div>
             </div>
-            <p id="voice-status-app" class="text-xs text-green-400 p-1 hidden text-center font-bold bg-dark-bg">Pode falar que eu crio! 🎧</p>
-            <p id="voice-error-app" class="text-xs text-red-400 p-1 hidden text-center font-bold bg-dark-bg"></p>
+        </section>
+
+        <!-- Painel Direito: Preview do App / Código -->
+        <section class="flex-1 flex flex-col relative bg-[#0b1121]">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
             
-            <div class="flex-1 p-2 bg-[#0f172a] relative flex items-center justify-center">
-                <iframe id="app-preview" class="w-full h-full bg-white rounded-xl hidden" sandbox="allow-scripts"></iframe>
-                <div id="app-placeholder" class="text-center text-gray-500">
-                    <div class="text-6xl mb-4 opacity-50 bounce">📱</div>
-                    <p class="text-lg">Diga o que você quer e veja o app nascer aqui.</p>
+            <div class="p-4 border-b border-dark-border flex justify-between items-center bg-dark-bg/80 z-10 backdrop-blur-sm">
+                <div class="flex items-center gap-3">
+                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span class="ml-2 text-slate-400 font-mono text-xs">Preview do App</span>
                 </div>
+                <button onclick="generateApp()" class="bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-bold px-4 py-1.5 rounded-lg text-xs transition-all shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+                    <i class="fa-solid fa-play"></i> Gerar App
+                </button>
             </div>
-        </div>
+
+            <div class="flex-1 p-4 md:p-8 flex items-center justify-center relative z-10">
+                <div id="app-placeholder" class="text-center">
+                    <div class="w-24 h-24 rounded-full bg-dark-panel border-2 border-dashed border-dark-border flex items-center justify-center mx-auto mb-4 text-4xl text-slate-600">
+                        <i class="fa-solid fa-code"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-300">Nenhum App Gerado</h3>
+                    <p class="text-slate-500 mt-2 max-w-sm">Descreva sua ideia no chat ao lado e clique em "Gerar App" para ver a mágica acontecer.</p>
+                </div>
+                
+                <iframe id="app-preview" class="w-full h-full bg-white rounded-xl shadow-2xl hidden border-0"></iframe>
+            </div>
+        </section>
     </main>
 
     <!-- MODAL: BOAS VINDAS -->
-    <div id="modal-welcome" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 transition-opacity duration-300">
-        <div class="bg-dark-card border-2 border-brand-500 rounded-[2rem] max-w-2xl w-full p-6 md:p-10 shadow-[0_0_40px_rgba(139,92,246,0.3)] relative overflow-hidden">
-            <div class="text-center mb-8 relative z-10">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-brand-600 to-pink-500 rounded-2xl shadow-lg mb-4 rotate-3">
-                    <span class="text-4xl">🪄</span>
-                </div>
-                <h2 class="font-black text-3xl md:text-4xl text-white mb-2">Bem-vindo à Fábrica Livre!</h2>
-                <p class="text-gray-400 text-lg">Crie sistemas para qualquer área. Sem saber programar.</p>
-            </div>
+    <div id="modal-welcome" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-lg w-full p-8 shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-20 -right-20 w-40 h-40 bg-brand-500 rounded-full blur-[80px] opacity-30"></div>
             
-            <div class="space-y-4 mb-8 relative z-10">
-                <div class="bg-dark-bg border border-dark-border p-4 rounded-2xl flex gap-4 items-center">
-                    <div class="w-12 h-12 rounded-full bg-brand-600/20 text-brand-400 flex items-center justify-center shrink-0 text-xl">1️⃣</div>
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-brand-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-brand-500/30">
+                    <i class="fa-solid fa-rocket text-3xl text-white"></i>
+                </div>
+                <h2 class="text-2xl font-black text-white">Bem-vindo à Fábrica Livre</h2>
+                <p class="text-slate-400 mt-2">Crie aplicativos incríveis em segundos usando apenas a sua voz ou texto.</p>
+            </div>
+
+            <div class="space-y-4 mb-8">
+                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border flex items-start gap-4">
+                    <div class="text-brand-400 text-xl"><i class="fa-solid fa-microphone"></i></div>
                     <div>
-                        <h4 class="font-bold text-white text-lg">Oficina de Robôs</h4>
-                        <p class="text-gray-400 text-sm">Preencha o formulário para dizer como o robô deve agir.</p>
+                        <h4 class="font-bold text-white">1. Fale a sua ideia</h4>
+                        <p class="text-slate-400 text-xs">Use o microfone ou digite o que você quer construir no chat.</p>
                     </div>
                 </div>
-                <div class="bg-dark-bg border border-dark-border p-4 rounded-2xl flex gap-4 items-center">
-                    <div class="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 text-xl">2️⃣</div>
+                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border flex items-start gap-4">
+                    <div class="text-yellow-400 text-xl"><i class="fa-solid fa-bolt"></i></div>
                     <div>
-                        <h4 class="font-bold text-white text-lg">Bate-Papo & Apps</h4>
-                        <p class="text-gray-400 text-sm">Converse com sua criação ou peça para a Fábrica criar um aplicativo inteiro.</p>
+                        <h4 class="font-bold text-white">2. Use sua Energia</h4>
+                        <p class="text-slate-400 text-xs">Você ganhou 500 Raios de bônus! Cada app criado gasta energia.</p>
                     </div>
                 </div>
-                <div class="bg-dark-bg border border-yellow-500/30 p-4 rounded-2xl flex gap-4 items-center">
-                    <div class="w-12 h-12 rounded-full bg-yellow-500/20 text-yellow-400 flex items-center justify-center shrink-0 text-2xl">⚡</div>
+                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border flex items-start gap-4">
+                    <div class="text-emerald-400 text-xl"><i class="fa-solid fa-money-bill-wave"></i></div>
                     <div>
-                        <h4 class="font-bold text-white text-lg">Atenção à Energia!</h4>
-                        <p class="text-gray-400 text-sm">Fazer mágicas gasta raios. Use com sabedoria!</p>
+                        <h4 class="font-bold text-white">3. Lucre com sua criação</h4>
+                        <p class="text-slate-400 text-xs">Exporte seus apps e venda. O código é 100% seu!</p>
                     </div>
                 </div>
             </div>
-            <button onclick="closeModal('modal-welcome')" class="w-full py-4 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl font-black text-xl transition shadow-lg glow-effect transform hover:-translate-y-1 relative z-10 active:scale-95">
+
+            <button onclick="closeModal('modal-welcome')" class="w-full bg-brand-600 hover:bg-brand-500 text-white font-bold py-3 rounded-xl transition-colors shadow-lg">
                 Entendi, vamos criar! 🚀
             </button>
         </div>
     </div>
 
     <!-- MODAL: PAYWALL -->
-    <div id="modal-paywall" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[80] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-dark-card border-2 border-brand-500 rounded-[2rem] max-w-lg w-full p-8 shadow-2xl transform scale-95 transition-transform duration-300">
-            <div class="text-center mb-6">
-                <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(250,204,21,0.4)]">
-                    <i class="fa-solid fa-bolt text-4xl text-white"></i>
-                </div>
-                <h3 class="font-black text-3xl text-white mb-2">Sem Energia! ⚡</h3>
-                <p class="text-gray-400">Você gastou seus raios gratuitos. Escolha um plano para continuar:</p>
-            </div>
+    <div id="modal-paywall" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-4xl w-full p-6 md:p-10 shadow-2xl relative">
+            <button onclick="closeModal('modal-paywall')" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
             
-            <div class="space-y-4">
-                <!-- RECARGA -->
-                <a href="https://mpago.la/1hMvZHb" target="_blank" class="block border-2 border-dark-border hover:border-brand-500 rounded-2xl p-4 transition group bg-dark-bg cursor-pointer text-left relative overflow-hidden">
-                    <div class="flex justify-between items-center relative z-10">
-                        <div>
-                            <h4 class="font-bold text-white text-lg">Recarga Rápida</h4>
-                            <p class="text-sm text-gray-400">+ 1000 Raios de Energia</p>
-                            <div class="flex gap-2 mt-2 text-xs text-gray-500">
-                                <span class="bg-dark-card border border-gray-700 px-2 py-1 rounded-lg flex items-center"><i class="fa-brands fa-pix text-teal-400 mr-1"></i> PIX</span>
-                                <span class="bg-dark-card border border-gray-700 px-2 py-1 rounded-lg flex items-center"><i class="fa-solid fa-credit-card text-blue-400 mr-1"></i> Cartão</span>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="block font-black text-2xl text-white">R$ 9,90</span>
-                        </div>
-                    </div>
-                </a>
-                
-                <!-- PREMIUM -->
-                <a href="https://mpago.la/2fLHcpu" target="_blank" class="block border-2 border-brand-500 rounded-2xl p-4 transition group bg-gradient-to-r from-brand-600/10 to-transparent cursor-pointer text-left relative overflow-hidden shadow-[0_0_20px_rgba(139,92,246,0.2)]">
-                    <div class="absolute top-0 right-0 bg-brand-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Recomendado</div>
-                    <div class="flex justify-between items-center relative z-10">
-                        <div>
-                            <h4 class="font-bold text-white text-lg"><i class="fa-solid fa-crown text-yellow-400 mr-1"></i> Passe Premium</h4>
-                            <p class="text-sm text-gray-400">Energia Ilimitada (1 Mês)</p>
-                            <div class="flex gap-2 mt-2 text-xs text-gray-500">
-                                <span class="bg-dark-card border border-brand-500/30 px-2 py-1 rounded-lg flex items-center"><i class="fa-brands fa-pix text-teal-400 mr-1"></i> PIX</span>
-                                <span class="bg-dark-card border border-brand-500/30 px-2 py-1 rounded-lg flex items-center"><i class="fa-solid fa-credit-card text-blue-400 mr-1"></i> Cartão</span>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="block font-black text-2xl text-brand-400">R$ 49,90</span>
-                        </div>
-                    </div>
-                </a>
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <i class="fa-solid fa-battery-quarter text-5xl text-yellow-500 mb-4 animate-pulse"></i>
+                <h2 class="text-3xl font-black text-white tracking-tight">Sua Energia está acabando!</h2>
+                <p class="text-slate-400 mt-2 text-lg">Para continuar gerando aplicativos e agentes de IA incríveis, recarregue sua bateria ou assine o plano Ilimitado.</p>
             </div>
-            <button onclick="closeModal('modal-paywall')" class="w-full mt-6 py-3 text-gray-400 hover:text-white font-bold transition bg-dark-border rounded-xl">Voltar para o sistema</button>
-        </div>
-    </div>
 
-    <!-- MODAL: ADMIN BACKDOOR (Easter Egg) -->
-    <div id="modal-admin" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[90] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-black border-2 border-red-500 rounded-3xl max-w-sm w-full p-8 shadow-[0_0_50px_-10px_rgba(239,68,68,0.5)] text-center">
-            <h3 class="font-black text-2xl text-red-500 mb-2"><i class="fa-solid fa-skull"></i> MODO DEUS</h3>
-            <p class="text-gray-400 text-sm mb-6">Acesso restrito ao desenvolvedor. Insira a chave mestre para ter energia infinita.</p>
-            <input type="password" id="admin-serial" placeholder="Serial Code..." class="w-full bg-gray-900 border border-red-500/50 rounded-xl px-4 py-3 text-white text-center font-mono mb-4 focus:outline-none focus:border-red-500">
-            <button onclick="verifyAdmin()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold transition shadow-lg">Hackear Sistema</button>
-            <button onclick="closeModal('modal-admin')" class="w-full mt-4 py-2 text-gray-500 hover:text-white text-sm transition">Cancelar</button>
-        </div>
-    </div>
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Pacote Casual -->
+                <div class="bg-dark-bg border border-dark-border rounded-2xl p-6 flex flex-col relative hover:border-brand-500 transition-colors">
+                    <h3 class="text-xl font-bold text-white mb-2">Recarga Rápida ⚡</h3>
+                    <p class="text-slate-400 text-sm mb-6">Ideal para testes rápidos e ideias casuais.</p>
+                    <div class="text-4xl font-black text-white mb-6">R$ 9,90 <span class="text-sm font-normal text-slate-500">/único</span></div>
+                    
+                    <ul class="space-y-3 mb-8 flex-1">
+                        <li class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-check text-green-500"></i> + 1.000 Raios de Energia</li>
+                        <li class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-check text-green-500"></i> Acesso à Nuvem Groq</li>
+                        <li class="flex items-center gap-2 text-slate-500"><i class="fa-solid fa-xmark text-red-500/50"></i> Exportação Comercial</li>
+                    </ul>
 
-    <!-- MODAL: JOGO DO ERRO (ALIEN) -->
-    <div id="modal-error" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[90] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-dark-card border-2 border-red-500 rounded-[2rem] max-w-md w-full p-6 text-center shadow-[0_0_50px_-10px_rgba(239,68,68,0.5)]">
-            <h3 class="font-black text-2xl text-red-500 mb-2">Conexão Perdida 📡</h3>
-            <p class="text-gray-400 text-sm mb-6">A IA tirou uma soneca na nuvem. Divirta-se enquanto tentamos reconectar!</p>
-            <div class="bg-[#1e293b] rounded-xl overflow-hidden border-2 border-dark-border inline-block relative cursor-pointer mx-auto shadow-inner">
-                <canvas id="game-canvas" width="300" height="150" class="block touch-none"></canvas>
+                    <a href="https://mpago.la/1hMvZHb" target="_blank" onclick="closeModal('modal-paywall')" class="block w-full bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors shadow-lg text-center">
+                        Comprar Energia
+                        <div class="flex items-center justify-center gap-2 mt-1 text-[10px] text-slate-600 font-normal">
+                            <i class="fa-brands fa-pix"></i> PIX <span class="mx-1">|</span> <i class="fa-regular fa-credit-card"></i> Cartão
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Plano Pro -->
+                <div class="bg-gradient-to-b from-brand-900/40 to-dark-bg border border-brand-500 rounded-2xl p-6 flex flex-col relative shadow-2xl shadow-brand-500/20 transform md:-translate-y-4">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                        Mais Escolhido
+                    </div>
+                    <h3 class="text-xl font-bold text-white mb-2">Passe Premium 👑</h3>
+                    <p class="text-brand-200 text-sm mb-6">Para construtores sérios e empresas.</p>
+                    <div class="text-4xl font-black text-white mb-6">R$ 49,90 <span class="text-sm font-normal text-brand-300">/mês</span></div>
+                    
+                    <ul class="space-y-3 mb-8 flex-1">
+                        <li class="flex items-center gap-2 text-white"><i class="fa-solid fa-infinity text-brand-400"></i> Energia Ilimitada (Sem pausas)</li>
+                        <li class="flex items-center gap-2 text-white"><i class="fa-solid fa-check text-brand-400"></i> Suporte Prioritário da IA</li>
+                        <li class="flex items-center gap-2 text-white"><i class="fa-solid fa-check text-brand-400"></i> Licença Comercial P/ Vendas</li>
+                    </ul>
+
+                    <a href="https://mpago.la/2fLHcpu" target="_blank" onclick="closeModal('modal-paywall')" class="block w-full bg-brand-500 text-white font-bold py-3 rounded-xl hover:bg-brand-400 transition-colors shadow-lg shadow-brand-500/50 text-center">
+                        Assinar Ilimitado
+                        <div class="flex items-center justify-center gap-2 mt-1 text-[10px] text-brand-100 font-normal">
+                            <i class="fa-brands fa-pix"></i> PIX <span class="mx-1">|</span> <i class="fa-regular fa-credit-card"></i> Cartão
+                        </div>
+                    </a>
+                </div>
             </div>
-            <p class="text-xs text-gray-500 mt-3">Pressione Espaço ou Toque na tela para pular.</p>
-            <button onclick="closeModal('modal-error')" class="w-full mt-6 py-3 bg-dark-border hover:bg-gray-600 text-white rounded-xl font-bold transition">Voltar ao Sistema</button>
         </div>
     </div>
 
+    <!-- MODAL: ADMIN / BACKDOOR -->
+    <div id="modal-admin" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-black border border-red-500/30 rounded-2xl max-w-sm w-full p-8 shadow-2xl shadow-red-500/10 text-center">
+            <i class="fa-solid fa-user-secret text-4xl text-red-500 mb-4"></i>
+            <h2 class="text-xl font-bold text-white mb-4 font-mono">AUTENTICAÇÃO DE SISTEMA</h2>
+            <input type="password" id="admin-serial" class="w-full bg-dark-bg border border-red-500/50 rounded-lg px-4 py-2 text-white text-center font-mono tracking-widest focus:outline-none focus:border-red-500 mb-4" placeholder="SERIAL KEY">
+            <div class="flex gap-2">
+                <button onclick="closeModal('modal-admin')" class="flex-1 bg-dark-border text-white py-2 rounded-lg font-bold">Cancelar</button>
+                <button onclick="verifyAdmin()" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg font-bold font-mono">INJETAR</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- MODAL: COMPARTILHAR -->
-    <div id="modal-share" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-dark-card border-2 border-brand-500 rounded-[2rem] max-w-md w-full p-6 text-center shadow-[0_0_40px_rgba(139,92,246,0.3)]">
-            <h3 class="font-black text-2xl text-white mb-4"><i class="fa-solid fa-share-nodes text-brand-400 mr-2"></i> Compartilhar</h3>
-            <p class="text-gray-300 text-sm mb-6">Copie o link abaixo e compartilhe a Fábrica Livre com o mundo!</p>
-            <div class="flex items-center gap-2 mb-6">
-                <input type="text" id="share-link" value="https://sua-url-da-vercel.vercel.app" class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-brand-500" readonly>
-                <button onclick="copyShareLink()" class="px-4 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl transition shadow-lg active:scale-95">
-                    <i class="fa-solid fa-copy"></i>
-                </button>
+    <div id="modal-share" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
+            <h2 class="text-xl font-bold text-white mb-2">Compartilhe a Fábrica</h2>
+            <p class="text-slate-400 text-sm mb-4">Convide amigos para criar aplicativos incríveis.</p>
+            <div class="bg-dark-bg p-3 rounded-lg border border-dark-border flex items-center gap-2 mb-4">
+                <input type="text" value="https://sua-url-da-vercel.vercel.app" class="bg-transparent w-full text-slate-300 text-sm outline-none" readonly id="share-url">
+                <button onclick="copyShare()" class="text-brand-400 hover:text-brand-300 p-2"><i class="fa-regular fa-copy"></i></button>
             </div>
-            <button onclick="closeModal('modal-share')" class="w-full py-3 bg-dark-border hover:bg-gray-600 text-white rounded-xl font-bold transition">Fechar</button>
+            <button onclick="closeModal('modal-share')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-xl transition-colors">Fechar</button>
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
-    <div id="toast" class="fixed bottom-8 right-8 bg-dark-card border-2 border-brand-500 text-white px-6 py-4 rounded-2xl shadow-2xl z-[100] flex items-center gap-4 transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
-        <div id="toast-icon" class="text-brand-400 text-2xl"><i class="fa-solid fa-bell"></i></div>
-        <span id="toast-msg" class="text-base font-bold">Mensagem</span>
+    <!-- MODAL: ERRO & JOGUINHO -->
+    <div id="modal-error" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 hidden">
+        <div class="text-center mb-6">
+            <h2 class="text-2xl font-black text-red-400 uppercase tracking-widest"><i class="fa-solid fa-triangle-exclamation"></i> Conexão Perdida</h2>
+            <p class="text-slate-300 mt-2">A IA tirou uma soneca ou o Servidor Ngrok está desligado.</p>
+            <p class="text-brand-400 font-bold mt-1">Divirta-se pulando enquanto tentamos reconectar! (Pressione Espaço ou Toque)</p>
+        </div>
+        
+        <canvas id="game-canvas" width="600" height="200"></canvas>
+        
+        <button onclick="closeModal('modal-error')" class="mt-8 bg-dark-border hover:bg-slate-600 text-white px-8 py-3 rounded-xl font-bold transition-colors">
+            Voltar para a Plataforma
+        </button>
     </div>
+
+    <!-- Container de Toasts (Notificações) -->
+    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 
     <script>
-        // === CHAVES DE API E CONFIGURAÇÕES DA NUVEM ===
-        const GROQ_API_KEY = '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';
-        const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
+        // ==========================================
+        // CONFIGURAÇÕES GERAIS
+        // ==========================================
+        // DICA: Coloque aqui o link que o Ngrok te deu! 
+        // Exemplo: "https://d739-177-38.ngrok-free.app/gerar"
+        const NGROK_URL = "SUA_URL_DO_NGROK_AQUI"; 
         
+        // ==========================================
+        // ESTADO DO APLICATIVO
+        // ==========================================
         let wallet = { energy: 500, isPremium: false };
-        let activeTab = 'oficina';
-        
-        updateEnergyUI();
-        
+        let adminClicks = 0;
+        let adminTimer;
+
+        // Iniciar Boas Vindas ao carregar
         window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(() => { openModal('modal-welcome'); }, 300);
-            
-            // Força a UI a começar com a Groq selecionada
-            document.getElementById('global-engine').value = 'groq';
-            document.getElementById('mobile-engine-chat').value = 'groq';
-            document.getElementById('mobile-engine-app').value = 'groq';
+            openModal('modal-welcome');
+            updateEnergyUI();
         });
 
-        function syncEngine(val) {
-            document.getElementById('global-engine').value = val;
-            handleProviderChange();
+        // ==========================================
+        // FUNÇÕES UTILITÁRIAS
+        // ==========================================
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-green-500/20 border-green-500/50 text-green-400',
+                error: 'bg-red-500/20 border-red-500/50 text-red-400',
+                info: 'bg-brand-500/20 border-brand-500/50 text-brand-400'
+            };
+            
+            toast.className = `px-4 py-3 rounded-xl border backdrop-blur-md shadow-lg ${colors[type]} transform translate-y-10 opacity-0 transition-all duration-300`;
+            toast.innerHTML = `<span class="font-medium">${message}</span>`;
+            
+            document.getElementById('toast-container').appendChild(toast);
+            
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-10', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
-        function handleProviderChange() {
-            const engine = document.getElementById('global-engine').value;
-            document.getElementById('mobile-engine-chat').value = engine;
-            document.getElementById('mobile-engine-app').value = engine;
-            if(engine === 'groq') {
-                showToast('Conectado à Nuvem (Groq Llama 3) ☁️', 'success');
-            } else {
-                showToast('Mudamos para o Simulador.', 'info');
+        function openModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.remove('hidden');
             }
         }
 
+        function closeModal(id) {
+            const modal = document.getElementById(id);
+            if (modal) {
+                modal.classList.add('hidden');
+            }
+        }
+        
+        function copyShare() {
+            const input = document.getElementById('share-url');
+            input.select();
+            document.execCommand('copy');
+            showToast('Link copiado! 🎉', 'success');
+        }
+
+        // ==========================================
+        // GESTÃO DE ENERGIA & ADMIN
+        // ==========================================
         function updateEnergyUI() {
-            const count = document.getElementById('energy-count');
-            const badge = document.getElementById('energy-badge');
-            
+            const counter = document.getElementById('energy-counter');
             if (wallet.isPremium) {
-                count.innerText = "ILIMITADO";
-                badge.classList.add('bg-brand-600', 'border-brand-400');
-                badge.classList.remove('bg-dark-bg');
-                document.querySelector('#energy-badge i').classList.replace('text-yellow-400', 'text-white');
+                counter.innerText = "∞";
+                counter.classList.add('text-brand-400');
+                counter.classList.remove('text-yellow-400');
             } else {
-                count.innerText = wallet.energy;
-                if (wallet.energy <= 0) {
-                    badge.classList.add('border-red-500', 'text-red-500');
-                    document.querySelector('#energy-badge i').classList.replace('text-yellow-400', 'text-red-500');
-                }
+                counter.innerText = wallet.energy;
             }
         }
 
@@ -414,244 +394,17 @@
             }
         }
 
-        function switchTab(tabId) {
-            activeTab = tabId;
-            ['oficina', 'chat', 'fabrica'].forEach(t => {
-                document.getElementById('content-' + t).classList.add('hidden');
-                document.getElementById('content-' + t).classList.remove('block');
-                const btn = document.getElementById('tab-' + t);
-                btn.className = 'flex-1 min-w-[120px] py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-dark-border transition-all';
-            });
+        function countAdminClicks() {
+            adminClicks++;
+            clearTimeout(adminTimer);
             
-            document.getElementById('content-' + tabId).classList.remove('hidden');
-            document.getElementById('content-' + tabId).classList.add('block');
-            document.getElementById('tab-' + tabId).className = 'flex-1 min-w-[120px] py-3 rounded-xl font-bold transition-all bg-brand-600 text-white shadow-lg glow-effect';
-        }
-
-        function generateSystem() {
-            const persona = document.getElementById('f-persona').value.trim();
-            const task = document.getElementById('f-task').value.trim();
-            const rules = document.getElementById('f-rules').value.trim();
-
-            if (!persona || !task) {
-                showToast('Preencha "Quem é o Robô" e "O que ele deve fazer"!', 'error');
-                return;
-            }
-            if (!consumeEnergy(10)) return;
-
-            const finalPrompt = `[QUEM VOCÊ É]\nVocê é: ${persona}\n\n[SUA TAREFA]\nSua missão principal é: ${task}\n\n[REGRAS MÁGICAS]\nObedeça sempre:\n${rules || 'Responda da melhor forma possível.'}`;
-            
-            document.getElementById('final-prompt').value = finalPrompt;
-            document.getElementById('system-output').classList.remove('hidden');
-            showToast('Cérebro Criado! ( Gastou 10 ⚡ )', 'success');
-        }
-
-        async function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const msg = input.value.trim();
-            if(!msg) return;
-            if (!consumeEnergy(5)) return;
-
-            const chatWindow = document.getElementById('chat-window');
-            const engine = document.getElementById('global-engine').value;
-            
-            chatWindow.innerHTML += `
-                <div class="flex items-start gap-3 justify-end">
-                    <div class="bg-brand-600 p-4 rounded-2xl rounded-tr-none text-white max-w-[80%]">${msg}</div>
-                </div>`;
-            input.value = '';
-            
-            if (engine === 'mock') {
-                setTimeout(() => {
-                    chatWindow.innerHTML += `
-                    <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0 shadow-lg"><span class="text-xl">🤖</span></div>
-                        <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%]">Oi! Estou no modo Simulador! Mude a chave lá em cima para a Nuvem!</div>
-                    </div>`;
-                    chatWindow.scrollTop = chatWindow.scrollHeight;
-                }, 1000);
-            } else if (engine === 'groq') {
-                const loadingId = 'loading-' + Date.now();
-                chatWindow.innerHTML += `<div id="${loadingId}" class="text-brand-400 text-sm font-bold text-center animate-pulse">Pensando na nuvem... ☁️</div>`;
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-                
-                try {
-                    const response = await fetch(GROQ_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${GROQ_API_KEY}`
-                        },
-                        body: JSON.stringify({
-                            model: 'llama3-70b-8192', // Super cérebro da Groq
-                            messages: [{ role: 'user', content: msg }],
-                            temperature: 0.7
-                        })
-                    });
-                    
-                    if (!response.ok) throw new Error('Erro na API');
-                    
-                    const data = await response.json();
-                    document.getElementById(loadingId).remove();
-                    
-                    chatWindow.innerHTML += `
-                    <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0 shadow-lg"><span class="text-xl">☁️</span></div>
-                        <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%] whitespace-pre-wrap">${data.choices[0].message.content}</div>
-                    </div>`;
-                } catch (error) {
-                    document.getElementById(loadingId).remove();
-                    startErrorGame(); 
-                }
-            }
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-        }
-
-        async function generateApp() {
-            const idea = document.getElementById('app-idea-input').value.trim();
-            if (!idea) {
-                showToast('Diga qual App você quer criar!', 'error');
-                return;
-            }
-            if (!consumeEnergy(20)) return;
-
-            const engine = document.getElementById('global-engine').value;
-
-            showToast('Nuvem programando... ( Gastou 20 ⚡ )', 'success');
-            document.getElementById('app-placeholder').innerHTML = `<div class="animate-spin text-4xl mb-4 mx-auto">☁️</div><p class="font-bold text-brand-400">A nuvem super rápida está criando seu App...</p>`;
-            document.getElementById('app-placeholder').classList.remove('hidden');
-            document.getElementById('app-preview').classList.add('hidden');
-
-            if (engine === 'mock') {
-                setTimeout(() => {
-                    const code = `<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"><\/script></head><body class="bg-gradient-to-tr from-green-300 to-blue-400 flex items-center justify-center h-screen"><div class="bg-white p-8 rounded-[2rem] shadow-2xl text-center"><h1 class="text-2xl font-black text-gray-800 mb-2">Simulador</h1><p class="text-gray-500">Mude para Nuvem (Groq) para código real.</p></div></body></html>`;
-                    document.getElementById('app-placeholder').classList.add('hidden');
-                    const iframe = document.getElementById('app-preview');
-                    iframe.classList.remove('hidden');
-                    iframe.srcdoc = code;
-                }, 2000);
-            } else if (engine === 'groq') {
-                try {
-                    const prompt = `Escreva APENAS o código HTML completo e final com Tailwind CSS embutido. Não escreva NENHUMA explicação, formatação markdown (\`\`\`html) ou texto antes ou depois do código. O código deve iniciar estritamente com <!DOCTYPE html>. Crie este aplicativo: ${idea}`;
-                    
-                    const response = await fetch(GROQ_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${GROQ_API_KEY}`
-                        },
-                        body: JSON.stringify({
-                            model: 'llama3-70b-8192',
-                            messages: [{ role: 'user', content: prompt }],
-                            temperature: 0.3
-                        })
-                    });
-                    
-                    if (!response.ok) throw new Error('Erro na API');
-                    
-                    const data = await response.json();
-                    let code = data.choices[0].message.content;
-                    code = code.replace(/```html/g, '').replace(/```/g, '').trim(); // Remove lixo do markdown
-                    
-                    document.getElementById('app-placeholder').classList.add('hidden');
-                    const iframe = document.getElementById('app-preview');
-                    iframe.classList.remove('hidden');
-                    iframe.srcdoc = code;
-                } catch (error) {
-                    document.getElementById('app-placeholder').innerHTML = `<div class="text-6xl mb-4 opacity-50 bounce">📱</div><p class="text-lg">Diga o que você quer e veja o app nascer aqui.</p>`;
-                    startErrorGame(); 
-                }
-            }
-        }
-
-        let recognition;
-        let isRecording = false;
-        let currentVoiceTarget = '';
-
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRec();
-            recognition.lang = 'pt-BR';
-            recognition.interimResults = false;
-            recognition.continuous = false;
-
-            recognition.onstart = function() {
-                isRecording = true;
-                const btnId = currentVoiceTarget === 'chat-input' ? 'btn-voice-chat' : 'btn-voice-app';
-                const statusId = currentVoiceTarget === 'chat-input' ? 'voice-status-chat' : 'voice-status-app';
-                const errorId = currentVoiceTarget === 'chat-input' ? 'voice-error-chat' : 'voice-error-app';
-                
-                document.getElementById(btnId).classList.add('bg-red-500', 'border-red-500', 'mic-pulse');
-                document.getElementById(statusId).classList.remove('hidden');
-                document.getElementById(errorId).innerText = "";
-                document.getElementById(errorId).classList.add('hidden');
-                document.getElementById(currentVoiceTarget).focus();
-            };
-
-            recognition.onresult = function(event) {
-                const transcript = event.results[0][0].transcript;
-                document.getElementById(currentVoiceTarget).value = transcript;
-            };
-
-            recognition.onend = function() {
-                isRecording = false;
-                resetMicUI();
-            };
-
-            recognition.onerror = function(event) {
-                console.error("Erro no microfone:", event.error);
-                isRecording = false;
-                resetMicUI();
-                
-                const errorId = currentVoiceTarget === 'chat-input' ? 'voice-error-chat' : 'voice-error-app';
-                const errorEl = document.getElementById(errorId);
-                errorEl.classList.remove('hidden');
-                
-                if (event.error === 'not-allowed') errorEl.innerText = "Libere o microfone no cadeado lá em cima!";
-                else if (event.error === 'no-speech') errorEl.innerText = "Não ouvi nada. Fale mais alto!";
-                else errorEl.innerText = "Erro ao usar o microfone.";
-                
-                setTimeout(() => { errorEl.classList.add('hidden'); }, 4000);
-            };
-        }
-
-        function resetMicUI() {
-            if(!currentVoiceTarget) return;
-            const btnId = currentVoiceTarget === 'chat-input' ? 'btn-voice-chat' : 'btn-voice-app';
-            const statusId = currentVoiceTarget === 'chat-input' ? 'voice-status-chat' : 'voice-status-app';
-            
-            const btnElement = document.getElementById(btnId);
-            if(btnElement) btnElement.classList.remove('bg-red-500', 'border-red-500', 'mic-pulse');
-            
-            const statusElement = document.getElementById(statusId);
-            if(statusElement) statusElement.classList.add('hidden');
-        }
-
-        function toggleVoice(targetInputId) {
-            if (!recognition) {
-                showToast('Seu navegador não tem suporte a voz (use o Chrome!).', 'error');
-                return;
-            }
-            if (isRecording) {
-                recognition.stop();
-            } else {
-                currentVoiceTarget = targetInputId;
-                try { recognition.start(); } catch(e) { }
-            }
-        }
-
-        let robotClicks = 0;
-        let clickTimer;
-        document.getElementById('secret-robot').addEventListener('click', () => {
-            robotClicks++;
-            clearTimeout(clickTimer);
-            if (robotClicks >= 5) {
+            if (adminClicks >= 5) {
                 openModal('modal-admin');
-                robotClicks = 0;
-            } else {
-                clickTimer = setTimeout(() => { robotClicks = 0; }, 800);
+                adminClicks = 0;
             }
-        });
+            
+            adminTimer = setTimeout(() => { adminClicks = 0; }, 1000);
+        }
 
         function verifyAdmin() {
             const serial = document.getElementById('admin-serial').value;
@@ -659,160 +412,343 @@
                 wallet.isPremium = true;
                 updateEnergyUI();
                 closeModal('modal-admin');
-                showToast('👑 MODO DEUS ATIVADO! Energia Infinita.', 'success');
+                showToast('👑 MODO DEUS ATIVADO! Energia Infinita e IA Local Liberada.', 'success');
                 document.getElementById('admin-serial').value = '';
+                
+                // MÁGICA: Adiciona a opção Ollama nos menus APENAS para o Admin
+                const sel = document.getElementById('global-engine');
+                if(sel && !sel.querySelector('option[value="ollama"]')) {
+                    const opt = document.createElement('option');
+                    opt.value = 'ollama';
+                    opt.innerText = '💻 Meu PC (Ollama Local)';
+                    sel.appendChild(opt);
+                }
             } else {
                 showToast('❌ Serial Incorreto!', 'error');
             }
         }
 
-        function openModal(id) {
-            const modal = document.getElementById(id);
-            if (!modal) return;
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                if(modal.querySelector('div')) {
-                     modal.querySelector('div').classList.remove('scale-95');
-                }
-            }, 10);
-        }
-
-        function closeModal(id) {
-            const modal = document.getElementById(id);
-            if (!modal) return;
-            modal.classList.add('opacity-0');
-            if(modal.querySelector('div')) {
-                 modal.querySelector('div').classList.add('scale-95');
-            }
-            setTimeout(() => { modal.classList.add('hidden'); }, 300);
-        }
-        
-        function copyShareLink() {
-            const copyText = document.getElementById("share-link");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); 
-            document.execCommand("copy");
-            showToast('Link copiado para a área de transferência!', 'success');
-        }
-
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-msg').innerText = message;
-            const icon = document.getElementById('toast-icon');
-            if(type === 'error') {
-                icon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-red-500"></i>';
-                toast.style.borderColor = '#ef4444';
-            } else if (type === 'success') {
-                icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500"></i>';
-                toast.style.borderColor = '#22c55e';
-            } else {
-                icon.innerHTML = '<i class="fa-solid fa-bell text-brand-400"></i>';
-                toast.style.borderColor = '#8b5cf6';
-            }
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => { toast.classList.add('translate-y-24', 'opacity-0'); }, 3000);
-        }
-
-        let gameCanvas, ctx, gameLoopId;
-        let alien = { x: 30, y: 100, size: 24, velocity: 0, gravity: 0.8, jumpPower: -10, isJumping: false };
-        let meteors = [];
-        let gameScore = 0;
-        let gameIsOver = false;
-        let gameSpeed = 4;
-
-        function startErrorGame() {
-            openModal('modal-error');
-            gameCanvas = document.getElementById('game-canvas');
-            if(!gameCanvas) return;
-            
-            ctx = gameCanvas.getContext('2d');
-            
-            alien.y = 100; alien.velocity = 0; alien.isJumping = false;
-            meteors = []; gameScore = 0; gameIsOver = false; gameSpeed = 4;
-            
-            window.addEventListener('keydown', gameJump);
-            gameCanvas.addEventListener('mousedown', gameJump);
-            gameCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); gameJump(); });
-            
-            cancelAnimationFrame(gameLoopId);
-            gameLoopId = requestAnimationFrame(updateGame);
-        }
-
-        function gameJump(e) {
-            if (e && e.code && e.code !== 'Space') return;
-            if (gameIsOver) {
-                startErrorGame(); 
+        // ==========================================
+        // MICROFONE (VOZ PARA TEXTO)
+        // ==========================================
+        function startVoiceRecognition() {
+            if (!('webkitSpeechRecognition' in window)) {
+                showToast('❌ Seu navegador não suporta digitação por voz. Use o Google Chrome.', 'error');
                 return;
             }
-            if (!alien.isJumping) {
-                alien.velocity = alien.jumpPower;
-                alien.isJumping = true;
+
+            const statusIndicator = document.getElementById('mic-status');
+            const recognition = new webkitSpeechRecognition();
+            recognition.lang = 'pt-BR';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            recognition.onstart = function() {
+                statusIndicator.classList.remove('hidden');
+                document.getElementById('chat-input').placeholder = "Pode falar, estou ouvindo...";
+                document.getElementById('chat-input').focus();
+            };
+
+            recognition.onresult = function(event) {
+                const text = event.results[0][0].transcript;
+                const input = document.getElementById('chat-input');
+                input.value += (input.value ? ' ' : '') + text;
+                showToast('🎙️ Texto capturado com sucesso!', 'success');
+            };
+
+            recognition.onerror = function(event) {
+                if(event.error === 'not-allowed') {
+                    showToast('⚠️ Permissão do microfone negada. Clique no cadeado na barra de endereços para liberar.', 'error');
+                } else {
+                    showToast('❌ Erro no microfone: ' + event.error, 'error');
+                }
+                statusIndicator.classList.add('hidden');
+                document.getElementById('chat-input').placeholder = "Digite ou fale sua ideia...";
+            };
+
+            recognition.onend = function() {
+                statusIndicator.classList.add('hidden');
+                document.getElementById('chat-input').placeholder = "Digite ou fale sua ideia...";
+            };
+
+            recognition.start();
+        }
+
+        // ==========================================
+        // LÓGICA DE IA (CHAT & APP)
+        // ==========================================
+        async function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            if (!consumeEnergy(10)) return;
+
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.innerHTML += `
+            <div class="flex items-start gap-3 flex-row-reverse">
+                <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-user text-white text-xs"></i>
+                </div>
+                <div class="bg-brand-600 p-3 rounded-2xl rounded-tr-none text-white">${msg}</div>
+            </div>`;
+            input.value = '';
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+
+            const engine = document.getElementById('global-engine').value;
+
+            if (engine === 'mock') {
+                setTimeout(() => {
+                    chatWindow.innerHTML += `
+                    <div class="flex items-start gap-3">
+                        <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div>
+                        <div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200">Oi! Estou no modo Simulador! Mude a chave lá em cima para a Nuvem!</div>
+                    </div>`;
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }, 1000);
+            } 
+            else if (engine === 'ollama') {
+                const loadingId = 'loading-' + Date.now();
+                chatWindow.innerHTML += `<div id="${loadingId}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Pensando no seu PC... 💻</div>`;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                
+                try {
+                    const response = await fetch('http://localhost:11434/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model: 'llama3', messages: [{ role: 'user', content: msg }], stream: false })
+                    });
+                    if (!response.ok) throw new Error('Erro no Ollama');
+                    const data = await response.json();
+                    document.getElementById(loadingId).remove();
+                    appendBotMsg(data.message.content);
+                } catch (error) {
+                    document.getElementById(loadingId).remove();
+                    startErrorGame(); 
+                }
+            } 
+            else if (engine === 'groq') {
+                const loadingId = 'loading-' + Date.now();
+                chatWindow.innerHTML += `<div id="${loadingId}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Comunicando com servidor seguro... ☁️</div>`;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+                
+                try {
+                    if(NGROK_URL === "SUA_URL_DO_NGROK_AQUI") throw new Error("Ngrok não configurado!");
+                    
+                    const response = await fetch(NGROK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            model: 'llama3-70b-8192', 
+                            messages: [{ role: 'user', content: msg }]
+                        })
+                    });
+                    if (!response.ok) throw new Error('Erro no Servidor Nuvem');
+                    const data = await response.json();
+                    document.getElementById(loadingId).remove();
+                    appendBotMsg(data.choices[0].message.content);
+                } catch (error) {
+                    document.getElementById(loadingId).remove();
+                    startErrorGame(); 
+                }
             }
         }
 
-        function updateGame() {
-            if (gameIsOver) return;
+        function appendBotMsg(content) {
+            const chatWindow = document.getElementById('chat-window');
+            chatWindow.innerHTML += `
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div>
+                <div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 whitespace-pre-wrap">${content}</div>
+            </div>`;
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
 
-            ctx.fillStyle = "#1e293b";
-            ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
-            
-            ctx.beginPath();
-            ctx.moveTo(0, 125);
-            ctx.lineTo(300, 125);
-            ctx.strokeStyle = "#334155";
-            ctx.stroke();
-
-            alien.velocity += alien.gravity;
-            alien.y += alien.velocity;
-            
-            if (alien.y >= 100) {
-                alien.y = 100;
-                alien.velocity = 0;
-                alien.isJumping = false;
+        async function generateApp() {
+            const chatWindow = document.getElementById('chat-window');
+            const msgs = chatWindow.innerText;
+            if (msgs.length < 20) {
+                showToast('Descreva a ideia no chat primeiro!', 'error');
+                return;
             }
+
+            if (!consumeEnergy(50)) return;
+
+            const engine = document.getElementById('global-engine').value;
+            const btn = document.querySelector('button[onclick="generateApp()"]');
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Gerando...`;
             
-            ctx.font = "24px Arial";
-            ctx.fillText("👾", alien.x, alien.y + 20); 
-            
-            if (Math.random() < 0.02) {
-                if (meteors.length === 0 || meteors[meteors.length - 1].x < gameCanvas.width - 150) {
-                    meteors.push({ x: gameCanvas.width, y: 104, size: 20 });
+            const prompt = `Escreva APENAS o código HTML completo e final com Tailwind CSS embutido. Não escreva formatação markdown ou texto extra. Inicie com <!DOCTYPE html>. Crie este app baseado na nossa conversa: ${msgs}`;
+
+            if (engine === 'mock') {
+                setTimeout(() => {
+                    const code = `<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"><\/script></head><body class="bg-slate-900 flex items-center justify-center h-screen"><div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 shadow-2xl text-center"><h1 class="text-2xl font-black text-white mb-2">Simulador</h1><p class="text-slate-400">Mude para Nuvem para código real.</p></div></body></html>`;
+                    injectAppCode(code);
+                    btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`;
+                }, 2000);
+            } 
+            else if (engine === 'ollama') {
+                try {
+                    const response = await fetch('http://localhost:11434/api/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model: 'llama3', messages: [{ role: 'user', content: prompt }], stream: false })
+                    });
+                    if (!response.ok) throw new Error('Erro no Ollama');
+                    const data = await response.json();
+                    let code = data.message.content.replace(/```html/g, '').replace(/```/g, '').trim(); 
+                    injectAppCode(code);
+                } catch (error) {
+                    startErrorGame(); 
+                } finally {
+                    btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`;
                 }
             }
+            else if (engine === 'groq') {
+                try {
+                    if(NGROK_URL === "SUA_URL_DO_NGROK_AQUI") throw new Error("Ngrok não configurado!");
+                    const response = await fetch(NGROK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model: 'llama3-70b-8192', messages: [{ role: 'user', content: prompt }] })
+                    });
+                    if (!response.ok) throw new Error('Erro no Servidor Nuvem');
+                    const data = await response.json();
+                    let code = data.choices[0].message.content.replace(/```html/g, '').replace(/```/g, '').trim(); 
+                    injectAppCode(code);
+                } catch (error) {
+                    startErrorGame(); 
+                } finally {
+                    btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`;
+                }
+            }
+        }
+
+        function injectAppCode(code) {
+            document.getElementById('app-placeholder').classList.add('hidden');
+            const iframe = document.getElementById('app-preview');
+            iframe.classList.remove('hidden');
+            iframe.srcdoc = code;
+            showToast('✅ App gerado com sucesso!', 'success');
+        }
+
+        // ==========================================
+        // MINI-GAME: ALIEN JUMPER (QUANDO DÁ ERRO)
+        // ==========================================
+        let gameLoopId;
+        function startErrorGame() {
+            openModal('modal-error');
+            const canvas = document.getElementById('game-canvas');
+            const ctx = canvas.getContext('2d');
             
-            for (let i = 0; i < meteors.length; i++) {
-                meteors[i].x -= gameSpeed;
-                ctx.fillText("☄️", meteors[i].x, meteors[i].y + 16);
+            let alien = { x: 50, y: 150, width: 30, height: 30, dy: 0, gravity: 0.6, jumpStrength: -10, isGrounded: true };
+            let obstacles = [];
+            let frameCount = 0;
+            let score = 0;
+            let isGameOver = false;
+
+            // Controles
+            const jump = (e) => {
+                if(e && e.type === 'keydown' && e.code !== 'Space') return;
+                if(isGameOver) { resetGame(); return; }
+                if(alien.isGrounded) {
+                    alien.dy = alien.jumpStrength;
+                    alien.isGrounded = false;
+                }
+            };
+            
+            window.addEventListener('keydown', jump);
+            canvas.addEventListener('mousedown', jump);
+            canvas.addEventListener('touchstart', jump);
+
+            function resetGame() {
+                alien.y = 150; alien.dy = 0;
+                obstacles = []; frameCount = 0; score = 0;
+                isGameOver = false;
+                gameLoop();
+            }
+
+            function drawAlien() {
+                ctx.fillStyle = '#0EA5E9'; // Azul alien
+                ctx.beginPath();
+                ctx.arc(alien.x + 15, alien.y + 15, 15, 0, Math.PI * 2);
+                ctx.fill();
+                // Olho
+                ctx.fillStyle = 'white';
+                ctx.beginPath();
+                ctx.arc(alien.x + 20, alien.y + 10, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            function drawObstacles() {
+                ctx.fillStyle = '#EF4444'; // Meteoro vermelho
+                obstacles.forEach(obs => {
+                    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+                });
+            }
+
+            function gameLoop() {
+                if (isGameOver) return;
                 
-                if (alien.x < meteors[i].x + 15 && 
-                    alien.x + 15 > meteors[i].x && 
-                    alien.y < meteors[i].y + 15 && 
-                    15 + alien.y > meteors[i].y) {
-                    gameIsOver = true;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                // Física do Alien
+                alien.dy += alien.gravity;
+                alien.y += alien.dy;
+                
+                if (alien.y + alien.height >= canvas.height - 20) {
+                    alien.y = canvas.height - 20 - alien.height;
+                    alien.dy = 0;
+                    alien.isGrounded = true;
                 }
+
+                // Gerar Obstáculos
+                frameCount++;
+                if (frameCount % 100 === 0) {
+                    obstacles.push({ x: canvas.width, y: canvas.height - 50, width: 20, height: 30, speed: 4 + (score * 0.1) });
+                }
+
+                // Mover Obstáculos e Colisão
+                for (let i = 0; i < obstacles.length; i++) {
+                    obstacles[i].x -= obstacles[i].speed;
+                    
+                    // Colisão
+                    if (alien.x < obstacles[i].x + obstacles[i].width &&
+                        alien.x + alien.width > obstacles[i].x &&
+                        alien.y < obstacles[i].y + obstacles[i].height &&
+                        alien.y + alien.height > obstacles[i].y) {
+                        isGameOver = true;
+                        ctx.fillStyle = 'white';
+                        ctx.font = '20px font-mono';
+                        ctx.fillText('CRASH! Clique para reiniciar.', 150, 100);
+                        return; // para o loop
+                    }
+                    
+                    // Pontuação
+                    if(obstacles[i].x + obstacles[i].width < 0) {
+                        obstacles.splice(i, 1);
+                        score++;
+                        i--;
+                    }
+                }
+
+                // Chão
+                ctx.fillStyle = '#334155';
+                ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+
+                drawAlien();
+                drawObstacles();
+                
+                // Texto de Score
+                ctx.fillStyle = 'white';
+                ctx.font = '16px sans-serif';
+                ctx.fillText(`Pulos: ${score}`, 10, 25);
+
+                gameLoopId = requestAnimationFrame(gameLoop);
             }
             
-            meteors = meteors.filter(m => m.x > -30);
-            
-            gameScore++;
-            if (gameScore % 400 === 0) gameSpeed += 0.5;
-            ctx.fillStyle = "#a78bfa";
-            ctx.font = "bold 14px Inter";
-            ctx.fillText("Pontos: " + Math.floor(gameScore/10), 210, 25);
-            
-            if (gameIsOver) {
-                ctx.fillStyle = "rgba(0,0,0,0.8)";
-                ctx.fillRect(0,0,gameCanvas.width, gameCanvas.height);
-                ctx.fillStyle = "#ff4444";
-                ctx.font = "900 24px Inter";
-                ctx.fillText("BATEU!", 100, 70);
-                ctx.fillStyle = "#fff";
-                ctx.font = "12px Inter";
-                ctx.fillText("Clique ou Espaço para jogar", 60, 95);
-            } else {
-                gameLoopId = requestAnimationFrame(updateGame);
-            }
+            cancelAnimationFrame(gameLoopId);
+            resetGame();
         }
     </script>
 </body>
