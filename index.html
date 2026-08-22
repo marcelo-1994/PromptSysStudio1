@@ -264,6 +264,60 @@
         </div>
     </div>
 
+    <!-- MODAL: BOAS VINDAS (INSTRUÇÕES) -->
+    <div id="modal-welcome" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-dark-card border-2 border-brand-500 rounded-[2rem] max-w-2xl w-full p-6 md:p-10 shadow-[0_0_40px_rgba(139,92,246,0.3)] relative overflow-hidden">
+            <!-- Efeito visual de fundo -->
+            <div class="absolute -top-20 -right-20 w-40 h-40 bg-brand-600 rounded-full blur-3xl opacity-20"></div>
+            
+            <div class="text-center mb-8 relative z-10">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-brand-600 to-pink-500 rounded-2xl shadow-lg mb-4 rotate-3">
+                    <i class="fa-solid fa-wand-magic-sparkles text-3xl text-white"></i>
+                </div>
+                <h2 class="font-black text-3xl md:text-4xl text-white mb-2">Bem-vindo à Fábrica Livre! 🏭</h2>
+                <p class="text-gray-400 text-lg">Crie robôs e aplicativos num piscar de olhos. Sem complicação.</p>
+            </div>
+            
+            <div class="space-y-4 mb-8 relative z-10">
+                <div class="bg-dark-bg border border-dark-border p-4 rounded-2xl flex gap-4 items-center">
+                    <div class="w-12 h-12 rounded-full bg-brand-600/20 text-brand-400 flex items-center justify-center shrink-0 text-xl"><i class="fa-solid fa-hammer"></i></div>
+                    <div>
+                        <h4 class="font-bold text-white text-lg">1. Oficina (Crie o Cérebro)</h4>
+                        <p class="text-gray-400 text-sm">Preencha os campos para dizer como o seu robô deve agir e quais são as regras dele.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-dark-bg border border-dark-border p-4 rounded-2xl flex gap-4 items-center">
+                    <div class="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 text-xl"><i class="fa-solid fa-comments"></i></div>
+                    <div>
+                        <h4 class="font-bold text-white text-lg">2. Bate-Papo (Teste seu Robô)</h4>
+                        <p class="text-gray-400 text-sm">Vá para o chat para conversar com o robô que você acabou de criar. Você pode até usar o microfone!</p>
+                    </div>
+                </div>
+
+                <div class="bg-dark-bg border border-dark-border p-4 rounded-2xl flex gap-4 items-center">
+                    <div class="w-12 h-12 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0 text-xl"><i class="fa-solid fa-mobile-screen"></i></div>
+                    <div>
+                        <h4 class="font-bold text-white text-lg">3. Fábrica de Apps (Faça Mágica)</h4>
+                        <p class="text-gray-400 text-sm">Peça um aplicativo por texto ou voz, e a IA vai programar e mostrar ele funcionando na tela.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-dark-bg border border-yellow-500/30 p-4 rounded-2xl flex gap-4 items-center">
+                    <div class="w-12 h-12 rounded-full bg-yellow-500/20 text-yellow-400 flex items-center justify-center shrink-0 text-xl"><i class="fa-solid fa-bolt"></i></div>
+                    <div>
+                        <h4 class="font-bold text-white text-lg">Atenção à Energia! ⚡</h4>
+                        <p class="text-gray-400 text-sm">Você ganha Raios de Energia grátis para começar. Cada mágica consome um pouquinho deles.</p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeModal('modal-welcome')" class="w-full py-4 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl font-black text-xl transition shadow-lg glow-effect transform hover:-translate-y-1 relative z-10">
+                Entendi, vamos criar! <i class="fa-solid fa-rocket ml-2"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- TOAST -->
     <div id="toast" class="fixed bottom-8 right-8 bg-dark-card border-2 border-brand-500 text-white px-6 py-4 rounded-2xl shadow-2xl z-[100] flex items-center gap-4 transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
         <div id="toast-icon" class="text-brand-400 text-2xl"><i class="fa-solid fa-bell"></i></div>
@@ -271,12 +325,25 @@
     </div>
 
     <script>
+        // === CONFIGURAÇÃO DO SERVIDOR DE IA ===
+        // Quando você usar o Ngrok, troque o "http://localhost:11434" pelo seu link público do Ngrok.
+        // Exemplo: const OLLAMA_URL = 'https://meu-link-do-ngrok.app';
+        const OLLAMA_URL = 'http://localhost:11434';
+
         // --- ESTADO GERAL (ENERGIA E ABAS) ---
         let wallet = { energy: 500, isPremium: false };
         let activeTab = 'oficina';
         
         // Inicia a UI
         updateEnergyUI();
+
+        // Mostra a tela de boas vindas ao abrir o site
+        window.addEventListener('DOMContentLoaded', () => {
+            // Um pequeno atraso para dar um efeito bonito de entrada
+            setTimeout(() => {
+                document.getElementById('modal-welcome').classList.remove('hidden');
+            }, 300);
+        });
 
         function updateEnergyUI() {
             const count = document.getElementById('energy-count');
@@ -380,10 +447,10 @@
                     iframe.srcdoc = code;
                 }, 2000);
             } else if (engine === 'ollama') {
-                // Integração Real com Ollama Local
+                // Integração Real com Ollama Local ou Túnel (Ngrok)
                 try {
                     const prompt = `Escreva APENAS código HTML. Crie um arquivo HTML único com Tailwind CSS embutido. Não explique o código, apenas retorne HTML. O aplicativo é: ${idea}`;
-                    const response = await fetch('http://localhost:11434/api/generate', {
+                    const response = await fetch(`${OLLAMA_URL}/api/generate`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ model: 'llama3', prompt: prompt, stream: false })
@@ -431,11 +498,11 @@
                 }, 1000);
             } else if (engine === 'ollama') {
                 const loadingId = 'loading-' + Date.now();
-                chatWindow.innerHTML += `<div id="${loadingId}" class="text-gray-500 text-sm italic text-center">Ollama está pensando...</div>`;
+                chatWindow.innerHTML += `<div id="${loadingId}" class="text-gray-500 text-sm italic text-center">IA está pensando...</div>`;
                 chatWindow.scrollTop = chatWindow.scrollHeight;
                 
                 try {
-                    const response = await fetch('http://localhost:11434/api/generate', {
+                    const response = await fetch(`${OLLAMA_URL}/api/generate`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ model: 'llama3', prompt: msg, stream: false })
