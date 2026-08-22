@@ -54,6 +54,12 @@
             </div>
 
             <div class="flex items-center gap-3">
+                <!-- SELETOR DE MOTOR DE IA -->
+                <select id="global-engine" class="bg-dark-card border border-dark-border text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-brand-500 transition-colors cursor-pointer shadow-lg hidden sm:block" onchange="showToast('Motor de IA alterado!', 'info')">
+                    <option value="mock">Simulador Grátis</option>
+                    <option value="ollama">Ollama (Llama 3 Local)</option>
+                </select>
+
                 <div id="energy-badge" class="flex items-center gap-2 bg-dark-bg border border-dark-border px-4 py-2 rounded-xl cursor-pointer hover:border-brand-500 transition-colors" onclick="openModal('modal-paywall')">
                     <i class="fa-solid fa-bolt text-yellow-400"></i>
                     <span id="energy-count" class="font-bold text-white">500</span>
@@ -338,8 +344,8 @@
             showToast('Cérebro Gerado! ( -10 Energia )', 'success');
         }
 
-        // --- GERAÇÃO DE APPS (SIMULADOR) ---
-        function generateApp() {
+        // --- GERAÇÃO DE APPS (SIMULADOR & OLLAMA) ---
+        async function generateApp() {
             const idea = document.getElementById('app-idea-input').value.trim();
             if (!idea) {
                 showToast('Digite qual aplicativo você quer criar!', 'error');
@@ -347,37 +353,64 @@
             }
             if (!consumeEnergy(20)) return;
 
+            const engine = document.getElementById('global-engine').value;
+
             showToast('Programando o App... ( -20 Energia )', 'success');
             document.getElementById('app-placeholder').innerHTML = `<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mb-4 mx-auto"></div><p>A IA está escrevendo o código...</p>`;
+            document.getElementById('app-placeholder').classList.remove('hidden');
+            document.getElementById('app-preview').classList.add('hidden');
 
-            // Simulação de geração após 2 segundos
-            setTimeout(() => {
-                const code = `
-                <!DOCTYPE html>
-                <html><head><script src="https://cdn.tailwindcss.com"><\/script></head>
-                <body class="bg-gray-100 flex items-center justify-center h-screen">
-                    <div class="bg-white p-8 rounded-2xl shadow-xl text-center">
-                        <h1 class="text-2xl font-bold text-blue-600 mb-4">${idea.substring(0,20)}...</h1>
-                        <p>App gerado pela Fábrica Livre!</p>
-                        <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="alert('Funciona!')">Testar Botão</button>
-                    </div>
-                </body></html>`;
-                
-                document.getElementById('app-placeholder').classList.add('hidden');
-                const iframe = document.getElementById('app-preview');
-                iframe.classList.remove('hidden');
-                iframe.srcdoc = code;
-            }, 2000);
+            if (engine === 'mock') {
+                // Simulação
+                setTimeout(() => {
+                    const code = `
+                    <!DOCTYPE html>
+                    <html><head><script src="https://cdn.tailwindcss.com"><\/script></head>
+                    <body class="bg-gray-100 flex items-center justify-center h-screen">
+                        <div class="bg-white p-8 rounded-2xl shadow-xl text-center">
+                            <h1 class="text-2xl font-bold text-blue-600 mb-4">${idea.substring(0,20)}...</h1>
+                            <p>App gerado pela Fábrica Livre!</p>
+                            <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="alert('Funciona!')">Testar Botão</button>
+                        </div>
+                    </body></html>`;
+                    
+                    document.getElementById('app-placeholder').classList.add('hidden');
+                    const iframe = document.getElementById('app-preview');
+                    iframe.classList.remove('hidden');
+                    iframe.srcdoc = code;
+                }, 2000);
+            } else if (engine === 'ollama') {
+                // Integração Real com Ollama Local
+                try {
+                    const prompt = `Escreva APENAS código HTML. Crie um arquivo HTML único com Tailwind CSS embutido. Não explique o código, apenas retorne HTML. O aplicativo é: ${idea}`;
+                    const response = await fetch('http://localhost:11434/api/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model: 'llama3', prompt: prompt, stream: false })
+                    });
+                    const data = await response.json();
+                    let code = data.response.replace(/```html/g, '').replace(/```/g, '');
+                    
+                    document.getElementById('app-placeholder').classList.add('hidden');
+                    const iframe = document.getElementById('app-preview');
+                    iframe.classList.remove('hidden');
+                    iframe.srcdoc = code;
+                } catch (error) {
+                    document.getElementById('app-placeholder').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-2"></i><p>Erro. O Ollama está aberto no seu PC?</p>`;
+                    showToast('Erro ao conectar com Ollama.', 'error');
+                }
+            }
         }
 
-        // --- CHAT ---
-        function sendChatMessage() {
+        // --- CHAT (SIMULADOR & OLLAMA) ---
+        async function sendChatMessage() {
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
             if(!msg) return;
             if (!consumeEnergy(5)) return;
 
             const chatWindow = document.getElementById('chat-window');
+            const engine = document.getElementById('global-engine').value;
             
             // Mensagem do Usuário
             chatWindow.innerHTML += `
@@ -386,15 +419,40 @@
                 </div>`;
             input.value = '';
             
-            // Simula IA
-            setTimeout(() => {
-                chatWindow.innerHTML += `
-                <div class="flex items-start gap-3">
-                    <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white"></i></div>
-                    <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%]">Entendido! Como sou um simulador sem API paga, esta é uma resposta genérica para testarmos a interface.</div>
-                </div>`;
+            if (engine === 'mock') {
+                // Simula IA
+                setTimeout(() => {
+                    chatWindow.innerHTML += `
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white"></i></div>
+                        <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%]">Entendido! Como estou no modo Simulador, esta é uma resposta genérica. Mude o motor lá em cima para "Ollama" para conversar de verdade!</div>
+                    </div>`;
+                    chatWindow.scrollTop = chatWindow.scrollHeight;
+                }, 1000);
+            } else if (engine === 'ollama') {
+                const loadingId = 'loading-' + Date.now();
+                chatWindow.innerHTML += `<div id="${loadingId}" class="text-gray-500 text-sm italic text-center">Ollama está pensando...</div>`;
                 chatWindow.scrollTop = chatWindow.scrollHeight;
-            }, 1000);
+                
+                try {
+                    const response = await fetch('http://localhost:11434/api/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model: 'llama3', prompt: msg, stream: false })
+                    });
+                    const data = await response.json();
+                    document.getElementById(loadingId).remove();
+                    
+                    chatWindow.innerHTML += `
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white"></i></div>
+                        <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%] whitespace-pre-wrap">${data.response}</div>
+                    </div>`;
+                } catch (error) {
+                    document.getElementById(loadingId).remove();
+                    showToast('Erro no Ollama. Ele está instalado e aberto?', 'error');
+                }
+            }
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
