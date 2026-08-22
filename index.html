@@ -33,6 +33,7 @@
             70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
             100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
+        canvas { touch-action: none; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -49,15 +50,15 @@
                     <div class="flex items-center gap-2">
                         <h1 class="font-black text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">Fábrica Livre</h1>
                     </div>
-                    <p class="text-xs text-brand-400 font-medium">Crie Robôs e Apps. Zero Código.</p>
+                    <p class="text-xs text-brand-400 font-medium">Crie Robôs e Apps como num jogo.</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-3">
                 <!-- SELETOR DE MOTOR DE IA -->
-                <select id="global-engine" class="bg-dark-card border border-dark-border text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-brand-500 transition-colors cursor-pointer shadow-lg hidden sm:block" onchange="showToast('Motor de IA alterado!', 'info')">
+                <select id="global-engine" class="bg-dark-card border border-dark-border text-white text-sm rounded-xl px-3 py-2 outline-none focus:border-brand-500 transition-colors cursor-pointer shadow-lg hidden md:block" onchange="handleProviderChange()">
                     <option value="mock">Simulador Grátis</option>
-                    <option value="ollama">Ollama (Llama 3 Local)</option>
+                    <option value="ollama">Ollama (Local/Ngrok)</option>
                 </select>
 
                 <div id="energy-badge" class="flex items-center gap-2 bg-dark-bg border border-dark-border px-4 py-2 rounded-xl cursor-pointer hover:border-brand-500 transition-colors" onclick="openModal('modal-paywall')">
@@ -75,13 +76,13 @@
     <div class="max-w-7xl mx-auto px-4 w-full mt-6">
         <div class="flex flex-wrap gap-2 bg-dark-card p-2 rounded-2xl border border-dark-border">
             <button onclick="switchTab('oficina')" id="tab-oficina" class="flex-1 min-w-[120px] py-3 rounded-xl font-bold transition-all bg-brand-600 text-white shadow-lg glow-effect">
-                <i class="fa-solid fa-hammer mr-2"></i> 1. Oficina
+                <span class="text-xl mr-2">1️⃣</span> Oficina de Robôs
             </button>
             <button onclick="switchTab('chat')" id="tab-chat" class="flex-1 min-w-[120px] py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-dark-border transition-all">
-                <i class="fa-solid fa-comments mr-2"></i> 2. Chat
+                <span class="text-xl mr-2">2️⃣</span> Bate-Papo
             </button>
             <button onclick="switchTab('fabrica')" id="tab-fabrica" class="flex-1 min-w-[120px] py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-dark-border transition-all">
-                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> 3. Fábrica de Apps
+                <span class="text-xl mr-2">3️⃣</span> Fábrica de Apps
             </button>
         </div>
     </div>
@@ -91,115 +92,185 @@
         
         <!-- TAB 1: OFICINA -->
         <div id="content-oficina" class="space-y-6 animate-fade-in block">
-            <div class="bg-gradient-to-r from-brand-600/20 to-pink-500/20 border border-brand-500/30 rounded-3xl p-6 md:p-8 relative overflow-hidden">
-                <h2 class="text-3xl font-black mb-2 text-white"><span class="text-4xl">🤖</span> Monte seu Robô</h2>
-                <p class="text-gray-300 max-w-2xl text-lg">Diga o que você quer que a inteligência faça. Preencha os campos e nós transformaremos isso em um cérebro digital super poderoso.</p>
+            <div class="bg-gradient-to-r from-brand-600/20 to-blue-500/20 border border-brand-500/30 rounded-[2rem] p-6 md:p-8 relative overflow-hidden">
+                <h2 class="text-3xl font-black mb-2 text-white"><span class="text-4xl">🤖</span> Monte seu Cérebro Digital</h2>
+                <p class="text-gray-300 max-w-2xl text-lg">Sem códigos complicados. Diga como ele deve ser e quais as regras, e nós fazemos a mágica acontecer para qualquer área!</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Identidade -->
-                <div class="bg-dark-card rounded-3xl p-6 border border-dark-border shadow-xl">
-                    <label class="block font-bold text-brand-400 mb-2 text-lg"><i class="fa-solid fa-user-astronaut mr-2"></i> Quem é ele?</label>
-                    <p class="text-sm text-gray-400 mb-3">Ex: Um vendedor carismático, Um médico atencioso, Um programador sênior.</p>
+                <div class="bg-dark-card rounded-3xl p-6 border-2 border-dark-border hover:border-brand-500/50 transition-colors shadow-xl group">
+                    <label class="block font-black text-brand-400 mb-2 text-xl group-hover:scale-105 origin-left transition-transform">
+                        <span class="text-2xl mr-2">🎭</span> Quem é o Robô?
+                    </label>
+                    <p class="text-sm text-gray-400 mb-3">Ex: Um analista financeiro, Um médico tirando dúvidas, Um especialista em marketing.</p>
                     <textarea id="f-persona" rows="3" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-white focus:outline-none focus:border-brand-500 transition resize-none"></textarea>
                 </div>
                 <!-- Tarefa -->
-                <div class="bg-dark-card rounded-3xl p-6 border border-dark-border shadow-xl">
-                    <label class="block font-bold text-brand-400 mb-2 text-lg"><i class="fa-solid fa-bullseye mr-2"></i> O que ele deve fazer?</label>
-                    <p class="text-sm text-gray-400 mb-3">Ex: Convencer o cliente a comprar, Analisar um exame, Criar um jogo.</p>
+                <div class="bg-dark-card rounded-3xl p-6 border-2 border-dark-border hover:border-brand-500/50 transition-colors shadow-xl group">
+                    <label class="block font-black text-brand-400 mb-2 text-xl group-hover:scale-105 origin-left transition-transform">
+                        <span class="text-2xl mr-2">🎯</span> O que ele deve fazer?
+                    </label>
+                    <p class="text-sm text-gray-400 mb-3">Ex: Analisar os gastos da empresa, dar dicas de exercícios em casa, criar um roteiro de vendas.</p>
                     <textarea id="f-task" rows="3" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-white focus:outline-none focus:border-brand-500 transition resize-none"></textarea>
                 </div>
                 <!-- Regras -->
-                <div class="bg-dark-card rounded-3xl p-6 border border-dark-border shadow-xl md:col-span-2">
-                    <label class="block font-bold text-brand-400 mb-2 text-lg"><i class="fa-solid fa-shield-halved mr-2"></i> Quais as regras mágicas?</label>
-                    <p class="text-sm text-gray-400 mb-3">Ex: Seja sempre educado, Responda em português, Nunca diga que é uma IA.</p>
+                <div class="bg-dark-card rounded-3xl p-6 border-2 border-dark-border hover:border-brand-500/50 transition-colors shadow-xl md:col-span-2 group">
+                    <label class="block font-black text-brand-400 mb-2 text-xl group-hover:scale-105 origin-left transition-transform">
+                        <span class="text-2xl mr-2">📜</span> Palavras Mágicas (Regras)
+                    </label>
+                    <p class="text-sm text-gray-400 mb-3">Ex: Nunca diga palavrões, responda sempre com alegria, use tabelas para mostrar resultados financeiros.</p>
                     <textarea id="f-rules" rows="3" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-white focus:outline-none focus:border-brand-500 transition resize-none"></textarea>
                 </div>
             </div>
 
             <div class="flex gap-4">
-                <button onclick="generateSystem()" class="flex-1 py-4 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl font-black text-xl transition shadow-lg glow-effect transform hover:-translate-y-1">
-                    <i class="fa-solid fa-bolt mr-2"></i> Ligar Robô (Gastar 10 Energia)
+                <button onclick="generateSystem()" class="flex-1 py-5 bg-gradient-to-r from-brand-600 to-brand-500 hover:from-brand-500 hover:to-brand-400 text-white rounded-[2rem] font-black text-2xl transition shadow-lg glow-effect transform hover:-translate-y-1 active:scale-95 flex justify-center items-center gap-3">
+                    ✨ Criar Cérebro <span class="text-sm bg-black/30 px-3 py-1 rounded-full font-bold ml-2">Gasta 10 ⚡</span>
                 </button>
             </div>
+            
             <div id="system-output" class="hidden mt-6 bg-dark-bg border-2 border-brand-500 rounded-3xl p-6 relative">
-                <h3 class="font-bold text-white mb-4 text-xl">🧠 Cérebro Gerado!</h3>
-                <textarea id="final-prompt" readonly rows="8" class="w-full bg-transparent text-gray-300 text-sm focus:outline-none resize-none"></textarea>
+                <h3 class="font-bold text-white mb-4 text-xl">🧠 Cérebro 100% Seu! (Código Livre)</h3>
+                <p class="text-xs text-gray-400 mb-3">Este código serve para usar em QUALQUER inteligência (Ollama, ChatGPT, Groq, n8n, etc). Sem depender da gente!</p>
+                <textarea id="final-prompt" readonly rows="8" class="w-full bg-black/50 text-brand-400 font-mono border border-brand-500/30 rounded-xl p-4 text-sm focus:outline-none resize-none"></textarea>
             </div>
         </div>
 
         <!-- TAB 2: CHAT -->
-        <div id="content-chat" class="hidden h-[70vh] flex flex-col bg-dark-card border border-dark-border rounded-3xl overflow-hidden shadow-2xl relative">
+        <div id="content-chat" class="hidden h-[70vh] flex flex-col bg-dark-card border-2 border-dark-border rounded-3xl overflow-hidden shadow-2xl relative">
             <div class="p-4 border-b border-dark-border bg-dark-bg flex justify-between items-center">
-                <h3 class="font-bold text-lg"><i class="fa-solid fa-comments text-brand-400"></i> Bate-Papo</h3>
+                <h3 class="font-bold text-lg"><span class="text-xl mr-2">💬</span> Bate-Papo</h3>
+                
+                <!-- Seletor de Motor no celular -->
+                <select id="mobile-engine-chat" class="bg-dark-card border border-dark-border text-white text-xs rounded-lg px-2 py-1 outline-none md:hidden" onchange="syncEngine(this.value)">
+                    <option value="mock">Simulador</option>
+                    <option value="ollama">Ollama Local</option>
+                </select>
             </div>
             
             <div id="chat-window" class="flex-1 overflow-y-auto p-6 space-y-4 bg-[#0f172a]/50">
                 <div class="flex items-start gap-3">
-                    <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0">
-                        <i class="fa-solid fa-robot text-white"></i>
+                    <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0 shadow-lg glow-effect">
+                        <span class="text-xl">🤖</span>
                     </div>
-                    <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%]">
-                        Olá! Monte meu cérebro na "Oficina" e depois venha falar comigo ou aperte o botão de gravar áudio!
+                    <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%] border border-white/10">
+                        Olá! Monte meu cérebro na "Oficina" e depois venha falar comigo. Quer falar? Aperte o microfone abaixo! 🎙️
                     </div>
                 </div>
             </div>
 
             <div class="p-4 border-t border-dark-border bg-dark-bg">
                 <div class="flex gap-2">
-                    <input type="text" id="chat-input" placeholder="Digite ou fale sua mensagem..." class="flex-1 bg-dark-card border border-dark-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500">
-                    <button id="btn-voice-chat" onclick="toggleVoice('chat-input')" class="px-5 bg-dark-border hover:bg-gray-600 text-white rounded-xl transition flex items-center justify-center">
+                    <input type="text" id="chat-input" placeholder="Escreva ou fale sua mensagem..." class="flex-1 bg-dark-card border-2 border-dark-border rounded-2xl px-4 py-3 text-white focus:outline-none focus:border-brand-500 transition-colors">
+                    
+                    <button id="btn-voice-chat" onclick="toggleVoice('chat-input')" class="px-5 bg-dark-card border-2 border-dark-border hover:border-brand-500 text-white rounded-2xl transition flex items-center justify-center active:scale-95">
                         <i class="fa-solid fa-microphone text-xl"></i>
                     </button>
-                    <button onclick="sendChatMessage()" class="px-6 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition">
-                        <i class="fa-solid fa-paper-plane"></i>
+                    
+                    <button onclick="sendChatMessage()" class="px-6 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-2xl transition shadow-lg active:scale-95">
+                        <i class="fa-solid fa-paper-plane text-xl"></i>
                     </button>
                 </div>
-                <p id="voice-status-chat" class="text-xs text-green-400 mt-2 hidden text-center font-bold">Estou ouvindo... Fale agora!</p>
+                <p id="voice-status-chat" class="text-xs text-green-400 mt-2 hidden text-center font-bold">Estou te ouvindo... 🎧</p>
+                <p id="voice-error-chat" class="text-xs text-red-400 mt-2 hidden text-center font-bold">Erro no microfone. Veja se tem um cadeado na barra do navegador.</p>
             </div>
         </div>
 
         <!-- TAB 3: FABRICA DE APPS -->
-        <div id="content-fabrica" class="hidden h-[75vh] flex flex-col bg-dark-card border border-dark-border rounded-3xl overflow-hidden shadow-2xl">
+        <div id="content-fabrica" class="hidden h-[75vh] flex flex-col bg-dark-card border-2 border-dark-border rounded-3xl overflow-hidden shadow-2xl">
             <div class="p-4 border-b border-dark-border bg-dark-bg flex flex-col sm:flex-row justify-between items-center gap-4">
-                <h3 class="font-bold text-lg"><i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Criador de Apps</h3>
+                <h3 class="font-bold text-lg"><span class="text-xl mr-2">🪄</span> Criador de Apps</h3>
+                
                 <div class="flex items-center gap-2 w-full sm:w-auto">
-                    <input type="text" id="app-idea-input" placeholder="Ex: Crie uma calculadora bonitinha" class="flex-1 sm:w-64 bg-dark-card border border-dark-border rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
-                    <button id="btn-voice-app" onclick="toggleVoice('app-idea-input')" class="p-2 px-3 bg-dark-border hover:bg-gray-600 text-white rounded-xl transition">
+                    <!-- Seletor no Mobile -->
+                    <select id="mobile-engine-app" class="bg-dark-card border border-dark-border text-white text-xs rounded-lg px-2 py-1 outline-none md:hidden" onchange="syncEngine(this.value)">
+                        <option value="mock">Simulador</option>
+                        <option value="ollama">Ollama Local</option>
+                    </select>
+
+                    <input type="text" id="app-idea-input" placeholder="Ex: Faça uma calculadora verde..." class="flex-1 sm:w-64 bg-dark-card border-2 border-dark-border rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                    
+                    <button id="btn-voice-app" onclick="toggleVoice('app-idea-input')" class="p-2 px-3 bg-dark-card border-2 border-dark-border hover:border-brand-500 text-white rounded-xl transition active:scale-95">
                         <i class="fa-solid fa-microphone"></i>
                     </button>
-                    <button onclick="generateApp()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition text-sm whitespace-nowrap">
-                        Criar App
+
+                    <button onclick="generateApp()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition text-sm whitespace-nowrap shadow-lg active:scale-95">
+                        Criar App <span class="bg-black/30 px-2 py-1 rounded text-[10px] ml-1">20 ⚡</span>
                     </button>
                 </div>
             </div>
-            <p id="voice-status-app" class="text-xs text-green-400 p-1 hidden text-center font-bold bg-dark-bg">Estou ouvindo... Fale o app que deseja!</p>
+            <p id="voice-status-app" class="text-xs text-green-400 p-1 hidden text-center font-bold bg-dark-bg">Pode falar que eu crio! 🎧</p>
+            <p id="voice-error-app" class="text-xs text-red-400 p-1 hidden text-center font-bold bg-dark-bg">Permissão do microfone negada!</p>
             
             <div class="flex-1 p-2 bg-[#0f172a] relative flex items-center justify-center">
                 <iframe id="app-preview" class="w-full h-full bg-white rounded-xl hidden" sandbox="allow-scripts"></iframe>
                 <div id="app-placeholder" class="text-center text-gray-500">
-                    <i class="fa-solid fa-mobile-screen text-6xl mb-4 opacity-50"></i>
-                    <p>Diga o que você quer e veja a mágica acontecer aqui.</p>
-                    <p class="text-sm mt-2">Custo: 20 Energia por App</p>
+                    <div class="text-6xl mb-4 opacity-50 bounce">📱</div>
+                    <p class="text-lg">Diga o que você quer e veja o app nascer aqui.</p>
                 </div>
             </div>
         </div>
-
     </main>
 
-    <!-- MODAL: PAYWALL -->
+    <!-- MODAL: BOAS VINDAS -->
+    <div id="modal-welcome" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 transition-opacity duration-300">
+        <div class="bg-dark-card border-2 border-brand-500 rounded-[2rem] max-w-2xl w-full p-6 md:p-10 shadow-[0_0_40px_rgba(139,92,246,0.3)] relative overflow-hidden">
+            <div class="absolute -top-20 -right-20 w-40 h-40 bg-brand-600 rounded-full blur-3xl opacity-20"></div>
+            
+            <div class="text-center mb-8 relative z-10">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-brand-600 to-pink-500 rounded-2xl shadow-lg mb-4 rotate-3">
+                    <span class="text-4xl">🪄</span>
+                </div>
+                <h2 class="font-black text-3xl md:text-4xl text-white mb-2">Bem-vindo à Fábrica Livre!</h2>
+                <p class="text-gray-400 text-lg">Crie sistemas para qualquer área. Sem saber programar.</p>
+            </div>
+            
+            <div class="space-y-4 mb-8 relative z-10">
+                <div class="bg-dark-bg border border-dark-border p-4 rounded-2xl flex gap-4 items-center">
+                    <div class="w-12 h-12 rounded-full bg-brand-600/20 text-brand-400 flex items-center justify-center shrink-0 text-xl">1️⃣</div>
+                    <div>
+                        <h4 class="font-bold text-white text-lg">Oficina de Robôs</h4>
+                        <p class="text-gray-400 text-sm">Preencha o formulário para dizer como o robô deve agir. Ele vai gerar um "Cérebro" que é todo seu.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-dark-bg border border-dark-border p-4 rounded-2xl flex gap-4 items-center">
+                    <div class="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 text-xl">2️⃣</div>
+                    <div>
+                        <h4 class="font-bold text-white text-lg">Bate-Papo & Apps</h4>
+                        <p class="text-gray-400 text-sm">Converse com sua criação na aba Chat ou peça para a aba Fábrica criar um aplicativo inteiro pra você.</p>
+                    </div>
+                </div>
+                
+                <div class="bg-dark-bg border border-yellow-500/30 p-4 rounded-2xl flex gap-4 items-center">
+                    <div class="w-12 h-12 rounded-full bg-yellow-500/20 text-yellow-400 flex items-center justify-center shrink-0 text-2xl">⚡</div>
+                    <div>
+                        <h4 class="font-bold text-white text-lg">Atenção à Energia!</h4>
+                        <p class="text-gray-400 text-sm">Você ganha Raios grátis. Fazer mágicas gasta raios. Use com sabedoria!</p>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="closeModal('modal-welcome')" class="w-full py-4 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl font-black text-xl transition shadow-lg glow-effect transform hover:-translate-y-1 relative z-10 active:scale-95">
+                Entendi, vamos criar! 🚀
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: PAYWALL (MERCADO PAGO) -->
     <div id="modal-paywall" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[80] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-dark-card border border-dark-border rounded-[2rem] max-w-lg w-full p-8 shadow-2xl transform scale-95 transition-transform duration-300">
-            <div class="text-center mb-8">
+        <div class="bg-dark-card border-2 border-brand-500 rounded-[2rem] max-w-lg w-full p-8 shadow-2xl transform scale-95 transition-transform duration-300">
+            <div class="text-center mb-6">
                 <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(250,204,21,0.4)]">
                     <i class="fa-solid fa-bolt text-4xl text-white"></i>
                 </div>
                 <h3 class="font-black text-3xl text-white mb-2">Sem Energia! ⚡</h3>
-                <p class="text-gray-400">Você gastou seus raios gratuitos. Para continuar criando robôs e aplicativos incríveis, escolha uma opção abaixo:</p>
+                <p class="text-gray-400">Você gastou seus raios gratuitos. Escolha um plano para continuar criando:</p>
             </div>
             
             <div class="space-y-4">
-                <!-- RECARGA -->
+                <!-- RECARGA (LINK MERCADO PAGO 1) -->
                 <a href="https://mpago.la/1hMvZHb" target="_blank" class="block border-2 border-dark-border hover:border-brand-500 rounded-2xl p-4 transition group bg-dark-bg cursor-pointer text-left relative overflow-hidden">
                     <div class="flex justify-between items-center relative z-10">
                         <div>
@@ -216,7 +287,7 @@
                     </div>
                 </a>
                 
-                <!-- PREMIUM -->
+                <!-- PREMIUM (LINK MERCADO PAGO 2) -->
                 <a href="https://mpago.la/2fLHcpu" target="_blank" class="block border-2 border-brand-500 rounded-2xl p-4 transition group bg-gradient-to-r from-brand-600/10 to-transparent cursor-pointer text-left relative overflow-hidden shadow-[0_0_20px_rgba(139,92,246,0.2)]">
                     <div class="absolute top-0 right-0 bg-brand-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Recomendado</div>
                     <div class="flex justify-between items-center relative z-10">
@@ -235,115 +306,91 @@
                 </a>
             </div>
 
-            <button onclick="closeModal('modal-paywall')" class="w-full mt-6 py-3 text-gray-400 hover:text-white font-bold transition">Voltar</button>
+            <button onclick="closeModal('modal-paywall')" class="w-full mt-6 py-3 text-gray-400 hover:text-white font-bold transition bg-dark-border rounded-xl">Voltar para o sistema</button>
         </div>
     </div>
 
-    <!-- MODAL: ADMIN BACKDOOR -->
+    <!-- MODAL: ADMIN BACKDOOR (Easter Egg) -->
     <div id="modal-admin" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[90] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
         <div class="bg-black border-2 border-red-500 rounded-3xl max-w-sm w-full p-8 shadow-[0_0_50px_-10px_rgba(239,68,68,0.5)] text-center">
             <h3 class="font-black text-2xl text-red-500 mb-2"><i class="fa-solid fa-skull"></i> MODO DEUS</h3>
-            <p class="text-xs text-gray-500 mb-6 font-mono">ACESSO RESTRITO A DESENVOLVEDOR</p>
-            <input type="password" id="admin-serial" placeholder="Serial Key..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-center font-mono text-white focus:outline-none focus:border-red-500 mb-4 tracking-widest uppercase">
-            <div class="flex gap-3">
-                <button onclick="closeModal('modal-admin')" class="flex-1 py-3 bg-gray-800 text-white rounded-lg font-bold transition hover:bg-gray-700">Abortar</button>
-                <button onclick="verifyAdmin()" class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold transition shadow-[0_0_15px_rgba(239,68,68,0.4)]">INJETAR</button>
-            </div>
+            <p class="text-gray-400 text-sm mb-6">Acesso restrito ao desenvolvedor. Insira a chave mestre para ter energia infinita.</p>
+            <input type="password" id="admin-serial" placeholder="Serial Code..." class="w-full bg-gray-900 border border-red-500/50 rounded-xl px-4 py-3 text-white text-center font-mono mb-4 focus:outline-none focus:border-red-500">
+            <button onclick="verifyAdmin()" class="w-full py-3 bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold transition shadow-lg">Hackear Sistema</button>
+            <button onclick="closeModal('modal-admin')" class="w-full mt-4 py-2 text-gray-500 hover:text-white text-sm transition">Cancelar</button>
         </div>
     </div>
-
-    <!-- MODAL: SHARE -->
-    <div id="modal-share" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[80] flex items-center justify-center p-4 hidden opacity-0 transition-opacity">
-        <div class="bg-dark-card border border-dark-border rounded-3xl max-w-sm w-full p-6 text-center">
-            <h3 class="font-bold text-xl text-white mb-4">Compartilhar Plataforma</h3>
-            <div class="flex flex-col gap-3">
-                <button onclick="shareTo('whatsapp')" class="py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-whatsapp text-xl"></i> WhatsApp</button>
-                <button onclick="shareTo('copy')" class="py-3 bg-dark-border hover:bg-gray-600 text-white rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-link"></i> Copiar Link</button>
-                <button onclick="closeModal('modal-share')" class="mt-2 text-gray-400 hover:text-white">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL: BOAS VINDAS (INSTRUÇÕES) -->
-    <div id="modal-welcome" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 transition-opacity duration-300">
-        <div class="bg-dark-card border-2 border-brand-500 rounded-[2rem] max-w-2xl w-full p-6 md:p-10 shadow-[0_0_40px_rgba(139,92,246,0.3)] relative overflow-hidden">
-            <!-- Efeito visual de fundo -->
-            <div class="absolute -top-20 -right-20 w-40 h-40 bg-brand-600 rounded-full blur-3xl opacity-20"></div>
+    
+    <!-- MODAL: JOGO DO ERRO (ALIEN) -->
+    <div id="modal-error" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[90] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-dark-card border-2 border-red-500 rounded-[2rem] max-w-md w-full p-6 text-center shadow-[0_0_50px_-10px_rgba(239,68,68,0.5)]">
+            <h3 class="font-black text-2xl text-red-500 mb-2">Conexão Perdida 📡</h3>
+            <p class="text-gray-400 text-sm mb-6">A IA tirou uma soneca ou a internet caiu. Divirta-se enquanto tentamos reconectar!</p>
             
-            <div class="text-center mb-8 relative z-10">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-brand-600 to-pink-500 rounded-2xl shadow-lg mb-4 rotate-3">
-                    <i class="fa-solid fa-wand-magic-sparkles text-3xl text-white"></i>
-                </div>
-                <h2 class="font-black text-3xl md:text-4xl text-white mb-2">Bem-vindo à Fábrica Livre! 🏭</h2>
-                <p class="text-gray-400 text-lg">Crie robôs e aplicativos num piscar de olhos. Sem complicação.</p>
+            <div class="bg-[#1e293b] rounded-xl overflow-hidden border-2 border-dark-border inline-block relative cursor-pointer mx-auto shadow-inner">
+                <canvas id="game-canvas" width="300" height="150" class="block touch-none"></canvas>
+            </div>
+            <p class="text-xs text-gray-500 mt-3">Pressione Espaço ou Toque na tela para pular.</p>
+            
+            <button onclick="closeModal('modal-error')" class="w-full mt-6 py-3 bg-dark-border hover:bg-gray-600 text-white rounded-xl font-bold transition">Voltar ao Sistema</button>
+        </div>
+    </div>
+        
+    <!-- MODAL: COMPARTILHAR -->
+    <div id="modal-share" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[100] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-dark-card border-2 border-brand-500 rounded-[2rem] max-w-md w-full p-6 text-center shadow-[0_0_40px_rgba(139,92,246,0.3)]">
+            <h3 class="font-black text-2xl text-white mb-4"><i class="fa-solid fa-share-nodes text-brand-400 mr-2"></i> Compartilhar</h3>
+            <p class="text-gray-300 text-sm mb-6">Copie o link abaixo e compartilhe a Fábrica Livre com o mundo!</p>
+            
+            <div class="flex items-center gap-2 mb-6">
+                <!-- Você pode trocar este link pelo oficial do seu site depois -->
+                <input type="text" id="share-link" value="https://sua-url-da-vercel.vercel.app" class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-brand-500" readonly>
+                <button onclick="copyShareLink()" class="px-4 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl transition shadow-lg active:scale-95">
+                    <i class="fa-solid fa-copy"></i>
+                </button>
             </div>
             
-            <div class="space-y-4 mb-8 relative z-10">
-                <div class="bg-dark-bg border border-dark-border p-4 rounded-2xl flex gap-4 items-center">
-                    <div class="w-12 h-12 rounded-full bg-brand-600/20 text-brand-400 flex items-center justify-center shrink-0 text-xl"><i class="fa-solid fa-hammer"></i></div>
-                    <div>
-                        <h4 class="font-bold text-white text-lg">1. Oficina (Crie o Cérebro)</h4>
-                        <p class="text-gray-400 text-sm">Preencha os campos para dizer como o seu robô deve agir e quais são as regras dele.</p>
-                    </div>
-                </div>
-                
-                <div class="bg-dark-bg border border-dark-border p-4 rounded-2xl flex gap-4 items-center">
-                    <div class="w-12 h-12 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center shrink-0 text-xl"><i class="fa-solid fa-comments"></i></div>
-                    <div>
-                        <h4 class="font-bold text-white text-lg">2. Bate-Papo (Teste seu Robô)</h4>
-                        <p class="text-gray-400 text-sm">Vá para o chat para conversar com o robô que você acabou de criar. Você pode até usar o microfone!</p>
-                    </div>
-                </div>
-
-                <div class="bg-dark-bg border border-dark-border p-4 rounded-2xl flex gap-4 items-center">
-                    <div class="w-12 h-12 rounded-full bg-pink-500/20 text-pink-400 flex items-center justify-center shrink-0 text-xl"><i class="fa-solid fa-mobile-screen"></i></div>
-                    <div>
-                        <h4 class="font-bold text-white text-lg">3. Fábrica de Apps (Faça Mágica)</h4>
-                        <p class="text-gray-400 text-sm">Peça um aplicativo por texto ou voz, e a IA vai programar e mostrar ele funcionando na tela.</p>
-                    </div>
-                </div>
-                
-                <div class="bg-dark-bg border border-yellow-500/30 p-4 rounded-2xl flex gap-4 items-center">
-                    <div class="w-12 h-12 rounded-full bg-yellow-500/20 text-yellow-400 flex items-center justify-center shrink-0 text-xl"><i class="fa-solid fa-bolt"></i></div>
-                    <div>
-                        <h4 class="font-bold text-white text-lg">Atenção à Energia! ⚡</h4>
-                        <p class="text-gray-400 text-sm">Você ganha Raios de Energia grátis para começar. Cada mágica consome um pouquinho deles.</p>
-                    </div>
-                </div>
-            </div>
-
-            <button onclick="closeModal('modal-welcome')" class="w-full py-4 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl font-black text-xl transition shadow-lg glow-effect transform hover:-translate-y-1 relative z-10">
-                Entendi, vamos criar! <i class="fa-solid fa-rocket ml-2"></i>
-            </button>
+            <button onclick="closeModal('modal-share')" class="w-full py-3 bg-dark-border hover:bg-gray-600 text-white rounded-xl font-bold transition">Fechar</button>
         </div>
     </div>
 
-    <!-- TOAST -->
+    <!-- TOAST NOTIFICATION -->
     <div id="toast" class="fixed bottom-8 right-8 bg-dark-card border-2 border-brand-500 text-white px-6 py-4 rounded-2xl shadow-2xl z-[100] flex items-center gap-4 transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
         <div id="toast-icon" class="text-brand-400 text-2xl"><i class="fa-solid fa-bell"></i></div>
         <span id="toast-msg" class="text-base font-bold">Mensagem</span>
     </div>
 
     <script>
-        // === CONFIGURAÇÃO DO SERVIDOR DE IA ===
-        // Quando você usar o Ngrok, troque o "http://localhost:11434" pelo seu link público do Ngrok.
-        // Exemplo: const OLLAMA_URL = 'https://meu-link-do-ngrok.app';
-        const OLLAMA_URL = 'http://localhost:11434';
-
-        // --- ESTADO GERAL (ENERGIA E ABAS) ---
+        // === CONFIGURAÇÕES E ESTADO ===
+        // Mude isso se usar Ngrok!
+        const OLLAMA_URL = 'http://localhost:11434'; 
+        
         let wallet = { energy: 500, isPremium: false };
         let activeTab = 'oficina';
         
-        // Inicia a UI
+        // Inicia a interface
         updateEnergyUI();
-
-        // Mostra a tela de boas vindas ao abrir o site
+        
+        // Mostra boas vindas no carregamento
         window.addEventListener('DOMContentLoaded', () => {
-            // Um pequeno atraso para dar um efeito bonito de entrada
-            setTimeout(() => {
-                document.getElementById('modal-welcome').classList.remove('hidden');
-            }, 300);
+            setTimeout(() => { openModal('modal-welcome'); }, 300);
         });
+
+        function syncEngine(val) {
+            document.getElementById('global-engine').value = val;
+            handleProviderChange();
+        }
+
+        function handleProviderChange() {
+            const engine = document.getElementById('global-engine').value;
+            document.getElementById('mobile-engine-chat').value = engine;
+            document.getElementById('mobile-engine-app').value = engine;
+            if(engine === 'ollama') {
+                showToast('Mudamos para IA Real (Local/Ollama)!', 'success');
+            } else {
+                showToast('Mudamos para o Simulador.', 'info');
+            }
+        }
 
         function updateEnergyUI() {
             const count = document.getElementById('energy-count');
@@ -375,13 +422,11 @@
             }
         }
 
-        // --- SISTEMA DE ABAS ---
         function switchTab(tabId) {
             activeTab = tabId;
             ['oficina', 'chat', 'fabrica'].forEach(t => {
                 document.getElementById('content-' + t).classList.add('hidden');
                 document.getElementById('content-' + t).classList.remove('block');
-                
                 const btn = document.getElementById('tab-' + t);
                 btn.className = 'flex-1 min-w-[120px] py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-dark-border transition-all';
             });
@@ -391,85 +436,24 @@
             document.getElementById('tab-' + tabId).className = 'flex-1 min-w-[120px] py-3 rounded-xl font-bold transition-all bg-brand-600 text-white shadow-lg glow-effect';
         }
 
-        // --- GERAÇÃO DE PROMPT (OFICINA) ---
         function generateSystem() {
             const persona = document.getElementById('f-persona').value.trim();
             const task = document.getElementById('f-task').value.trim();
             const rules = document.getElementById('f-rules').value.trim();
 
             if (!persona || !task) {
-                showToast('Preencha pelo menos "Quem é ele" e "O que deve fazer"!', 'error');
+                showToast('Preencha "Quem é o Robô" e "O que ele deve fazer"!', 'error');
                 return;
             }
-
             if (!consumeEnergy(10)) return;
 
-            const finalPrompt = `[IDENTIDADE]\nVocê é: ${persona}\n\n[TAREFA PRINCIPAL]\nSua missão é: ${task}\n\n[REGRAS E DIRETRIZES]\nSiga estritamente:\n${rules || 'Responda da melhor forma possível.'}`;
+            const finalPrompt = `[QUEM VOCÊ É]\nVocê é: ${persona}\n\n[SUA TAREFA]\nSua missão principal é: ${task}\n\n[REGRAS MÁGICAS]\nObedeça sempre:\n${rules || 'Responda da melhor forma possível.'}`;
             
             document.getElementById('final-prompt').value = finalPrompt;
             document.getElementById('system-output').classList.remove('hidden');
-            showToast('Cérebro Gerado! ( -10 Energia )', 'success');
+            showToast('Cérebro Criado! ( Gastou 10 ⚡ )', 'success');
         }
 
-        // --- GERAÇÃO DE APPS (SIMULADOR & OLLAMA) ---
-        async function generateApp() {
-            const idea = document.getElementById('app-idea-input').value.trim();
-            if (!idea) {
-                showToast('Digite qual aplicativo você quer criar!', 'error');
-                return;
-            }
-            if (!consumeEnergy(20)) return;
-
-            const engine = document.getElementById('global-engine').value;
-
-            showToast('Programando o App... ( -20 Energia )', 'success');
-            document.getElementById('app-placeholder').innerHTML = `<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mb-4 mx-auto"></div><p>A IA está escrevendo o código...</p>`;
-            document.getElementById('app-placeholder').classList.remove('hidden');
-            document.getElementById('app-preview').classList.add('hidden');
-
-            if (engine === 'mock') {
-                // Simulação
-                setTimeout(() => {
-                    const code = `
-                    <!DOCTYPE html>
-                    <html><head><script src="https://cdn.tailwindcss.com"><\/script></head>
-                    <body class="bg-gray-100 flex items-center justify-center h-screen">
-                        <div class="bg-white p-8 rounded-2xl shadow-xl text-center">
-                            <h1 class="text-2xl font-bold text-blue-600 mb-4">${idea.substring(0,20)}...</h1>
-                            <p>App gerado pela Fábrica Livre!</p>
-                            <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="alert('Funciona!')">Testar Botão</button>
-                        </div>
-                    </body></html>`;
-                    
-                    document.getElementById('app-placeholder').classList.add('hidden');
-                    const iframe = document.getElementById('app-preview');
-                    iframe.classList.remove('hidden');
-                    iframe.srcdoc = code;
-                }, 2000);
-            } else if (engine === 'ollama') {
-                // Integração Real com Ollama Local ou Túnel (Ngrok)
-                try {
-                    const prompt = `Escreva APENAS código HTML. Crie um arquivo HTML único com Tailwind CSS embutido. Não explique o código, apenas retorne HTML. O aplicativo é: ${idea}`;
-                    const response = await fetch(`${OLLAMA_URL}/api/generate`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ model: 'llama3', prompt: prompt, stream: false })
-                    });
-                    const data = await response.json();
-                    let code = data.response.replace(/```html/g, '').replace(/```/g, '');
-                    
-                    document.getElementById('app-placeholder').classList.add('hidden');
-                    const iframe = document.getElementById('app-preview');
-                    iframe.classList.remove('hidden');
-                    iframe.srcdoc = code;
-                } catch (error) {
-                    document.getElementById('app-placeholder').innerHTML = `<i class="fa-solid fa-triangle-exclamation text-red-500 text-4xl mb-2"></i><p>Erro. O Ollama está aberto no seu PC?</p>`;
-                    showToast('Erro ao conectar com Ollama.', 'error');
-                }
-            }
-        }
-
-        // --- CHAT (SIMULADOR & OLLAMA) ---
         async function sendChatMessage() {
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
@@ -479,7 +463,6 @@
             const chatWindow = document.getElementById('chat-window');
             const engine = document.getElementById('global-engine').value;
             
-            // Mensagem do Usuário
             chatWindow.innerHTML += `
                 <div class="flex items-start gap-3 justify-end">
                     <div class="bg-brand-600 p-4 rounded-2xl rounded-tr-none text-white max-w-[80%]">${msg}</div>
@@ -487,18 +470,17 @@
             input.value = '';
             
             if (engine === 'mock') {
-                // Simula IA
                 setTimeout(() => {
                     chatWindow.innerHTML += `
                     <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white"></i></div>
-                        <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%]">Entendido! Como estou no modo Simulador, esta é uma resposta genérica. Mude o motor lá em cima para "Ollama" para conversar de verdade!</div>
+                        <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0 shadow-lg"><span class="text-xl">🤖</span></div>
+                        <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%]">Oi! Estou no modo Simulador! Se quiser falar de verdade, mude a chave lá em cima para "Ollama"!</div>
                     </div>`;
                     chatWindow.scrollTop = chatWindow.scrollHeight;
                 }, 1000);
             } else if (engine === 'ollama') {
                 const loadingId = 'loading-' + Date.now();
-                chatWindow.innerHTML += `<div id="${loadingId}" class="text-gray-500 text-sm italic text-center">IA está pensando...</div>`;
+                chatWindow.innerHTML += `<div id="${loadingId}" class="text-brand-400 text-sm font-bold text-center animate-pulse">Robô pensando...</div>`;
                 chatWindow.scrollTop = chatWindow.scrollHeight;
                 
                 try {
@@ -512,18 +494,70 @@
                     
                     chatWindow.innerHTML += `
                     <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white"></i></div>
+                        <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0 shadow-lg"><span class="text-xl">🤖</span></div>
                         <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%] whitespace-pre-wrap">${data.response}</div>
                     </div>`;
                 } catch (error) {
                     document.getElementById(loadingId).remove();
-                    showToast('Erro no Ollama. Ele está instalado e aberto?', 'error');
+                    startErrorGame(); 
                 }
             }
             chatWindow.scrollTop = chatWindow.scrollHeight;
         }
 
-        // --- STREAMING_CHUNK:Reconhecimento de Voz (Web Speech API)... ---
+        async function generateApp() {
+            const idea = document.getElementById('app-idea-input').value.trim();
+            if (!idea) {
+                showToast('Diga qual App você quer criar!', 'error');
+                return;
+            }
+            if (!consumeEnergy(20)) return;
+
+            const engine = document.getElementById('global-engine').value;
+
+            showToast('Fazendo Mágica... ( Gastou 20 ⚡ )', 'success');
+            document.getElementById('app-placeholder').innerHTML = `<div class="animate-spin text-4xl mb-4 mx-auto">⚙️</div><p class="font-bold text-brand-400">O robô está programando seu App...</p>`;
+            document.getElementById('app-placeholder').classList.remove('hidden');
+            document.getElementById('app-preview').classList.add('hidden');
+
+            if (engine === 'mock') {
+                setTimeout(() => {
+                    const code = `<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"><\/script></head>
+                    <body class="bg-gradient-to-tr from-green-300 to-blue-400 flex items-center justify-center h-screen">
+                        <div class="bg-white p-8 rounded-[2rem] shadow-2xl text-center">
+                            <div class="text-6xl mb-4">🎉</div>
+                            <h1 class="text-2xl font-black text-gray-800 mb-2">Seu App Funcionou!</h1>
+                            <p class="text-gray-500 mb-6">Modo simulador ativo. Ideia: ${idea}</p>
+                            <button class="bg-black text-white px-6 py-3 rounded-xl font-bold">Testar Botão</button>
+                        </div>
+                    </body></html>`;
+                    document.getElementById('app-placeholder').classList.add('hidden');
+                    const iframe = document.getElementById('app-preview');
+                    iframe.classList.remove('hidden');
+                    iframe.srcdoc = code;
+                }, 2000);
+            } else if (engine === 'ollama') {
+                try {
+                    const prompt = `Escreva APENAS código HTML com Tailwind CSS embutido. Não explique. Crie este aplicativo: ${idea}`;
+                    const response = await fetch(`${OLLAMA_URL}/api/generate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ model: 'llama3', prompt: prompt, stream: false })
+                    });
+                    const data = await response.json();
+                    let code = data.response.replace(/```html/g, '').replace(/```/g, '');
+                    
+                    document.getElementById('app-placeholder').classList.add('hidden');
+                    const iframe = document.getElementById('app-preview');
+                    iframe.classList.remove('hidden');
+                    iframe.srcdoc = code;
+                } catch (error) {
+                    document.getElementById('app-placeholder').innerHTML = `<div class="text-6xl mb-4 opacity-50 bounce">📱</div><p class="text-lg">Diga o que você quer e veja o app nascer aqui.</p>`;
+                    startErrorGame(); 
+                }
+            }
+        }
+
         let recognition;
         let isRecording = false;
         let currentVoiceTarget = '';
@@ -539,9 +573,12 @@
                 isRecording = true;
                 const btnId = currentVoiceTarget === 'chat-input' ? 'btn-voice-chat' : 'btn-voice-app';
                 const statusId = currentVoiceTarget === 'chat-input' ? 'voice-status-chat' : 'voice-status-app';
+                const errorId = currentVoiceTarget === 'chat-input' ? 'voice-error-chat' : 'voice-error-app';
                 
-                document.getElementById(btnId).classList.add('bg-red-500', 'mic-pulse');
+                document.getElementById(btnId).classList.add('bg-red-500', 'border-red-500', 'mic-pulse');
                 document.getElementById(statusId).classList.remove('hidden');
+                document.getElementById(errorId).classList.add('hidden');
+                document.getElementById(currentVoiceTarget).focus();
             };
 
             recognition.onresult = function(event) {
@@ -551,43 +588,49 @@
 
             recognition.onend = function() {
                 isRecording = false;
-                const btnId = currentVoiceTarget === 'chat-input' ? 'btn-voice-chat' : 'btn-voice-app';
-                const statusId = currentVoiceTarget === 'chat-input' ? 'voice-status-chat' : 'voice-status-app';
-                
-                document.getElementById(btnId).classList.remove('bg-red-500', 'mic-pulse');
-                document.getElementById(statusId).classList.add('hidden');
+                resetMicUI();
             };
 
             recognition.onerror = function(event) {
                 console.error("Erro no microfone:", event.error);
-                let erroMsg = "Erro no microfone.";
-                if (event.error === 'not-allowed') erroMsg = "Permissão do microfone negada!";
-                if (event.error === 'no-speech') erroMsg = "Nenhum som detectado.";
-                showToast(erroMsg, 'error');
+                isRecording = false;
+                resetMicUI();
+                
+                const errorId = currentVoiceTarget === 'chat-input' ? 'voice-error-chat' : 'voice-error-app';
+                const errorEl = document.getElementById(errorId);
+                errorEl.classList.remove('hidden');
+                
+                if (event.error === 'not-allowed') errorEl.innerText = "Você bloqueou o microfone. Libere no cadeado lá em cima!";
+                else if (event.error === 'no-speech') errorEl.innerText = "Não ouvi nada. Fale mais alto!";
+                else errorEl.innerText = "Erro ao usar o microfone.";
+                
+                setTimeout(() => { errorEl.classList.add('hidden'); }, 4000);
             };
+        }
+
+        function resetMicUI() {
+            if(!currentVoiceTarget) return;
+            const btnId = currentVoiceTarget === 'chat-input' ? 'btn-voice-chat' : 'btn-voice-app';
+            const statusId = currentVoiceTarget === 'chat-input' ? 'voice-status-chat' : 'voice-status-app';
+            document.getElementById(btnId).classList.remove('bg-red-500', 'border-red-500', 'mic-pulse');
+            document.getElementById(statusId).classList.add('hidden');
         }
 
         function toggleVoice(targetInputId) {
             if (!recognition) {
-                showToast('Seu navegador não suporta digitação por voz.', 'error');
+                showToast('Seu navegador não tem suporte a voz (use o Chrome!).', 'error');
                 return;
             }
             if (isRecording) {
                 recognition.stop();
             } else {
                 currentVoiceTarget = targetInputId;
-                try {
-                    recognition.start();
-                } catch(e) {
-                    showToast('O microfone já está em uso.', 'error');
-                }
+                try { recognition.start(); } catch(e) { }
             }
         }
 
-        // --- STREAMING_CHUNK:Modo Deus (Easter Egg)... ---
         let robotClicks = 0;
         let clickTimer;
-
         document.getElementById('secret-robot').addEventListener('click', () => {
             robotClicks++;
             clearTimeout(clickTimer);
@@ -612,27 +655,39 @@
             }
         }
 
-        // --- UTILITÁRIOS (UI, Modais, Toasts) ---
         function openModal(id) {
             const modal = document.getElementById(id);
+            if (!modal) return; // Proteção contra erro!
             modal.classList.remove('hidden');
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
-                modal.querySelector('div').classList.remove('scale-95');
+                if(modal.querySelector('div')) {
+                     modal.querySelector('div').classList.remove('scale-95');
+                }
             }, 10);
         }
 
         function closeModal(id) {
             const modal = document.getElementById(id);
+            if (!modal) return; // Proteção contra erro!
             modal.classList.add('opacity-0');
-            modal.querySelector('div').classList.add('scale-95');
+            if(modal.querySelector('div')) {
+                 modal.querySelector('div').classList.add('scale-95');
+            }
             setTimeout(() => { modal.classList.add('hidden'); }, 300);
+        }
+        
+        function copyShareLink() {
+            const copyText = document.getElementById("share-link");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999); 
+            document.execCommand("copy");
+            showToast('Link copiado para a área de transferência!', 'success');
         }
 
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             document.getElementById('toast-msg').innerText = message;
-            
             const icon = document.getElementById('toast-icon');
             if(type === 'error') {
                 icon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-red-500"></i>';
@@ -644,20 +699,121 @@
                 icon.innerHTML = '<i class="fa-solid fa-bell text-brand-400"></i>';
                 toast.style.borderColor = '#8b5cf6';
             }
-
             toast.classList.remove('translate-y-24', 'opacity-0');
             setTimeout(() => { toast.classList.add('translate-y-24', 'opacity-0'); }, 3000);
         }
 
-        function shareTo(platform) {
-            const url = window.location.href;
-            const text = "Conheça a Fábrica Livre: A plataforma sem código para criar sistemas e apps de IA!";
-            if (platform === 'whatsapp') {
-                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + ' ' + url)}`);
-            } else if (platform === 'copy') {
-                navigator.clipboard.writeText(url).then(() => showToast('Link copiado!', 'success'));
+        let gameCanvas, ctx, gameLoopId;
+        let alien = { x: 30, y: 100, size: 24, velocity: 0, gravity: 0.8, jumpPower: -10, isJumping: false };
+        let meteors = [];
+        let gameScore = 0;
+        let gameIsOver = false;
+        let gameSpeed = 4;
+
+        function startErrorGame() {
+            openModal('modal-error');
+            gameCanvas = document.getElementById('game-canvas');
+            if(!gameCanvas) return;
+            
+            ctx = gameCanvas.getContext('2d');
+            
+            // Resetar Jogo
+            alien.y = 100; alien.velocity = 0; alien.isJumping = false;
+            meteors = []; gameScore = 0; gameIsOver = false; gameSpeed = 4;
+            
+            window.addEventListener('keydown', gameJump);
+            gameCanvas.addEventListener('mousedown', gameJump);
+            gameCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); gameJump(); });
+            
+            cancelAnimationFrame(gameLoopId);
+            gameLoopId = requestAnimationFrame(updateGame);
+        }
+
+        function gameJump(e) {
+            if (e && e.code && e.code !== 'Space') return;
+            if (gameIsOver) {
+                startErrorGame(); // recomeça
+                return;
             }
-            closeModal('modal-share');
+            if (!alien.isJumping) {
+                alien.velocity = alien.jumpPower;
+                alien.isJumping = true;
+            }
+        }
+
+        function updateGame() {
+            if (gameIsOver) return;
+
+            // Limpa tela
+            ctx.fillStyle = "#1e293b";
+            ctx.fillRect(0, 0, gameCanvas.width, gameCanvas.height);
+            
+            // Desenha linha do chão
+            ctx.beginPath();
+            ctx.moveTo(0, 125);
+            ctx.lineTo(300, 125);
+            ctx.strokeStyle = "#334155";
+            ctx.stroke();
+
+            // Física do Alien
+            alien.velocity += alien.gravity;
+            alien.y += alien.velocity;
+            
+            // Colisão com o chão
+            if (alien.y >= 100) {
+                alien.y = 100;
+                alien.velocity = 0;
+                alien.isJumping = false;
+            }
+            
+            // Desenha Alien
+            ctx.font = "24px Arial";
+            ctx.fillText("👾", alien.x, alien.y + 20); 
+            
+            // Cria Meteoros
+            if (Math.random() < 0.02) {
+                if (meteors.length === 0 || meteors[meteors.length - 1].x < gameCanvas.width - 150) {
+                    meteors.push({ x: gameCanvas.width, y: 104, size: 20 });
+                }
+            }
+            
+            // Move e Desenha Meteoros
+            for (let i = 0; i < meteors.length; i++) {
+                meteors[i].x -= gameSpeed;
+                ctx.fillText("☄️", meteors[i].x, meteors[i].y + 16);
+                
+                // Colisão
+                if (alien.x < meteors[i].x + 15 && 
+                    alien.x + 15 > meteors[i].x && 
+                    alien.y < meteors[i].y + 15 && 
+                    15 + alien.y > meteors[i].y) {
+                    gameIsOver = true;
+                }
+            }
+            
+            // Remove meteoros que já passaram
+            meteors = meteors.filter(m => m.x > -30);
+            
+            // Placar
+            gameScore++;
+            if (gameScore % 400 === 0) gameSpeed += 0.5; // fica mais rápido
+            ctx.fillStyle = "#a78bfa";
+            ctx.font = "bold 14px Inter";
+            ctx.fillText("Pontos: " + Math.floor(gameScore/10), 210, 25);
+            
+            // Tela de Game Over
+            if (gameIsOver) {
+                ctx.fillStyle = "rgba(0,0,0,0.8)";
+                ctx.fillRect(0,0,gameCanvas.width, gameCanvas.height);
+                ctx.fillStyle = "#ff4444";
+                ctx.font = "900 24px Inter";
+                ctx.fillText("BATEU!", 100, 70);
+                ctx.fillStyle = "#fff";
+                ctx.font = "12px Inter";
+                ctx.fillText("Clique ou Espaço para jogar de novo", 45, 95);
+            } else {
+                gameLoopId = requestAnimationFrame(updateGame);
+            }
         }
     </script>
 </body>
