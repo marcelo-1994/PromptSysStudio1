@@ -695,19 +695,19 @@
 
             recognition = initSpeechRecognition();
             if (!recognition) {
-                showToast("Opa! Seu navegador não suporta digitação por voz. Tente usar o Google Chrome.");
+                showToast("Seu navegador não suporta voz. Tente usar o Google Chrome no PC ou Android.");
                 return;
             }
 
             const targetInput = document.getElementById(targetId);
             const originalIcon = '<i class="fa-solid fa-microphone"></i>';
-            const originalValue = targetInput.value;
+            let valueBeforeRecording = targetInput.value; // Pega o texto que já estava lá
 
             recognition.onstart = () => {
                 isRecording = true;
                 btnEl.classList.add('recording-active');
                 btnEl.innerHTML = '<i class="fa-solid fa-microphone-lines"></i>';
-                showToast("Ouvindo... Pode falar! 🎙️");
+                showToast("Estou ouvindo... Pode falar! 🎙️");
             };
 
             recognition.onresult = (event) => {
@@ -722,23 +722,35 @@
                     }
                 }
                 
-                // Vai escrevendo no campo de texto enquanto você fala
-                const espaco = (originalValue && !originalValue.endsWith(' ')) ? ' ' : '';
-                targetInput.value = originalValue + espaco + finalTranscript + interimTranscript;
+                const espaco = (valueBeforeRecording && !valueBeforeRecording.endsWith(' ')) ? ' ' : '';
+                
+                // Joga o texto perfeitamente na caixa
+                targetInput.value = valueBeforeRecording + espaco + finalTranscript + interimTranscript;
             };
 
             recognition.onerror = (event) => {
                 console.error("Erro no microfone:", event.error);
-                if(event.error === 'not-allowed') showToast("Permita o uso do microfone no navegador!");
-                else showToast("Erro ao ouvir. Tente novamente.");
+                if(event.error === 'not-allowed') {
+                    showToast("Libere o uso do microfone no cadeado 🔒 ao lado do link do site lá em cima!");
+                } else if(event.error === 'no-speech') {
+                    showToast("Não consegui te ouvir. Tente falar mais perto.");
+                } else {
+                    showToast("Erro no áudio. Tente novamente.");
+                }
                 stopDictationUI(btnEl, originalIcon);
             };
 
             recognition.onend = () => {
                 stopDictationUI(btnEl, originalIcon);
+                targetInput.focus(); // Força o cursor a piscar lá dentro após falar
             };
 
-            recognition.start();
+            try {
+                recognition.start();
+            } catch(e) {
+                console.error(e);
+                stopDictationUI(btnEl, originalIcon);
+            }
         }
 
         function stopDictationUI(btnEl, originalIcon) {
