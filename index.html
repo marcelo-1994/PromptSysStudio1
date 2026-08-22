@@ -3,856 +3,536 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PromptSys - Fábrica de Robôs e Apps</title>
-    
-    <!-- Tailwind CSS CDN -->
+    <title>Fábrica Livre - Crie Robôs e Apps</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        brand: { 50: '#f5f3ff', 100: '#ede9fe', 500: '#8b5cf6', 600: '#7c3aed', 700: '#6d28d9', 900: '#4c1d95' },
-                        dark: { bg: '#121217', card: '#1c1c24', input: '#272730', border: '#3f3f46' }
+                        brand: { 400: '#a78bfa', 500: '#8b5cf6', 600: '#7c3aed' },
+                        dark: { bg: '#0f172a', card: '#1e293b', border: '#334155', input: '#0f172a' }
                     }
                 }
             }
         }
     </script>
-
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Nunito -->
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
     <style>
-        body { font-family: 'Nunito', sans-serif; }
-        code, pre { font-family: 'JetBrains Mono', monospace; }
-        
-        .glass-panel {
-            background: rgba(28, 28, 36, 0.85);
-            backdrop-filter: blur(16px);
-            border: 2px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .glow-effect { box-shadow: 0 0 30px -5px rgba(139, 92, 246, 0.5); }
-        .gradient-text {
-            background: linear-gradient(135deg, #a78bfa 0%, #f472b6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .btn-friendly { transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        .btn-friendly:hover { transform: translateY(-4px) scale(1.02); box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.4); }
-        .btn-friendly:active { transform: translateY(1px) scale(0.98); }
-
-        .step-badge {
-            background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
-            color: white; width: 40px; height: 40px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 20px; box-shadow: 0 4px 10px rgba(139, 92, 246, 0.4);
-        }
-
+        body { background-color: #0f172a; color: #f8fafc; font-family: 'Inter', sans-serif; overflow-x: hidden; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
-        ::-webkit-scrollbar-track { background: #121217; }
-        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; border: 2px solid #121217; }
-        ::-webkit-scrollbar-thumb:hover { background: #52525b; }
-
-        .loader {
-            border: 4px solid #272730;
-            border-top: 4px solid #8b5cf6;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glow-effect { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+        .mic-pulse { animation: pulse-red 1.5s infinite; }
         @keyframes pulse-red {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
-        .recording-active {
-            animation: pulse-red 1.5s infinite;
-            background-color: #ef4444 !important;
-            color: white !important;
-            border-color: #ef4444 !important;
-        }
-
-        /* Animação para bateria/créditos acabando */
-        @keyframes blink-warning {
-            0%, 100% { opacity: 1; color: #facc15; }
-            50% { opacity: 0.5; color: #ef4444; }
-        }
-        .low-credits { animation: blink-warning 1s infinite; border-color: #ef4444 !important; }
     </style>
 </head>
-<body class="bg-dark-bg text-gray-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
+<body class="min-h-screen flex flex-col">
 
-    <header class="border-b-2 border-dark-border bg-dark-bg/90 backdrop-blur-md sticky top-0 z-40 shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4 overflow-x-auto">
-            
+    <!-- HEADER -->
+    <header class="glass-panel sticky top-0 z-40 border-b border-dark-border">
+        <div class="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
             <div class="flex items-center gap-3 shrink-0">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-pink-500 flex items-center justify-center text-white shadow-lg glow-effect rotate-3">
+                <!-- EASTER EGG (MODO DEUS): Clique 5 vezes neste robô -->
+                <div id="secret-robot" class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-pink-500 flex items-center justify-center text-white shadow-lg glow-effect rotate-3 cursor-pointer select-none transition-transform active:scale-95">
                     <i class="fa-solid fa-robot text-2xl"></i>
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="font-black text-xl sm:text-2xl tracking-tight text-white">Fábrica <span class="gradient-text">Livre</span></h1>
+                        <h1 class="font-black text-2xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">Fábrica Livre</h1>
                     </div>
+                    <p class="text-xs text-brand-400 font-medium">Crie Robôs e Apps. Zero Código.</p>
                 </div>
             </div>
 
-            <nav class="flex items-center gap-1 sm:gap-2 bg-dark-card border-2 border-dark-border p-1.5 rounded-2xl shrink-0">
-                <button onclick="switchTab('studio')" id="tab-studio" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition text-white bg-brand-600 shadow-md btn-friendly flex items-center gap-2">
-                    <i class="fa-solid fa-wand-magic-sparkles"></i> 1. Oficina
-                </button>
-                <button onclick="switchTab('playground')" id="tab-playground" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition text-gray-400 hover:text-white hover:bg-dark-input btn-friendly flex items-center gap-2">
-                    <i class="fa-solid fa-comments"></i> 2. Chat
-                </button>
-                <button onclick="switchTab('appbuilder')" id="tab-appbuilder" class="px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition text-gray-400 hover:text-white hover:bg-dark-input btn-friendly flex items-center gap-2">
-                    <i class="fa-solid fa-cubes"></i> 3. Fábrica de Apps
-                </button>
-            </nav>
-
-            <div class="flex items-center gap-3 shrink-0">
-                <!-- CARTEIRA DE ENERGIA (CRÉDITOS) -->
-                <button onclick="showPricingModal()" id="wallet-btn" class="px-4 py-2 bg-dark-card border-2 border-yellow-500/50 hover:border-yellow-400 text-yellow-400 rounded-xl font-bold transition flex items-center gap-2 shadow-inner group">
-                    <i class="fa-solid fa-bolt text-yellow-400 group-hover:animate-pulse"></i> 
-                    <span id="credit-display">--</span>
-                </button>
-
-                <button onclick="showShareModal()" class="w-10 h-10 bg-dark-input hover:bg-gray-700 text-gray-300 border-2 border-dark-border rounded-xl font-bold transition flex items-center justify-center btn-friendly shadow-sm" title="Compartilhar">
-                    <i class="fa-solid fa-share-nodes text-brand-400"></i>
+            <div class="flex items-center gap-3">
+                <div id="energy-badge" class="flex items-center gap-2 bg-dark-bg border border-dark-border px-4 py-2 rounded-xl cursor-pointer hover:border-brand-500 transition-colors" onclick="openModal('modal-paywall')">
+                    <i class="fa-solid fa-bolt text-yellow-400"></i>
+                    <span id="energy-count" class="font-bold text-white">500</span>
+                </div>
+                <button onclick="openModal('modal-share')" class="hidden sm:flex items-center gap-2 px-4 py-2 bg-dark-border hover:bg-gray-700 rounded-xl font-bold transition">
+                    <i class="fa-solid fa-share-nodes"></i> Compartilhar
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <!-- TABS -->
+    <div class="max-w-7xl mx-auto px-4 w-full mt-6">
+        <div class="flex flex-wrap gap-2 bg-dark-card p-2 rounded-2xl border border-dark-border">
+            <button onclick="switchTab('oficina')" id="tab-oficina" class="flex-1 min-w-[120px] py-3 rounded-xl font-bold transition-all bg-brand-600 text-white shadow-lg glow-effect">
+                <i class="fa-solid fa-hammer mr-2"></i> 1. Oficina
+            </button>
+            <button onclick="switchTab('chat')" id="tab-chat" class="flex-1 min-w-[120px] py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-dark-border transition-all">
+                <i class="fa-solid fa-comments mr-2"></i> 2. Chat
+            </button>
+            <button onclick="switchTab('fabrica')" id="tab-fabrica" class="flex-1 min-w-[120px] py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-dark-border transition-all">
+                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> 3. Fábrica de Apps
+            </button>
+        </div>
+    </div>
 
-        <section id="view-studio" class="space-y-8 animate-fade-in">
-            <div class="bg-gradient-to-r from-brand-900/40 via-pink-900/20 to-dark-bg border-2 border-brand-500/30 rounded-[2rem] p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
-                <div class="absolute -right-10 -top-10 text-brand-500/10 text-[150px] rotate-12"><i class="fa-solid fa-puzzle-piece"></i></div>
-                <div class="flex items-center gap-5 z-10">
-                    <div class="w-16 h-16 bg-white/10 backdrop-blur text-white rounded-3xl flex items-center justify-center text-4xl shadow-inner border border-white/20">👋</div>
-                    <div>
-                        <h2 class="font-black text-2xl text-white">Bem-vindo à Oficina de Robôs!</h2>
-                        <p class="text-base text-gray-300 mt-1 font-medium">Monte o cérebro da sua IA aqui. Ela pode ser um médico, um vendedor ou um criador de jogos. Você decide!</p>
-                    </div>
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 max-w-7xl mx-auto px-4 w-full py-6">
+        
+        <!-- TAB 1: OFICINA -->
+        <div id="content-oficina" class="space-y-6 animate-fade-in block">
+            <div class="bg-gradient-to-r from-brand-600/20 to-pink-500/20 border border-brand-500/30 rounded-3xl p-6 md:p-8 relative overflow-hidden">
+                <h2 class="text-3xl font-black mb-2 text-white"><span class="text-4xl">🤖</span> Monte seu Robô</h2>
+                <p class="text-gray-300 max-w-2xl text-lg">Diga o que você quer que a inteligência faça. Preencha os campos e nós transformaremos isso em um cérebro digital super poderoso.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Identidade -->
+                <div class="bg-dark-card rounded-3xl p-6 border border-dark-border shadow-xl">
+                    <label class="block font-bold text-brand-400 mb-2 text-lg"><i class="fa-solid fa-user-astronaut mr-2"></i> Quem é ele?</label>
+                    <p class="text-sm text-gray-400 mb-3">Ex: Um vendedor carismático, Um médico atencioso, Um programador sênior.</p>
+                    <textarea id="f-persona" rows="3" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-white focus:outline-none focus:border-brand-500 transition resize-none"></textarea>
                 </div>
-                <div class="flex gap-2 z-10 flex-wrap">
-                    <button onclick="loadExampleIA('vendas')" class="px-4 py-2 bg-dark-input border-2 border-brand-500/30 hover:border-brand-500 text-white font-bold rounded-xl transition text-sm flex items-center gap-2"><i class="fa-solid fa-sack-dollar text-green-400"></i> Ex. Vendedor</button>
-                    <button onclick="loadExampleIA('saude')" class="px-4 py-2 bg-dark-input border-2 border-brand-500/30 hover:border-brand-500 text-white font-bold rounded-xl transition text-sm flex items-center gap-2"><i class="fa-solid fa-heart-pulse text-red-400"></i> Ex. Nutricionista</button>
+                <!-- Tarefa -->
+                <div class="bg-dark-card rounded-3xl p-6 border border-dark-border shadow-xl">
+                    <label class="block font-bold text-brand-400 mb-2 text-lg"><i class="fa-solid fa-bullseye mr-2"></i> O que ele deve fazer?</label>
+                    <p class="text-sm text-gray-400 mb-3">Ex: Convencer o cliente a comprar, Analisar um exame, Criar um jogo.</p>
+                    <textarea id="f-task" rows="3" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-white focus:outline-none focus:border-brand-500 transition resize-none"></textarea>
+                </div>
+                <!-- Regras -->
+                <div class="bg-dark-card rounded-3xl p-6 border border-dark-border shadow-xl md:col-span-2">
+                    <label class="block font-bold text-brand-400 mb-2 text-lg"><i class="fa-solid fa-shield-halved mr-2"></i> Quais as regras mágicas?</label>
+                    <p class="text-sm text-gray-400 mb-3">Ex: Seja sempre educado, Responda em português, Nunca diga que é uma IA.</p>
+                    <textarea id="f-rules" rows="3" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-white focus:outline-none focus:border-brand-500 transition resize-none"></textarea>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <div class="lg:col-span-7 space-y-6">
-                    
-                    <div class="glass-panel p-6 sm:p-8 rounded-[2rem] space-y-6 border-t-4 border-t-brand-500 shadow-xl relative">
-                        <div class="flex items-center gap-4 border-b-2 border-dark-border pb-4">
-                            <div class="step-badge">1</div>
-                            <h2 class="font-black text-2xl text-white">A Identidade da IA 🤖</h2>
-                        </div>
-                        <div class="space-y-5">
-                            <div class="bg-dark-input/50 p-5 rounded-2xl border-2 border-dark-border/50 hover:border-brand-500/50 transition">
-                                <label class="block text-lg font-black text-white mb-1">Qual o nome do seu robô?</label>
-                                <input type="text" id="sys-title" value="Meu Super Ajudante" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl px-4 py-3 text-lg font-bold text-brand-300 focus:outline-none focus:border-brand-500 transition shadow-inner">
-                            </div>
-                            <div class="bg-amber-900/10 p-5 rounded-2xl border-2 border-amber-500/20 hover:border-amber-500/50 transition">
-                                <label class="block text-lg font-black text-amber-400 mb-1">Qual é a Missão dele? 💰</label>
-                                <p class="text-sm text-gray-400 mb-3">O que ele tem que fazer para te poupar tempo ou dar dinheiro? Ex: Vender meus tênis no WhatsApp.</p>
-                                <input type="text" id="sys-roi" value="Ajudar as pessoas a entenderem meus produtos." class="w-full bg-dark-bg border-2 border-amber-900/50 rounded-xl px-4 py-3 text-base text-white focus:outline-none focus:border-amber-500 transition shadow-inner">
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="glass-panel p-6 sm:p-8 rounded-[2rem] space-y-6 border-t-4 border-t-pink-500 shadow-xl relative">
-                        <div class="flex items-center gap-4 border-b-2 border-dark-border pb-4">
-                            <div class="step-badge" style="background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);">2</div>
-                            <h2 class="font-black text-2xl text-white">Como ele pensa? 🎭</h2>
-                        </div>
-                        <div class="space-y-5">
-                            <div class="bg-dark-input/50 p-5 rounded-2xl border-2 border-dark-border/50">
-                                <label class="block text-lg font-black text-white mb-1">Quem é ele? (Personalidade) ✨</label>
-                                <p class="text-sm text-gray-400 mb-3">Ex: Você é um professor calmo, Você é um vendedor agressivo...</p>
-                                <textarea id="sys-role" rows="2" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-base text-white focus:outline-none focus:border-pink-500 transition shadow-inner resize-none">Você é um assistente super simpático.</textarea>
-                            </div>
-                            <div class="bg-dark-input/50 p-5 rounded-2xl border-2 border-dark-border/50">
-                                <label class="block text-lg font-black text-white mb-1">A Situação (Onde ele está?) 📍</label>
-                                <textarea id="sys-context" rows="2" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-base text-white focus:outline-none focus:border-pink-500 transition shadow-inner resize-none">Você está conversando no site da minha empresa.</textarea>
-                            </div>
-                            <div class="bg-red-900/10 p-5 rounded-2xl border-2 border-red-500/30">
-                                <label class="block text-lg font-black text-red-400 mb-1">Regras de Ouro (Proibições) 🚫</label>
-                                <textarea id="sys-rules" rows="3" class="w-full bg-dark-bg border-2 border-red-900/50 rounded-xl p-4 text-base font-medium text-white focus:outline-none focus:border-red-500 transition shadow-inner resize-none">- Nunca seja grosso.&#10;- Não invente informações.</textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-5 space-y-6">
-                    <div class="glass-panel p-6 sm:p-8 rounded-[2rem] space-y-6 sticky top-24 border-2 border-emerald-500/30 shadow-[0_0_40px_-10px_rgba(16,185,129,0.25)]">
-                        <div class="flex flex-col items-center justify-center text-center pb-6 border-b-2 border-dark-border">
-                            <div class="w-24 h-24 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-5xl mb-4 animate-bounce shadow-inner border-2 border-emerald-500/50">
-                                <i class="fa-solid fa-brain"></i>
-                            </div>
-                            <h2 class="font-black text-3xl text-white">Cérebro Pronto!</h2>
-                            <p class="text-base text-gray-300 mt-2 font-medium">Este é o código do seu robô. Ele é **SEU** e funciona em qualquer sistema do mundo.</p>
-                        </div>
-                        <div class="relative bg-dark-bg p-2 rounded-2xl border-2 border-dark-border shadow-inner">
-                            <pre id="compiled-prompt-output" class="rounded-xl p-4 text-[13px] text-emerald-100/70 h-[220px] overflow-y-auto whitespace-pre-wrap leading-relaxed select-all font-mono"></pre>
-                        </div>
-                        <div class="pt-4 flex flex-col gap-4">
-                            <button onclick="sendToPlayground()" class="w-full py-5 text-xl font-black bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white rounded-2xl transition shadow-[0_10px_25px_-5px_rgba(16,185,129,0.5)] btn-friendly flex items-center justify-center gap-3 transform hover:scale-105">
-                                <span>Falar com ele Agora!</span>
-                                <i class="fa-solid fa-arrow-right text-2xl"></i>
-                            </button>
-                            <button onclick="showCodeExportModal()" class="py-4 text-base font-bold bg-dark-input hover:bg-brand-600 hover:border-brand-500 text-white border-2 border-dark-border rounded-xl transition btn-friendly flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-download text-pink-400 text-xl"></i> Exportar Código Livre
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex gap-4">
+                <button onclick="generateSystem()" class="flex-1 py-4 bg-brand-600 hover:bg-brand-500 text-white rounded-2xl font-black text-xl transition shadow-lg glow-effect transform hover:-translate-y-1">
+                    <i class="fa-solid fa-bolt mr-2"></i> Ligar Robô (Gastar 10 Energia)
+                </button>
             </div>
-        </section>
+            <div id="system-output" class="hidden mt-6 bg-dark-bg border-2 border-brand-500 rounded-3xl p-6 relative">
+                <h3 class="font-bold text-white mb-4 text-xl">🧠 Cérebro Gerado!</h3>
+                <textarea id="final-prompt" readonly rows="8" class="w-full bg-transparent text-gray-300 text-sm focus:outline-none resize-none"></textarea>
+            </div>
+        </div>
 
-        <section id="view-playground" class="space-y-6 hidden animate-fade-in">
-            <div class="bg-gradient-to-r from-teal-900/40 via-emerald-900/20 to-dark-bg border-2 border-teal-500/30 p-6 rounded-[2rem] flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative">
-                <div class="flex items-center gap-5">
-                    <div class="w-16 h-16 rounded-3xl bg-teal-500 flex items-center justify-center text-white text-3xl shadow-[0_0_20px_rgba(20,184,166,0.6)] rotate-3">
-                        <i class="fa-solid fa-comments"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-3xl font-black text-white">Bate-Papo</h2>
-                        <p class="text-base text-gray-300 font-medium">Teste o robô que você acabou de criar. <span class="text-yellow-400 font-bold text-xs bg-yellow-500/20 px-2 py-1 rounded ml-2">Custa 5 Raios ⚡</span></p>
-                    </div>
-                </div>
-                <div class="flex gap-3">
-                    <select id="pg-provider" onchange="handleProviderChange('pg-provider')" class="bg-dark-bg border-2 border-dark-border rounded-xl px-4 py-2 text-sm font-bold text-brand-300 focus:outline-none">
-                        <option value="simulated">🟢 Simulador Rápido (Faz de Conta)</option>
-                        <option value="ollama">💻 Ollama (Motor Real no seu PC)</option>
-                    </select>
-                </div>
+        <!-- TAB 2: CHAT -->
+        <div id="content-chat" class="hidden h-[70vh] flex flex-col bg-dark-card border border-dark-border rounded-3xl overflow-hidden shadow-2xl relative">
+            <div class="p-4 border-b border-dark-border bg-dark-bg flex justify-between items-center">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-comments text-brand-400"></i> Bate-Papo</h3>
             </div>
             
-            <div class="glass-panel rounded-[2rem] flex flex-col h-[550px] shadow-2xl border-2 border-dark-border overflow-hidden">
-                <div id="chat-messages" class="flex-1 p-6 overflow-y-auto space-y-6 bg-dark-bg/80 scroll-smooth">
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-brand-600 to-pink-500 flex items-center justify-center text-white text-lg shadow-lg"><i class="fa-solid fa-robot"></i></div>
-                        <div class="bg-dark-input border-2 border-dark-border rounded-[1.5rem] rounded-tl-sm p-4 max-w-[85%] text-base text-gray-200 font-medium">
-                            <p>Oi! Eu sou o robô que você montou. Diga algo para testarmos minhas regras!</p>
-                        </div>
+            <div id="chat-window" class="flex-1 overflow-y-auto p-6 space-y-4 bg-[#0f172a]/50">
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-robot text-white"></i>
                     </div>
-                </div>
-                <div class="p-4 border-t-2 border-dark-border bg-dark-card/95 backdrop-blur-xl">
-                    <form onsubmit="runPlayground(event)" class="flex items-center gap-2 sm:gap-3">
-                        <button type="button" onclick="toggleDictation('chat-user-input', this)" class="w-14 h-14 flex-shrink-0 bg-dark-input hover:bg-gray-700 text-gray-300 rounded-xl border-2 border-dark-border transition flex items-center justify-center btn-friendly text-xl" title="Falar por Voz">
-                            <i class="fa-solid fa-microphone"></i>
-                        </button>
-                        <input type="text" id="chat-user-input" placeholder="Digite ou clique no microfone para falar..." class="flex-1 bg-dark-bg border-2 border-dark-border rounded-xl px-5 py-4 text-base font-bold text-white focus:outline-none focus:border-brand-500 transition shadow-inner">
-                        <button type="submit" class="px-6 py-4 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-black text-lg transition btn-friendly shadow-lg">
-                            <span class="hidden sm:inline">Enviar</span> <i class="fa-solid fa-paper-plane sm:ml-2"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </section>
-
-        <section id="view-appbuilder" class="space-y-6 hidden animate-fade-in">
-            <div class="bg-gradient-to-r from-indigo-900/40 via-purple-900/20 to-dark-bg border-2 border-indigo-500/30 p-6 sm:p-8 rounded-[2rem] flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
-                <div class="absolute -left-10 -top-10 text-indigo-500/10 text-[150px] -rotate-12"><i class="fa-solid fa-cubes"></i></div>
-                <div class="flex items-center gap-5 z-10">
-                    <div class="w-16 h-16 bg-indigo-500 text-white rounded-3xl flex items-center justify-center text-3xl shadow-[0_0_20px_rgba(99,102,241,0.6)]">
-                        <i class="fa-solid fa-laptop-code"></i>
-                    </div>
-                    <div>
-                        <h2 class="font-black text-3xl text-white">Fábrica de Apps (Magia) 🪄</h2>
-                        <p class="text-base text-gray-300 mt-1 font-medium">Você descreve um app, e a IA programa e exibe ele rodando aqui na tela. <span class="text-yellow-400 font-bold text-xs bg-yellow-500/20 px-2 py-1 rounded ml-1">Custa 15 Raios ⚡</span></p>
+                    <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%]">
+                        Olá! Monte meu cérebro na "Oficina" e depois venha falar comigo ou aperte o botão de gravar áudio!
                     </div>
                 </div>
             </div>
 
-            <div class="glass-panel p-6 sm:p-8 rounded-[2rem] border-2 border-dark-border shadow-xl space-y-6">
-                <div class="flex flex-col md:flex-row gap-4 items-end">
-                    <div class="flex-1 w-full space-y-2 relative">
-                        <label class="block text-lg font-black text-white">O que você quer criar agora?</label>
-                        <div class="relative">
-                            <textarea id="app-prompt" rows="2" placeholder="Ex: Crie uma calculadora bonitinha com botões laranjas..." class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 pr-16 text-base font-medium text-white focus:outline-none focus:border-indigo-500 transition shadow-inner resize-none"></textarea>
-                            <button type="button" onclick="toggleDictation('app-prompt', this)" class="absolute right-3 bottom-3 w-12 h-12 bg-dark-input hover:bg-gray-700 text-gray-300 rounded-xl border-2 border-dark-border transition flex items-center justify-center btn-friendly z-10 text-xl" title="Falar por Voz">
-                                <i class="fa-solid fa-microphone"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="w-full md:w-64 space-y-2">
-                        <label class="block text-base font-bold text-gray-400">Quem vai programar?</label>
-                        <select id="app-provider" onchange="handleProviderChange('app-provider')" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl px-4 py-4 text-base font-bold text-indigo-300 focus:outline-none focus:border-indigo-500 shadow-inner">
-                            <option value="simulated">🟢 Simulação Rápida</option>
-                            <option value="ollama">💻 Ollama (Motor Real Local)</option>
-                        </select>
-                    </div>
-                    <button onclick="generateApp()" id="btn-generate-app" class="w-full md:w-auto px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-lg transition shadow-[0_5px_15px_rgba(99,102,241,0.4)] btn-friendly flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-magic"></i> Criar App!
+            <div class="p-4 border-t border-dark-border bg-dark-bg">
+                <div class="flex gap-2">
+                    <input type="text" id="chat-input" placeholder="Digite ou fale sua mensagem..." class="flex-1 bg-dark-card border border-dark-border rounded-xl px-4 py-3 text-white focus:outline-none focus:border-brand-500">
+                    <button id="btn-voice-chat" onclick="toggleVoice('chat-input')" class="px-5 bg-dark-border hover:bg-gray-600 text-white rounded-xl transition flex items-center justify-center">
+                        <i class="fa-solid fa-microphone text-xl"></i>
+                    </button>
+                    <button onclick="sendChatMessage()" class="px-6 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition">
+                        <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </div>
+                <p id="voice-status-chat" class="text-xs text-green-400 mt-2 hidden text-center font-bold">Estou ouvindo... Fale agora!</p>
+            </div>
+        </div>
 
-                <div id="app-loading" class="hidden flex-col items-center justify-center py-12 space-y-4">
-                    <div class="loader"></div>
-                    <p class="text-indigo-400 text-xl font-bold animate-pulse">A IA está escrevendo o código... aguarde a mágica! ✨</p>
-                </div>
-
-                <div id="app-result-area" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-8 border-t-2 border-dark-border pt-8">
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <h3 class="font-bold text-white text-lg flex items-center gap-2"><i class="fa-solid fa-play text-emerald-400"></i> Seu App Rodando</h3>
-                        </div>
-                        <div class="bg-white rounded-2xl overflow-hidden border-4 border-dark-border h-[500px] shadow-inner relative group">
-                            <iframe id="app-preview-iframe" class="w-full h-full border-0" sandbox="allow-scripts allow-same-origin"></iframe>
-                        </div>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between">
-                            <h3 class="font-bold text-white text-lg flex items-center gap-2"><i class="fa-solid fa-code text-indigo-400"></i> Código Gerado</h3>
-                            <button onclick="copyGeneratedAppCode()" class="text-sm font-bold bg-dark-input hover:bg-indigo-600 text-white px-4 py-2 rounded-xl transition border-2 border-dark-border">Copiar Código</button>
-                        </div>
-                        <textarea id="app-code-output" readonly class="w-full h-[500px] bg-dark-bg border-2 border-dark-border rounded-xl p-5 text-[13px] text-emerald-100/80 font-mono focus:outline-none shadow-inner resize-none"></textarea>
-                    </div>
+        <!-- TAB 3: FABRICA DE APPS -->
+        <div id="content-fabrica" class="hidden h-[75vh] flex flex-col bg-dark-card border border-dark-border rounded-3xl overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-dark-border bg-dark-bg flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Criador de Apps</h3>
+                <div class="flex items-center gap-2 w-full sm:w-auto">
+                    <input type="text" id="app-idea-input" placeholder="Ex: Crie uma calculadora bonitinha" class="flex-1 sm:w-64 bg-dark-card border border-dark-border rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                    <button id="btn-voice-app" onclick="toggleVoice('app-idea-input')" class="p-2 px-3 bg-dark-border hover:bg-gray-600 text-white rounded-xl transition">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <button onclick="generateApp()" class="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl transition text-sm whitespace-nowrap">
+                        Criar App
+                    </button>
                 </div>
             </div>
-        </section>
+            <p id="voice-status-app" class="text-xs text-green-400 p-1 hidden text-center font-bold bg-dark-bg">Estou ouvindo... Fale o app que deseja!</p>
+            
+            <div class="flex-1 p-2 bg-[#0f172a] relative flex items-center justify-center">
+                <iframe id="app-preview" class="w-full h-full bg-white rounded-xl hidden" sandbox="allow-scripts"></iframe>
+                <div id="app-placeholder" class="text-center text-gray-500">
+                    <i class="fa-solid fa-mobile-screen text-6xl mb-4 opacity-50"></i>
+                    <p>Diga o que você quer e veja a mágica acontecer aqui.</p>
+                    <p class="text-sm mt-2">Custo: 20 Energia por App</p>
+                </div>
+            </div>
+        </div>
 
     </main>
 
-    <!-- MODAL: Export Code -->
-    <div id="modal-code-export" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-dark-card border-2 border-dark-border rounded-[2rem] max-w-2xl w-full p-8 space-y-6 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-code-export-box">
-            <div class="flex items-center justify-between border-b-2 border-dark-border pb-4">
-                <h3 class="font-black text-2xl text-white flex items-center gap-3"><i class="fa-solid fa-code text-brand-400"></i> Leve o Cérebro com você!</h3>
-                <button onclick="closeModal('modal-code-export')" class="w-12 h-12 rounded-full bg-dark-input text-gray-400 hover:text-white flex items-center justify-center transition border-2 border-dark-border text-xl"><i class="fa-solid fa-xmark"></i></button>
+    <!-- MODAL: PAYWALL -->
+    <div id="modal-paywall" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[80] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-dark-card border border-dark-border rounded-[2rem] max-w-lg w-full p-8 shadow-2xl transform scale-95 transition-transform duration-300">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-[0_0_30px_rgba(250,204,21,0.4)]">
+                    <i class="fa-solid fa-bolt text-4xl text-white"></i>
+                </div>
+                <h3 class="font-black text-3xl text-white mb-2">Sem Energia! ⚡</h3>
+                <p class="text-gray-400">Você gastou seus raios gratuitos. Para continuar criando robôs e aplicativos incríveis, escolha uma opção abaixo:</p>
             </div>
-            <div class="bg-emerald-900/20 border-2 border-emerald-500/30 p-5 rounded-2xl flex items-start gap-4">
-                <i class="fa-solid fa-lock-open text-emerald-400 mt-1 text-2xl"></i>
-                <p class="text-sm text-emerald-300 font-medium"><strong>100% Livre:</strong> Esse código não usa a API do Gemini. Ele foi feito para o padrão universal. Funciona de graça no seu PC (Ollama) ou em outras plataformas, sem prender sua empresa a ninguém!</p>
+            
+            <div class="space-y-4">
+                <!-- RECARGA -->
+                <a href="https://mpago.la/1hMvZHb" target="_blank" class="block border-2 border-dark-border hover:border-brand-500 rounded-2xl p-4 transition group bg-dark-bg cursor-pointer text-left relative overflow-hidden">
+                    <div class="flex justify-between items-center relative z-10">
+                        <div>
+                            <h4 class="font-bold text-white text-lg">Recarga Rápida</h4>
+                            <p class="text-sm text-gray-400">+ 1000 Raios de Energia</p>
+                            <div class="flex gap-2 mt-2 text-xs text-gray-500">
+                                <span class="bg-dark-card px-2 py-1 rounded"><i class="fa-brands fa-pix text-teal-400"></i> Pix</span>
+                                <span class="bg-dark-card px-2 py-1 rounded"><i class="fa-solid fa-credit-card text-blue-400"></i> Cartão</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="block font-black text-2xl text-white">R$ 9,90</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <!-- PREMIUM -->
+                <a href="https://mpago.la/2fLHcpu" target="_blank" class="block border-2 border-brand-500 rounded-2xl p-4 transition group bg-gradient-to-r from-brand-600/10 to-transparent cursor-pointer text-left relative overflow-hidden shadow-[0_0_20px_rgba(139,92,246,0.2)]">
+                    <div class="absolute top-0 right-0 bg-brand-600 text-white text-[10px] font-bold px-3 py-1 rounded-bl-lg uppercase tracking-wider">Recomendado</div>
+                    <div class="flex justify-between items-center relative z-10">
+                        <div>
+                            <h4 class="font-bold text-white text-lg"><i class="fa-solid fa-crown text-yellow-400 mr-1"></i> Passe Premium</h4>
+                            <p class="text-sm text-gray-400">Energia Ilimitada (1 Mês)</p>
+                            <div class="flex gap-2 mt-2 text-xs text-gray-500">
+                                <span class="bg-dark-card px-2 py-1 rounded"><i class="fa-brands fa-pix text-teal-400"></i> Pix</span>
+                                <span class="bg-dark-card px-2 py-1 rounded"><i class="fa-solid fa-credit-card text-blue-400"></i> Cartão</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="block font-black text-2xl text-brand-400">R$ 49,90</span>
+                        </div>
+                    </div>
+                </a>
             </div>
+
+            <button onclick="closeModal('modal-paywall')" class="w-full mt-6 py-3 text-gray-400 hover:text-white font-bold transition">Voltar</button>
+        </div>
+    </div>
+
+    <!-- MODAL: ADMIN BACKDOOR -->
+    <div id="modal-admin" class="fixed inset-0 bg-black/95 backdrop-blur-md z-[90] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-black border-2 border-red-500 rounded-3xl max-w-sm w-full p-8 shadow-[0_0_50px_-10px_rgba(239,68,68,0.5)] text-center">
+            <h3 class="font-black text-2xl text-red-500 mb-2"><i class="fa-solid fa-skull"></i> MODO DEUS</h3>
+            <p class="text-xs text-gray-500 mb-6 font-mono">ACESSO RESTRITO A DESENVOLVEDOR</p>
+            <input type="password" id="admin-serial" placeholder="Serial Key..." class="w-full bg-gray-900 border border-gray-700 rounded-lg px-4 py-3 text-center font-mono text-white focus:outline-none focus:border-red-500 mb-4 tracking-widest uppercase">
             <div class="flex gap-3">
-                <button onclick="switchCodeLang('python')" id="btn-lang-python" class="px-6 py-3 text-base font-bold rounded-xl bg-brand-600 text-white shadow-md transition">🐍 Código Python</button>
-                <button onclick="switchCodeLang('node')" id="btn-lang-node" class="px-6 py-3 text-base font-bold rounded-xl bg-dark-input text-gray-300 border-2 border-dark-border transition">📦 Código Node.js</button>
-            </div>
-            <pre id="exported-code-pre" class="bg-dark-bg border-2 border-dark-border rounded-2xl p-6 text-[13px] text-emerald-100/80 h-[250px] overflow-y-auto whitespace-pre-wrap font-mono select-all shadow-inner"></pre>
-        </div>
-    </div>
-
-    <!-- MODAL: PAYWALL (CRÉDITOS E PREMIUM) -->
-    <div id="modal-pricing" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[60] flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-dark-card border-2 border-yellow-500/30 rounded-[2rem] max-w-4xl w-full p-2 space-y-0 shadow-[0_0_50px_-10px_rgba(234,179,8,0.3)] transform scale-95 transition-transform duration-300 relative overflow-hidden" id="modal-pricing-box">
-            
-            <button onclick="closeModal('modal-pricing')" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-dark-bg text-gray-400 hover:text-white flex items-center justify-center z-10 border-2 border-dark-border"><i class="fa-solid fa-xmark"></i></button>
-            
-            <div class="p-8 text-center border-b border-dark-border bg-gradient-to-b from-yellow-900/20 to-transparent">
-                <div class="w-20 h-20 mx-auto rounded-full bg-yellow-500/20 flex items-center justify-center text-yellow-400 text-4xl mb-4 animate-pulse shadow-inner border border-yellow-500/50">
-                    <i class="fa-solid fa-battery-empty"></i>
-                </div>
-                <h3 class="font-black text-3xl text-white mb-2">Sua Energia Acabou! ⚡</h3>
-                <p class="text-gray-300 font-medium text-lg max-w-xl mx-auto">Para continuar criando robôs e aplicativos incríveis, escolha como deseja recarregar sua conta.</p>
-            </div>
-
-            <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 bg-dark-bg">
-                <!-- Pacote Simples -->
-                <div class="border-2 border-dark-border bg-dark-card rounded-2xl p-6 flex flex-col hover:border-brand-500 transition relative">
-                    <h4 class="text-xl font-black text-white mb-2">Recarga Rápida</h4>
-                    <p class="text-sm text-gray-400 mb-6">Ideal para uso casual. Compre energia avulsa e use quando quiser.</p>
-                    <div class="text-4xl font-black text-white mb-6">R$ 9<span class="text-lg text-gray-500 font-medium">,90</span></div>
-                    <ul class="space-y-3 mb-8 flex-1 text-sm text-gray-300 font-medium">
-                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> +1.000 Raios de Energia ⚡</li>
-                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Validade de 30 dias</li>
-                        <li><i class="fa-solid fa-check text-brand-400 mr-2"></i> Acesso a todos os modelos</li>
-                    </ul>
-                    <a href="https://mpago.la/1hMvZHb" target="_blank" class="w-full py-3 bg-dark-input hover:bg-brand-600 border-2 border-brand-500 text-white rounded-xl transition flex flex-col items-center justify-center">
-                        <span class="font-black text-lg">Comprar Energia</span>
-                        <span class="text-xs font-medium text-gray-300 mt-1"><i class="fa-solid fa-qrcode mr-1"></i> PIX ou <i class="fa-solid fa-credit-card mr-1"></i> Cartão</span>
-                    </a>
-                </div>
-
-                <!-- Premium Ilimitado -->
-                <div class="border-2 border-yellow-500 bg-gradient-to-b from-dark-card to-yellow-900/10 rounded-2xl p-6 flex flex-col transform md:-translate-y-4 shadow-2xl relative">
-                    <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-yellow-500 text-black px-4 py-1 rounded-full text-xs font-black uppercase tracking-wider">Mais Vantajoso</div>
-                    <h4 class="text-xl font-black text-yellow-400 mb-2">Passe Premium (Pro)</h4>
-                    <p class="text-sm text-gray-300 mb-6">Para construtores sérios e empresas. Não se preocupe mais com limites.</p>
-                    <div class="text-4xl font-black text-white mb-6">R$ 49<span class="text-lg text-gray-400 font-medium">,90</span><span class="text-sm text-gray-500 font-normal"> /mês</span></div>
-                    <ul class="space-y-3 mb-8 flex-1 text-sm text-gray-200 font-bold">
-                        <li><i class="fa-solid fa-bolt text-yellow-400 mr-2"></i> Energia 100% Ilimitada ♾️</li>
-                        <li><i class="fa-solid fa-crown text-yellow-400 mr-2"></i> Uso contínuo sem pausas</li>
-                        <li><i class="fa-solid fa-headset text-yellow-400 mr-2"></i> Suporte prioritário</li>
-                    </ul>
-                    <a href="https://mpago.la/2fLHcpu" target="_blank" class="w-full py-3 bg-yellow-500 hover:bg-yellow-400 text-black rounded-xl transition shadow-lg flex flex-col items-center justify-center">
-                        <span class="font-black text-lg">Assinar Premium Agora</span>
-                        <span class="text-xs font-bold text-black/70 mt-1"><i class="fa-solid fa-qrcode mr-1"></i> PIX ou <i class="fa-solid fa-credit-card mr-1"></i> Cartão</span>
-                    </a>
-                </div>
+                <button onclick="closeModal('modal-admin')" class="flex-1 py-3 bg-gray-800 text-white rounded-lg font-bold transition hover:bg-gray-700">Abortar</button>
+                <button onclick="verifyAdmin()" class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white rounded-lg font-bold transition shadow-[0_0_15px_rgba(239,68,68,0.4)]">INJETAR</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL: Share -->
-    <div id="modal-share" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
-        <div class="bg-dark-card border-2 border-dark-border rounded-[2rem] max-w-sm w-full p-8 space-y-6 shadow-2xl transform scale-95 transition-transform duration-300" id="modal-share-box">
-            <div class="flex items-center justify-between border-b-2 border-dark-border pb-4">
-                <h3 class="font-black text-2xl text-white">Indique um Amigo!</h3>
-                <button onclick="closeModal('modal-share')" class="w-10 h-10 rounded-full bg-dark-input text-gray-400 hover:text-white flex items-center justify-center border-2 border-dark-border"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="grid grid-cols-2 gap-4">
-                <button onclick="shareVia('whatsapp')" class="flex flex-col items-center gap-3 p-4 bg-dark-bg border-2 border-dark-border hover:border-green-500 rounded-xl transition text-white font-bold"><i class="fa-brands fa-whatsapp text-4xl text-green-400"></i> WhatsApp</button>
-                <button onclick="shareVia('copy')" class="flex flex-col items-center gap-3 p-4 bg-dark-bg border-2 border-dark-border hover:border-brand-500 rounded-xl transition text-white font-bold"><i class="fa-solid fa-link text-4xl text-brand-400"></i> Copiar Link</button>
+    <!-- MODAL: SHARE -->
+    <div id="modal-share" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[80] flex items-center justify-center p-4 hidden opacity-0 transition-opacity">
+        <div class="bg-dark-card border border-dark-border rounded-3xl max-w-sm w-full p-6 text-center">
+            <h3 class="font-bold text-xl text-white mb-4">Compartilhar Plataforma</h3>
+            <div class="flex flex-col gap-3">
+                <button onclick="shareTo('whatsapp')" class="py-3 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-brands fa-whatsapp text-xl"></i> WhatsApp</button>
+                <button onclick="shareTo('copy')" class="py-3 bg-dark-border hover:bg-gray-600 text-white rounded-xl font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-link"></i> Copiar Link</button>
+                <button onclick="closeModal('modal-share')" class="mt-2 text-gray-400 hover:text-white">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <!-- Toast de Avisos -->
-    <div id="toast" class="fixed bottom-8 right-8 bg-dark-card border-2 border-dark-border text-white px-6 py-4 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-[70] flex items-center gap-4 transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
+    <!-- TOAST -->
+    <div id="toast" class="fixed bottom-8 right-8 bg-dark-card border-2 border-brand-500 text-white px-6 py-4 rounded-2xl shadow-2xl z-[100] flex items-center gap-4 transition-all duration-300 translate-y-24 opacity-0 pointer-events-none">
         <div id="toast-icon" class="text-brand-400 text-2xl"><i class="fa-solid fa-bell"></i></div>
-        <span id="toast-msg" class="text-base font-bold">Aviso aqui!</span>
+        <span id="toast-msg" class="text-base font-bold">Mensagem</span>
     </div>
 
     <script>
-        // --- SISTEMA DE CARTEIRA E ENERGIA (PAYWALL) ---
-        let wallet = JSON.parse(localStorage.getItem('promptsys_wallet'));
+        // --- ESTADO GERAL (ENERGIA E ABAS) ---
+        let wallet = { energy: 500, isPremium: false };
+        let activeTab = 'oficina';
         
-        // Se é usuário novo, dá 500 créditos com validade de 7 dias
-        if (!wallet) {
-            wallet = {
-                credits: 500,
-                isPremium: false,
-                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).getTime() // 7 dias
-            };
-            saveWallet();
-        }
+        // Inicia a UI
+        updateEnergyUI();
 
-        function saveWallet() {
-            localStorage.setItem('promptsys_wallet', JSON.stringify(wallet));
-        }
-
-        function updateWalletUI() {
-            const display = document.getElementById('credit-display');
-            const btn = document.getElementById('wallet-btn');
+        function updateEnergyUI() {
+            const count = document.getElementById('energy-count');
+            const badge = document.getElementById('energy-badge');
             
             if (wallet.isPremium) {
-                display.textContent = "Ilimitado ♾️";
-                btn.classList.add('border-yellow-400');
+                count.innerText = "ILIMITADO";
+                badge.classList.add('bg-brand-600', 'border-brand-400');
+                badge.classList.remove('bg-dark-bg');
+                document.querySelector('#energy-badge i').classList.replace('text-yellow-400', 'text-white');
             } else {
-                display.textContent = `${wallet.credits} Raios`;
-                if (wallet.credits < 50) {
-                    btn.classList.add('low-credits');
-                } else {
-                    btn.classList.remove('low-credits');
+                count.innerText = wallet.energy;
+                if (wallet.energy <= 0) {
+                    badge.classList.add('border-red-500', 'text-red-500');
+                    document.querySelector('#energy-badge i').classList.replace('text-yellow-400', 'text-red-500');
                 }
             }
         }
 
-        // Função crucial: Checa se pode fazer a ação, desconta o custo, ou bloqueia.
-        function consumeCredits(cost, actionName) {
+        function consumeEnergy(amount) {
             if (wallet.isPremium) return true;
-
-            // Checa validade
-            if (Date.now() > wallet.expiresAt) {
-                showToast("Sua energia gratuita expirou (Passaram 7 dias)!", "error");
-                setTimeout(showPricingModal, 1000);
+            if (wallet.energy >= amount) {
+                wallet.energy -= amount;
+                updateEnergyUI();
+                return true;
+            } else {
+                openModal('modal-paywall');
                 return false;
             }
-
-            // Checa saldo
-            if (wallet.credits < cost) {
-                showToast(`Você precisa de ${cost} Raios para ${actionName}.`, "error");
-                setTimeout(showPricingModal, 1000);
-                return false;
-            }
-
-            // Desconta e salva
-            wallet.credits -= cost;
-            saveWallet();
-            updateWalletUI();
-            
-            showToast(`⚡ -${cost} Raios gastos. Saldo: ${wallet.credits}`, "success");
-            return true;
         }
 
-        // --- LÓGICA DO APLICATIVO ---
-        let appState = {
-            currentTab: 'studio',
-            system: {
-                title: 'Meu Super Ajudante',
-                roi: 'Ajudar as pessoas a entenderem meus produtos.',
-                role: 'Você é um assistente super simpático.',
-                context: 'Você está conversando no site da minha empresa.',
-                rules: '- Nunca seja grosso.\n- Não invente informações.'
-            }
-        };
-
-        document.addEventListener('DOMContentLoaded', () => {
-            updateCompiledPrompt();
-            updateWalletUI();
-            
-            ['sys-title', 'sys-role', 'sys-context', 'sys-rules', 'sys-roi'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.addEventListener('input', () => { syncFormToState(); updateCompiledPrompt(); });
+        // --- SISTEMA DE ABAS ---
+        function switchTab(tabId) {
+            activeTab = tabId;
+            ['oficina', 'chat', 'fabrica'].forEach(t => {
+                document.getElementById('content-' + t).classList.add('hidden');
+                document.getElementById('content-' + t).classList.remove('block');
+                
+                const btn = document.getElementById('tab-' + t);
+                btn.className = 'flex-1 min-w-[120px] py-3 rounded-xl font-bold text-gray-400 hover:text-white hover:bg-dark-border transition-all';
             });
+            
+            document.getElementById('content-' + tabId).classList.remove('hidden');
+            document.getElementById('content-' + tabId).classList.add('block');
+            document.getElementById('tab-' + tabId).className = 'flex-1 min-w-[120px] py-3 rounded-xl font-bold transition-all bg-brand-600 text-white shadow-lg glow-effect';
+        }
+
+        // --- GERAÇÃO DE PROMPT (OFICINA) ---
+        function generateSystem() {
+            const persona = document.getElementById('f-persona').value.trim();
+            const task = document.getElementById('f-task').value.trim();
+            const rules = document.getElementById('f-rules').value.trim();
+
+            if (!persona || !task) {
+                showToast('Preencha pelo menos "Quem é ele" e "O que deve fazer"!', 'error');
+                return;
+            }
+
+            if (!consumeEnergy(10)) return;
+
+            const finalPrompt = `[IDENTIDADE]\nVocê é: ${persona}\n\n[TAREFA PRINCIPAL]\nSua missão é: ${task}\n\n[REGRAS E DIRETRIZES]\nSiga estritamente:\n${rules || 'Responda da melhor forma possível.'}`;
+            
+            document.getElementById('final-prompt').value = finalPrompt;
+            document.getElementById('system-output').classList.remove('hidden');
+            showToast('Cérebro Gerado! ( -10 Energia )', 'success');
+        }
+
+        // --- GERAÇÃO DE APPS (SIMULADOR) ---
+        function generateApp() {
+            const idea = document.getElementById('app-idea-input').value.trim();
+            if (!idea) {
+                showToast('Digite qual aplicativo você quer criar!', 'error');
+                return;
+            }
+            if (!consumeEnergy(20)) return;
+
+            showToast('Programando o App... ( -20 Energia )', 'success');
+            document.getElementById('app-placeholder').innerHTML = `<div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mb-4 mx-auto"></div><p>A IA está escrevendo o código...</p>`;
+
+            // Simulação de geração após 2 segundos
+            setTimeout(() => {
+                const code = `
+                <!DOCTYPE html>
+                <html><head><script src="https://cdn.tailwindcss.com"><\/script></head>
+                <body class="bg-gray-100 flex items-center justify-center h-screen">
+                    <div class="bg-white p-8 rounded-2xl shadow-xl text-center">
+                        <h1 class="text-2xl font-bold text-blue-600 mb-4">${idea.substring(0,20)}...</h1>
+                        <p>App gerado pela Fábrica Livre!</p>
+                        <button class="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="alert('Funciona!')">Testar Botão</button>
+                    </div>
+                </body></html>`;
+                
+                document.getElementById('app-placeholder').classList.add('hidden');
+                const iframe = document.getElementById('app-preview');
+                iframe.classList.remove('hidden');
+                iframe.srcdoc = code;
+            }, 2000);
+        }
+
+        // --- CHAT ---
+        function sendChatMessage() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value.trim();
+            if(!msg) return;
+            if (!consumeEnergy(5)) return;
+
+            const chatWindow = document.getElementById('chat-window');
+            
+            // Mensagem do Usuário
+            chatWindow.innerHTML += `
+                <div class="flex items-start gap-3 justify-end">
+                    <div class="bg-brand-600 p-4 rounded-2xl rounded-tr-none text-white max-w-[80%]">${msg}</div>
+                </div>`;
+            input.value = '';
+            
+            // Simula IA
+            setTimeout(() => {
+                chatWindow.innerHTML += `
+                <div class="flex items-start gap-3">
+                    <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white"></i></div>
+                    <div class="bg-dark-border p-4 rounded-2xl rounded-tl-none text-white max-w-[80%]">Entendido! Como sou um simulador sem API paga, esta é uma resposta genérica para testarmos a interface.</div>
+                </div>`;
+                chatWindow.scrollTop = chatWindow.scrollHeight;
+            }, 1000);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        // --- STREAMING_CHUNK:Reconhecimento de Voz (Web Speech API)... ---
+        let recognition;
+        let isRecording = false;
+        let currentVoiceTarget = '';
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRec();
+            recognition.lang = 'pt-BR';
+            recognition.interimResults = false;
+            recognition.continuous = false;
+
+            recognition.onstart = function() {
+                isRecording = true;
+                const btnId = currentVoiceTarget === 'chat-input' ? 'btn-voice-chat' : 'btn-voice-app';
+                const statusId = currentVoiceTarget === 'chat-input' ? 'voice-status-chat' : 'voice-status-app';
+                
+                document.getElementById(btnId).classList.add('bg-red-500', 'mic-pulse');
+                document.getElementById(statusId).classList.remove('hidden');
+            };
+
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                document.getElementById(currentVoiceTarget).value = transcript;
+            };
+
+            recognition.onend = function() {
+                isRecording = false;
+                const btnId = currentVoiceTarget === 'chat-input' ? 'btn-voice-chat' : 'btn-voice-app';
+                const statusId = currentVoiceTarget === 'chat-input' ? 'voice-status-chat' : 'voice-status-app';
+                
+                document.getElementById(btnId).classList.remove('bg-red-500', 'mic-pulse');
+                document.getElementById(statusId).classList.add('hidden');
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Erro no microfone:", event.error);
+                let erroMsg = "Erro no microfone.";
+                if (event.error === 'not-allowed') erroMsg = "Permissão do microfone negada!";
+                if (event.error === 'no-speech') erroMsg = "Nenhum som detectado.";
+                showToast(erroMsg, 'error');
+            };
+        }
+
+        function toggleVoice(targetInputId) {
+            if (!recognition) {
+                showToast('Seu navegador não suporta digitação por voz.', 'error');
+                return;
+            }
+            if (isRecording) {
+                recognition.stop();
+            } else {
+                currentVoiceTarget = targetInputId;
+                try {
+                    recognition.start();
+                } catch(e) {
+                    showToast('O microfone já está em uso.', 'error');
+                }
+            }
+        }
+
+        // --- STREAMING_CHUNK:Modo Deus (Easter Egg)... ---
+        let robotClicks = 0;
+        let clickTimer;
+
+        document.getElementById('secret-robot').addEventListener('click', () => {
+            robotClicks++;
+            clearTimeout(clickTimer);
+            if (robotClicks >= 5) {
+                openModal('modal-admin');
+                robotClicks = 0;
+            } else {
+                clickTimer = setTimeout(() => { robotClicks = 0; }, 800);
+            }
         });
 
-        function switchTab(tab) {
-            appState.currentTab = tab;
-            ['studio', 'playground', 'appbuilder'].forEach(t => {
-                const el = document.getElementById(`view-${t}`);
-                const btn = document.getElementById(`tab-${t}`);
-                if (el) {
-                    if(t === tab) el.classList.remove('hidden');
-                    else el.classList.add('hidden');
-                }
-                if (btn) {
-                    if (t === tab) btn.className = "px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition text-white bg-brand-600 shadow-md btn-friendly flex items-center gap-2";
-                    else btn.className = "px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold rounded-xl transition text-gray-400 hover:text-white hover:bg-dark-input btn-friendly flex items-center gap-2";
-                }
-            });
-        }
-
-        function syncFormToState() {
-            appState.system.title = document.getElementById('sys-title').value;
-            appState.system.role = document.getElementById('sys-role').value;
-            appState.system.roi = document.getElementById('sys-roi').value;
-            appState.system.context = document.getElementById('sys-context').value;
-            appState.system.rules = document.getElementById('sys-rules').value;
-        }
-
-        function updateCompiledPrompt() {
-            syncFormToState();
-            let compiled = `### CONSTRUÇÃO DE INTELIGÊNCIA ###\n`;
-            compiled += `NOME DO SISTEMA: ${appState.system.title}\n`;
-            if (appState.system.roi.trim()) compiled += `OBJETIVO DE VALOR: ${appState.system.roi}\n`;
-            compiled += `==================================================\n\n`;
-            compiled += `1. PERSONALIDADE (Quem você é):\n${appState.system.role}\n\n`;
-            compiled += `2. CONTEXTO (Onde você está):\n${appState.system.context}\n\n`;
-            compiled += `3. REGRAS OBRIGATÓRIAS (O que não fazer):\n${appState.system.rules}\n`;
-            document.getElementById('compiled-prompt-output').textContent = compiled;
-        }
-
-        function loadExampleIA(type) {
-            if(type === 'vendas') {
-                document.getElementById('sys-title').value = "Bot Fechador de Vendas PIX";
-                document.getElementById('sys-roi').value = "Diminuir o tempo de atendimento e enviar links de pagamento para fechar vendas no WhatsApp.";
-                document.getElementById('sys-role').value = "Você é um vendedor persuasivo e direto.";
-                document.getElementById('sys-context').value = "Atendendo um cliente quente no WhatsApp da nossa loja de roupas.";
-                document.getElementById('sys-rules').value = "- Nunca dê desconto maior que 10%.\n- Peça o nome do cliente na primeira mensagem.";
-            } else if (type === 'saude') {
-                document.getElementById('sys-title').value = "Dra. IA - Triagem Rápida";
-                document.getElementById('sys-roi').value = "Acalmar o paciente, fazer perguntas iniciais e organizar os sintomas para o médico real.";
-                document.getElementById('sys-role').value = "Você é uma enfermeira gentil, empática e muito atenta aos detalhes.";
-                document.getElementById('sys-context').value = "Triagem inicial no aplicativo da clínica médica antes da consulta.";
-                document.getElementById('sys-rules').value = "- Nunca dê diagnósticos finais.\n- Nunca receite remédios.\n- Se o paciente falar em dor no peito, mande ele para o pronto-socorro imediatamente.";
-            }
-            updateCompiledPrompt();
-            showToast('Modelo carregado com sucesso! 🎉', 'success');
-        }
-
-        function sendToPlayground() {
-            syncFormToState();
-            switchTab('playground');
-            showToast('Cérebro conectado ao Chat! Diga "Olá" para ele! 👋', 'info');
-        }
-
-        function handleProviderChange(selectId) {
-            const provider = document.getElementById(selectId).value;
-            if (provider === 'ollama') {
-                showToast('Modo Ollama Local ativado! 💻 (Não gasta energia externa, mas a nossa plataforma consome a taxa do painel)', 'info');
+        function verifyAdmin() {
+            const serial = document.getElementById('admin-serial').value;
+            if (serial === 'PROMPTSYS-ADM') {
+                wallet.isPremium = true;
+                updateEnergyUI();
+                closeModal('modal-admin');
+                showToast('👑 MODO DEUS ATIVADO! Energia Infinita.', 'success');
+                document.getElementById('admin-serial').value = '';
             } else {
-                showToast('Modo Simulação ativado! 🟢', 'info');
+                showToast('❌ Serial Incorreto!', 'error');
             }
         }
 
-        // --- LÓGICA DO PLAYGROUND (CHAT) E CONSUMO DE ENERGIA ---
-        function runPlayground(e) {
-            e.preventDefault();
-            const inputEl = document.getElementById('chat-user-input');
-            const text = inputEl.value.trim();
-            if (!text) return;
-
-            // SISTEMA DE PAGAMENTO: Tenta gastar 5 raios para enviar mensagem
-            if (!consumeCredits(5, "enviar uma mensagem ao Chat")) {
-                return; // Bloqueia a execução se não tiver crédito
-            }
-
-            const messagesContainer = document.getElementById('chat-messages');
-            
-            messagesContainer.innerHTML += `
-                <div class="flex items-start gap-4 justify-end">
-                    <div class="bg-brand-600 rounded-[1.5rem] rounded-tr-sm p-4 max-w-[85%] text-base text-white font-medium shadow-md">${escapeHtml(text)}</div>
-                    <div class="w-12 h-12 rounded-full bg-dark-input border-2 border-brand-500 flex items-center justify-center text-white text-lg"><i class="fa-solid fa-user"></i></div>
-                </div>`;
-            inputEl.value = '';
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-            const provider = document.getElementById('pg-provider').value;
-            
-            if (provider === 'simulated') {
-                setTimeout(() => {
-                    messagesContainer.innerHTML += `
-                        <div class="flex items-start gap-4">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-brand-600 to-pink-500 flex items-center justify-center text-white text-lg shadow-lg"><i class="fa-solid fa-robot"></i></div>
-                            <div class="bg-dark-input border-2 border-dark-border rounded-[1.5rem] rounded-tl-sm p-4 max-w-[85%] text-base text-gray-200 font-medium whitespace-pre-wrap shadow-md">Robô Simulador: Eu recebi sua mensagem baseada nas regras que você criou na Oficina! 🤖✨</div>
-                        </div>`;
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }, 800);
-            } else {
-                callOllamaChat(text, messagesContainer);
-            }
-        }
-
-        async function callOllamaChat(userText, container) {
-            try {
-                const promptDoSistema = document.getElementById('compiled-prompt-output').textContent;
-                const req = await fetch('http://localhost:11434/api/generate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ model: 'llama3', system: promptDoSistema, prompt: userText, stream: false })
-                });
-                const res = await req.json();
-                
-                container.innerHTML += `
-                    <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-brand-600 to-pink-500 flex items-center justify-center text-white text-lg shadow-lg"><i class="fa-solid fa-robot"></i></div>
-                        <div class="bg-dark-input border-2 border-dark-border rounded-[1.5rem] rounded-tl-sm p-4 max-w-[85%] text-base text-gray-200 font-medium whitespace-pre-wrap shadow-md">${escapeHtml(res.response)}</div>
-                    </div>`;
-            } catch (e) {
-                container.innerHTML += `<div class="text-red-400 text-sm text-center p-3 font-bold">Erro: O seu Ollama local parece estar desligado. Inicie ele no seu computador.</div>`;
-            }
-            container.scrollTop = container.scrollHeight;
-        }
-
-        // --- FÁBRICA DE APPS E CONSUMO DE ENERGIA ---
-        async function generateApp() {
-            const prompt = document.getElementById('app-prompt').value.trim();
-            if (!prompt) {
-                showToast("Por favor, digite ou fale o aplicativo que quer criar!", "error");
-                return;
-            }
-
-            // SISTEMA DE PAGAMENTO: Tenta gastar 15 raios para criar um App
-            if (!consumeCredits(15, "criar um Aplicativo Mágico")) {
-                return; // Bloqueia se não tiver crédito
-            }
-
-            const provider = document.getElementById('app-provider').value;
-            const btn = document.getElementById('btn-generate-app');
-            const loader = document.getElementById('app-loading');
-            const resultArea = document.getElementById('app-result-area');
-            const iframe = document.getElementById('app-preview-iframe');
-            const codeOutput = document.getElementById('app-code-output');
-
-            btn.disabled = true;
-            btn.classList.add('opacity-50');
-            resultArea.classList.add('hidden');
-            loader.classList.remove('hidden');
-            loader.style.display = 'flex';
-
-            let generatedHtml = "";
-
-            if (provider === 'simulated') {
-                await new Promise(r => setTimeout(r, 2000));
-                generatedHtml = `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>App Simulado</title>
-    <script src="https://cdn.tailwindcss.com"><\/script>
-</head>
-<body class="bg-gray-900 text-white p-8 font-sans flex flex-col items-center justify-center h-screen">
-    <div class="bg-gray-800 p-8 rounded-3xl shadow-2xl border-2 border-purple-500 text-center max-w-sm">
-        <h1 class="text-3xl font-black text-purple-400 mb-4">Calculadora Mágica</h1>
-        <p class="text-gray-400 mb-6">Isso é um exemplo visual de como o app criado vai rodar instantaneamente aqui.</p>
-        <button class="w-full py-4 bg-orange-500 rounded-xl font-bold text-xl hover:bg-orange-400">Botão Laranja 🎉</button>
-    </div>
-</body>
-</html>`;
-            } else if (provider === 'ollama') {
-                try {
-                    const systemPrompt = "Você é um Programador Frontend Mestre. Gere APENAS código HTML puro, sem markdown, contendo CSS (Tailwind via CDN) e JS tudo em um único arquivo. Retorne apenas o HTML que começa com <!DOCTYPE html>.";
-                    const req = await fetch('http://localhost:11434/api/generate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ model: 'llama3', system: systemPrompt, prompt: "Crie este aplicativo web: " + prompt, stream: false })
-                    });
-                    const res = await req.json();
-                    generatedHtml = res.response.replace(/```html/g, '').replace(/```/g, '').trim();
-                } catch (e) {
-                    generatedHtml = `<body style="background:#121217; color:white; font-family:sans-serif; text-align:center; padding:50px;"><h2>Erro 💻</h2><p>Ligue o Ollama no seu PC.</p></body>`;
-                }
-            }
-
-            codeOutput.value = generatedHtml;
-            const doc = iframe.contentWindow.document;
-            doc.open();
-            doc.write(generatedHtml);
-            doc.close();
-
-            loader.classList.add('hidden');
-            loader.style.display = 'none';
-            resultArea.classList.remove('hidden');
-            btn.disabled = false;
-            btn.classList.remove('opacity-50');
-            
-            showToast("Aplicativo gerado com sucesso! 🎉", "success");
-        }
-
-        // --- RECONHECIMENTO DE VOZ (MICROFONE) ---
-        let isRecording = false;
-        let recognition = null;
-
-        function initSpeechRecognition() {
-            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return null;
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const rec = new SpeechRecognition();
-            rec.lang = 'pt-BR'; 
-            rec.interimResults = true; 
-            rec.continuous = false;
-            return rec;
-        }
-
-        function toggleDictation(targetId, btnEl) {
-            if (isRecording && recognition) {
-                recognition.stop();
-                return;
-            }
-
-            recognition = initSpeechRecognition();
-            if (!recognition) {
-                showToast("Seu navegador não suporta voz. Use o Chrome no PC ou celular Android.", "error");
-                return;
-            }
-
-            const targetInput = document.getElementById(targetId);
-            const originalIcon = '<i class="fa-solid fa-microphone"></i>';
-            let valueBeforeRecording = targetInput.value; 
-
-            recognition.onstart = () => {
-                isRecording = true;
-                btnEl.classList.add('recording-active');
-                btnEl.innerHTML = '<i class="fa-solid fa-microphone-lines"></i>';
-                showToast("Estou ouvindo... Pode falar! 🎙️", "info");
-            };
-
-            recognition.onresult = (event) => {
-                let interimTranscript = '';
-                let finalTranscript = '';
-
-                for (let i = event.resultIndex; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) finalTranscript += event.results[i][0].transcript;
-                    else interimTranscript += event.results[i][0].transcript;
-                }
-                const espaco = (valueBeforeRecording && !valueBeforeRecording.endsWith(' ')) ? ' ' : '';
-                targetInput.value = valueBeforeRecording + espaco + finalTranscript + interimTranscript;
-            };
-
-            recognition.onerror = (event) => {
-                if(event.error === 'not-allowed') showToast("Libere o microfone no cadeado lá em cima! 🔒", "error");
-                else if(event.error === 'no-speech') showToast("Não escutei nada. Fale mais alto.", "error");
-                else showToast("Ocorreu um erro no microfone. Tente digitar.", "error");
-                stopDictationUI(btnEl, originalIcon);
-            };
-
-            recognition.onend = () => {
-                stopDictationUI(btnEl, originalIcon);
-                targetInput.focus(); 
-            };
-
-            try { recognition.start(); } catch(e) { stopDictationUI(btnEl, originalIcon); }
-        }
-
-        function stopDictationUI(btnEl, originalIcon) {
-            isRecording = false;
-            btnEl.classList.remove('recording-active');
-            btnEl.innerHTML = originalIcon;
-        }
-
-        // --- FUNÇÕES UTILITÁRIAS (Modais e Utilidades) ---
-        function openModal(modalId) {
-            const modal = document.getElementById(modalId);
-            const box = document.getElementById(modalId + '-box');
+        // --- UTILITÁRIOS (UI, Modais, Toasts) ---
+        function openModal(id) {
+            const modal = document.getElementById(id);
             modal.classList.remove('hidden');
-            setTimeout(() => { modal.classList.remove('opacity-0'); if(box) box.classList.remove('scale-95'); }, 10);
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('div').classList.remove('scale-95');
+            }, 10);
         }
-        function closeModal(modalId) {
-            const modal = document.getElementById(modalId);
-            const box = document.getElementById(modalId + '-box');
+
+        function closeModal(id) {
+            const modal = document.getElementById(id);
             modal.classList.add('opacity-0');
-            if(box) box.classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 300);
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => { modal.classList.add('hidden'); }, 300);
         }
 
-        function showPricingModal() {
-            openModal('modal-pricing');
-        }
-
-        function showCodeExportModal() {
-            openModal('modal-code-export');
-            switchCodeLang('python');
-        }
-
-        function switchCodeLang(lang) {
-            const btnPy = document.getElementById('btn-lang-python');
-            const btnNd = document.getElementById('btn-lang-node');
-            if(lang === 'python') {
-                btnPy.className = "px-6 py-3 text-base font-bold rounded-xl bg-brand-600 text-white shadow-md transition";
-                btnNd.className = "px-6 py-3 text-base font-bold rounded-xl bg-dark-input text-gray-300 border-2 border-dark-border transition";
-            } else {
-                btnNd.className = "px-6 py-3 text-base font-bold rounded-xl bg-brand-600 text-white shadow-md transition";
-                btnPy.className = "px-6 py-3 text-base font-bold rounded-xl bg-dark-input text-gray-300 border-2 border-dark-border transition";
-            }
-            
-            const promptText = document.getElementById('compiled-prompt-output').textContent;
-            const promptStr = JSON.stringify(promptText);
-            const pre = document.getElementById('exported-code-pre');
-            
-            if (lang === 'python') {
-                pre.textContent = `import requests\nimport json\n\nurl = "http://localhost:11434/api/generate"\nprompt_do_sistema = ${promptStr}\n\npayload = {\n    "model": "llama3",\n    "prompt": prompt_do_sistema,\n    "stream": False\n}\n\nresposta = requests.post(url, data=json.dumps(payload))\nprint(resposta.json().get("response"))`;
-            } else {
-                pre.textContent = `async function rodarIA() {\n  const res = await fetch('http://localhost:11434/api/generate', {\n    method: 'POST',\n    headers: { 'Content-Type': 'application/json' },\n    body: JSON.stringify({ model: 'llama3', prompt: ${promptStr}, stream: false })\n  });\n  console.log(await res.json());\n}\nrodarIA();`;
-            }
-        }
-
-        function showShareModal() { openModal('modal-share'); }
-        function shareVia(platform) {
-            const url = window.location.href;
-            if (platform === 'whatsapp') window.open(`https://api.whatsapp.com/send?text=Construa%20seu%20pr%C3%B3prio%20App%20de%20IA%20Livre:%20${url}`);
-            else copyToClipboard(url, 'Link do site copiado para a área de transferência!');
-            closeModal('modal-share');
-        }
-
-        function copyGeneratedAppCode() {
-            copyToClipboard(document.getElementById('app-code-output').value, 'Código do App copiado com sucesso!');
-        }
-
-        function copyToClipboard(text, msg) {
-            navigator.clipboard.writeText(text).then(() => showToast(msg, 'success')).catch(() => {
-                const ta = document.createElement('textarea'); ta.value = text;
-                document.body.appendChild(ta); ta.select(); document.execCommand('copy');
-                document.body.removeChild(ta); showToast(msg, 'success');
-            });
-        }
-        
-        function showToast(msg, type = 'info') {
+        function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
-            const icon = document.getElementById('toast-icon');
-            document.getElementById('toast-msg').textContent = msg;
+            document.getElementById('toast-msg').innerText = message;
             
-            if (type === 'error') icon.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i>';
-            else if (type === 'success') icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
-            else icon.innerHTML = '<i class="fa-solid fa-bell text-brand-400"></i>';
+            const icon = document.getElementById('toast-icon');
+            if(type === 'error') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-exclamation text-red-500"></i>';
+                toast.style.borderColor = '#ef4444';
+            } else if (type === 'success') {
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-green-500"></i>';
+                toast.style.borderColor = '#22c55e';
+            } else {
+                icon.innerHTML = '<i class="fa-solid fa-bell text-brand-400"></i>';
+                toast.style.borderColor = '#8b5cf6';
+            }
 
-            toast.classList.remove('translate-y-24', 'opacity-0', 'pointer-events-none');
-            setTimeout(() => toast.classList.add('translate-y-24', 'opacity-0', 'pointer-events-none'), 4000);
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => { toast.classList.add('translate-y-24', 'opacity-0'); }, 3000);
         }
-        
-        function escapeHtml(str) {
-            return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+        function shareTo(platform) {
+            const url = window.location.href;
+            const text = "Conheça a Fábrica Livre: A plataforma sem código para criar sistemas e apps de IA!";
+            if (platform === 'whatsapp') {
+                window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(text + ' ' + url)}`);
+            } else if (platform === 'copy') {
+                navigator.clipboard.writeText(url).then(() => showToast('Link copiado!', 'success'));
+            }
+            closeModal('modal-share');
         }
     </script>
 </body>
