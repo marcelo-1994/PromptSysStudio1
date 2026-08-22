@@ -69,6 +69,19 @@
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Animação para Gravação de Áudio */
+        @keyframes pulse-red {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .recording-active {
+            animation: pulse-red 1.5s infinite;
+            background-color: #ef4444 !important; /* Vermelho */
+            color: white !important;
+            border-color: #ef4444 !important;
+        }
     </style>
 </head>
 <body class="bg-dark-bg text-gray-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white">
@@ -226,10 +239,13 @@
                     </div>
                 </div>
                 <div class="p-4 border-t-2 border-dark-border bg-dark-card/95 backdrop-blur-xl">
-                    <form onsubmit="runPlayground(event)" class="flex items-center gap-3">
-                        <input type="text" id="chat-user-input" placeholder="Digite sua mensagem..." class="flex-1 bg-dark-bg border-2 border-dark-border rounded-xl px-5 py-3 text-sm font-medium text-white focus:outline-none focus:border-brand-500 transition shadow-inner">
-                        <button type="submit" class="px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-black transition btn-friendly">
-                            Enviar <i class="fa-solid fa-paper-plane ml-2"></i>
+                    <form onsubmit="runPlayground(event)" class="flex items-center gap-2 sm:gap-3">
+                        <button type="button" onclick="toggleDictation('chat-user-input', this)" class="w-12 h-12 flex-shrink-0 bg-dark-input hover:bg-gray-700 text-gray-300 rounded-xl border-2 border-dark-border transition flex items-center justify-center btn-friendly" title="Falar">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <input type="text" id="chat-user-input" placeholder="Digite ou fale sua mensagem..." class="flex-1 bg-dark-bg border-2 border-dark-border rounded-xl px-5 py-3 text-sm font-medium text-white focus:outline-none focus:border-brand-500 transition shadow-inner">
+                        <button type="submit" class="px-4 sm:px-6 py-3 bg-brand-600 hover:bg-brand-500 text-white rounded-xl font-black transition btn-friendly">
+                            <span class="hidden sm:inline">Enviar</span> <i class="fa-solid fa-paper-plane sm:ml-2"></i>
                         </button>
                     </form>
                 </div>
@@ -253,9 +269,14 @@
             <div class="glass-panel p-6 rounded-[2rem] border-2 border-dark-border shadow-xl space-y-6">
                 <!-- Controle de Geração -->
                 <div class="flex flex-col md:flex-row gap-4 items-end">
-                    <div class="flex-1 w-full space-y-2">
+                    <div class="flex-1 w-full space-y-2 relative">
                         <label class="block text-sm font-bold text-white">O que você quer construir hoje?</label>
-                        <textarea id="app-prompt" rows="2" placeholder="Ex: Crie um aplicativo de Lista de Tarefas (To-Do List) com fundo escuro, onde eu possa adicionar e deletar itens. Deixe bonito." class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 text-sm text-white focus:outline-none focus:border-indigo-500 transition shadow-inner resize-none"></textarea>
+                        <div class="relative">
+                            <textarea id="app-prompt" rows="2" placeholder="Ex: Crie um aplicativo de Lista de Tarefas (To-Do List)..." class="w-full bg-dark-bg border-2 border-dark-border rounded-xl p-4 pr-14 text-sm text-white focus:outline-none focus:border-indigo-500 transition shadow-inner resize-none"></textarea>
+                            <button type="button" onclick="toggleDictation('app-prompt', this)" class="absolute right-3 bottom-3 w-10 h-10 bg-dark-input hover:bg-gray-700 text-gray-300 rounded-xl border border-dark-border transition flex items-center justify-center btn-friendly z-10" title="Falar">
+                                <i class="fa-solid fa-microphone"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="w-full md:w-64 space-y-2">
                         <label class="block text-sm font-bold text-gray-400">Motor (Quem vai programar?)</label>
@@ -406,6 +427,15 @@
             syncFormToState();
             switchTab('playground');
             showToast('Cérebro conectado ao Chat! 👋');
+        }
+
+        function handleProviderChange() {
+            const provider = document.getElementById('pg-provider').value;
+            if (provider === 'ollama') {
+                showToast('Modo Ollama ativado! O servidor local precisa estar rodando na porta 11434. 💻');
+            } else {
+                showToast('Modo Simulação (Faz de Conta) ativado! 🟢');
+            }
         }
 
         // --- LÓGICA DO PLAYGROUND (CHAT) ---
@@ -640,6 +670,83 @@
         function escapeHtml(str) {
             return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         }
+
+        // --- LÓGICA DE RECONHECIMENTO DE VOZ (MICROFONE) ---
+        let isRecording = false;
+        let recognition = null;
+
+        function initSpeechRecognition() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                return null;
+            }
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const rec = new SpeechRecognition();
+            rec.lang = 'pt-BR'; // Configurado para Português do Brasil
+            rec.interimResults = true; // Mostra o texto enquanto você fala
+            rec.continuous = false;
+            return rec;
+        }
+
+        function toggleDictation(targetId, btnEl) {
+            if (isRecording && recognition) {
+                recognition.stop();
+                return;
+            }
+
+            recognition = initSpeechRecognition();
+            if (!recognition) {
+                showToast("Opa! Seu navegador não suporta digitação por voz. Tente usar o Google Chrome.");
+                return;
+            }
+
+            const targetInput = document.getElementById(targetId);
+            const originalIcon = '<i class="fa-solid fa-microphone"></i>';
+            const originalValue = targetInput.value;
+
+            recognition.onstart = () => {
+                isRecording = true;
+                btnEl.classList.add('recording-active');
+                btnEl.innerHTML = '<i class="fa-solid fa-microphone-lines"></i>';
+                showToast("Ouvindo... Pode falar! 🎙️");
+            };
+
+            recognition.onresult = (event) => {
+                let interimTranscript = '';
+                let finalTranscript = '';
+
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                
+                // Vai escrevendo no campo de texto enquanto você fala
+                const espaco = (originalValue && !originalValue.endsWith(' ')) ? ' ' : '';
+                targetInput.value = originalValue + espaco + finalTranscript + interimTranscript;
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Erro no microfone:", event.error);
+                if(event.error === 'not-allowed') showToast("Permita o uso do microfone no navegador!");
+                else showToast("Erro ao ouvir. Tente novamente.");
+                stopDictationUI(btnEl, originalIcon);
+            };
+
+            recognition.onend = () => {
+                stopDictationUI(btnEl, originalIcon);
+            };
+
+            recognition.start();
+        }
+
+        function stopDictationUI(btnEl, originalIcon) {
+            isRecording = false;
+            btnEl.classList.remove('recording-active');
+            btnEl.innerHTML = originalIcon;
+        }
+
     </script>
 </body>
 </html>
