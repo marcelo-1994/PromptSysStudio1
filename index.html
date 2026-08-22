@@ -30,7 +30,6 @@
 </head>
 <body class="h-screen flex flex-col text-sm overflow-hidden bg-dark-bg">
 
-    <!-- Header Principal -->
     <header class="glass-panel border-b border-dark-border px-3 lg:px-6 py-3 flex items-center justify-between z-10 shrink-0">
         <div class="flex items-center gap-2 lg:gap-4">
             <div id="admin-trigger" class="w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-lg shadow-brand-500/20 cursor-pointer shrink-0" onclick="countAdminClicks()">
@@ -43,32 +42,27 @@
         </div>
 
         <div class="flex items-center gap-2 lg:gap-4">
-            <!-- Seletor de Motor IA (Compacto no Mobile) -->
-            <div class="flex items-center bg-dark-panel border border-dark-border rounded-lg px-2 lg:px-3 py-1.5 max-w-[100px] lg:max-w-none overflow-hidden">
+            <div class="flex items-center bg-dark-panel border border-dark-border rounded-lg px-2 lg:px-3 py-1.5 max-w-[120px] lg:max-w-none overflow-hidden">
                 <i class="fa-solid fa-microchip text-slate-400 mr-1 lg:mr-2 text-[10px] lg:text-xs"></i>
                 <select id="global-engine" class="bg-transparent text-slate-200 text-[10px] lg:text-xs outline-none cursor-pointer w-full text-ellipsis">
-                    <option value="groq">☁️ Nuvem</option>
+                    <option value="groq">☁️ Nuvem (Groq)</option>
                     <option value="mock">🎮 Simulador</option>
                 </select>
             </div>
 
-            <!-- Contador de Energia -->
             <button onclick="openModal('modal-paywall')" class="flex items-center gap-1 lg:gap-2 bg-dark-panel border border-brand-500/30 hover:border-brand-500 transition-colors rounded-full px-2 lg:px-4 py-1.5 group shrink-0">
                 <i class="fa-solid fa-bolt text-yellow-400 group-hover:scale-110 transition-transform text-xs lg:text-base"></i>
                 <span id="energy-counter" class="font-bold text-white text-xs lg:text-base">500</span>
             </button>
 
-            <!-- Botão Compartilhar (Só ícone no mobile) -->
             <button onclick="openModal('modal-share')" class="flex bg-white/10 hover:bg-white/20 px-2 lg:px-4 py-1.5 rounded-lg font-medium transition-colors gap-2 items-center text-xs lg:text-sm shrink-0">
                 <i class="fa-solid fa-share-nodes"></i> <span class="hidden sm:inline">Compartilhar</span>
             </button>
         </div>
     </header>
 
-    <!-- Corpo Principal: Scroll interno no mobile para comportar Chat e App -->
     <main class="flex-1 overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row w-full">
         
-        <!-- Painel Esquerdo: Chat / Engenharia de Prompt (Fica em cima no celular) -->
         <section class="h-[55vh] lg:h-full w-full lg:w-[400px] flex flex-col border-b lg:border-b-0 lg:border-r border-dark-border bg-dark-bg/50 shrink-0">
             <div class="p-3 lg:p-4 border-b border-dark-border glass-panel shrink-0">
                 <h2 class="font-semibold text-slate-200 flex items-center gap-2 text-sm lg:text-base">
@@ -77,7 +71,6 @@
             </div>
             
             <div id="chat-window" class="flex-1 overflow-y-auto p-4 space-y-4">
-                <!-- Mensagem Inicial -->
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0">
                         <i class="fa-solid fa-robot text-white text-xs"></i>
@@ -88,7 +81,6 @@
                 </div>
             </div>
 
-            <!-- Área de Input -->
             <div class="p-3 lg:p-4 border-t border-dark-border bg-dark-panel relative shrink-0">
                 <div id="mic-status" class="absolute -top-6 left-4 text-xs text-green-400 font-bold hidden animate-pulse">
                     <i class="fa-solid fa-microphone"></i> Estou ouvindo...
@@ -105,7 +97,6 @@
             </div>
         </section>
 
-        <!-- Painel Direito: Preview do App / Código (Fica embaixo no celular) -->
         <section class="h-[60vh] lg:h-full flex-1 flex flex-col relative bg-[#0b1121]">
             <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
             
@@ -137,7 +128,6 @@
         </section>
     </main>
 
-    <!-- MODAL: BOAS VINDAS -->
     <div id="modal-welcome" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-lg w-full p-6 lg:p-8 shadow-2xl relative overflow-hidden">
             <div class="absolute -top-20 -right-20 w-40 h-40 bg-brand-500 rounded-full blur-[80px] opacity-30"></div>
@@ -173,7 +163,6 @@
         </div>
     </div>
 
-    <!-- MODAL: PAYWALL -->
     <div id="modal-paywall" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden overflow-y-auto">
         <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-4xl w-full p-4 lg:p-10 shadow-2xl relative my-auto">
             <button onclick="closeModal('modal-paywall')" class="absolute top-3 right-3 lg:top-4 lg:right-4 text-slate-400 hover:text-white">
@@ -187,7 +176,6 @@
             </div>
 
             <div class="grid md:grid-cols-2 gap-4 lg:gap-6">
-                <!-- Pacote Casual -->
                 <div class="bg-dark-bg border border-dark-border rounded-2xl p-4 lg:p-6 flex flex-col relative hover:border-brand-500 transition-colors">
                     <h3 class="text-lg lg:text-xl font-bold text-white mb-2">Recarga Rápida ⚡</h3>
                     <p class="text-slate-400 text-xs lg:text-sm mb-4 lg:mb-6">Ideal para testes e ideias casuais.</p>
@@ -197,7 +185,6 @@
                         <li class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-check text-green-500"></i> + 1.000 Raios</li>
                         <li class="flex items-center gap-2 text-slate-300"><i class="fa-solid fa-check text-green-500"></i> Acesso Nuvem</li>
                     </ul>
-                    <!-- SEU LINK DO MERCADO PAGO AQUI -->
                     <a href="https://mpago.la/1hMvZHb" target="_blank" onclick="closeModal('modal-paywall')" class="block w-full bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-slate-200 transition-colors shadow-lg text-center">
                         Comprar Energia
                         <div class="flex items-center justify-center gap-2 mt-1 text-[10px] text-slate-600 font-normal">
@@ -206,7 +193,6 @@
                     </a>
                 </div>
 
-                <!-- Plano Pro -->
                 <div class="bg-gradient-to-b from-brand-900/40 to-dark-bg border border-brand-500 rounded-2xl p-4 lg:p-6 flex flex-col relative shadow-2xl shadow-brand-500/20 transform md:-translate-y-4 mt-4 md:mt-0">
                     <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-brand-500 text-white text-[10px] lg:text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">
                         Mais Escolhido
@@ -219,7 +205,6 @@
                         <li class="flex items-center gap-2 text-white"><i class="fa-solid fa-infinity text-brand-400"></i> Energia Ilimitada</li>
                         <li class="flex items-center gap-2 text-white"><i class="fa-solid fa-check text-brand-400"></i> Uso Comercial</li>
                     </ul>
-                    <!-- SEU LINK DO MERCADO PAGO AQUI -->
                     <a href="https://mpago.la/2fLHcpu" target="_blank" onclick="closeModal('modal-paywall')" class="block w-full bg-brand-500 text-white font-bold py-3 rounded-xl hover:bg-brand-400 transition-colors shadow-lg text-center">
                         Assinar Ilimitado
                         <div class="flex items-center justify-center gap-2 mt-1 text-[10px] text-brand-100 font-normal">
@@ -231,7 +216,6 @@
         </div>
     </div>
 
-    <!-- MODAL: ADMIN / BACKDOOR -->
     <div id="modal-admin" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-black border border-red-500/30 rounded-2xl max-w-sm w-full p-6 lg:p-8 shadow-2xl shadow-red-500/10 text-center">
             <i class="fa-solid fa-user-secret text-3xl lg:text-4xl text-red-500 mb-4"></i>
@@ -244,7 +228,6 @@
         </div>
     </div>
     
-    <!-- MODAL: COMPARTILHAR (COM WHATSAPP) -->
     <div id="modal-share" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
             <h2 class="text-xl font-bold text-white mb-2">Compartilhe a Fábrica</h2>
@@ -255,7 +238,6 @@
                 <button onclick="copyShare()" class="text-brand-400 hover:text-brand-300 p-2"><i class="fa-regular fa-copy"></i></button>
             </div>
             
-            <!-- Botão do WhatsApp -->
             <button onclick="shareWhatsApp()" class="w-full bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2 mb-3 shadow-lg shadow-green-500/20 text-sm sm:text-base">
                 <i class="fa-brands fa-whatsapp text-lg"></i> Compartilhar no WhatsApp
             </button>
@@ -264,7 +246,6 @@
         </div>
     </div>
 
-    <!-- MODAL: ERRO & JOGUINHO -->
     <div id="modal-error" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 hidden">
         <div class="text-center mb-6">
             <h2 class="text-xl lg:text-2xl font-black text-red-400 uppercase tracking-widest"><i class="fa-solid fa-triangle-exclamation"></i> Conexão Perdida</h2>
@@ -284,31 +265,22 @@
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 
     <script>
-        // ==========================================
-        // CONFIGURAÇÕES GERAIS DA IA
-        // ==========================================
-        // Aqui é onde o seu front-end (site) fala com o seu back-end (Ngrok/Python)
-        const NGROK_URL = "SUA_URL_DO_NGROK_AQUI"; 
+        const NGROK_URL = "SUA_URL_DO_NGROK_AQUI/gerar"; 
         
         let wallet = { energy: 500, isPremium: false };
         let adminClicks = 0;
         let adminTimer;
 
-        // Auto-execução ao carregar a página
         window.addEventListener('DOMContentLoaded', () => {
             openModal('modal-welcome');
             updateEnergyUI();
             
-            // Pega a URL exata que o usuário está acessando e injeta no modal de share
             const shareInput = document.getElementById('share-url');
             if (shareInput) {
                 shareInput.value = window.location.origin;
             }
         });
 
-        // ==========================================
-        // FUNÇÕES UTILITÁRIAS E COMPARTILHAMENTO
-        // ==========================================
         function showToast(message, type = 'info') {
             const toast = document.createElement('div');
             const colors = {
@@ -343,7 +315,6 @@
             showToast('Link copiado! 🎉', 'success');
         }
 
-        // Função de envio inteligente para WhatsApp
         function shareWhatsApp() {
             const url = window.location.origin;
             const message = `Crie, construa micro-apps e agentes de IA em segundos usando apenas sua voz! 🚀\n\nTeste a Fábrica Livre agora, de graça: ${url}`;
@@ -352,9 +323,6 @@
             closeModal('modal-share');
         }
 
-        // ==========================================
-        // GESTÃO DE ENERGIA & ADMIN
-        // ==========================================
         function updateEnergyUI() {
             const counter = document.getElementById('energy-counter');
             if (wallet.isPremium) {
@@ -397,7 +365,6 @@
                 showToast('👑 MODO DEUS ATIVADO! Energia Infinita e Ollama Local Liberado.', 'success');
                 document.getElementById('admin-serial').value = '';
                 
-                // MÁGICA: Injeta a opção do Ollama Local APENAS se acertar a senha!
                 const sel = document.getElementById('global-engine');
                 if(sel && !sel.querySelector('option[value="ollama"]')) {
                     const opt = document.createElement('option');
@@ -410,12 +377,9 @@
             }
         }
 
-        // ==========================================
-        // MICROFONE (VOZ PARA TEXTO)
-        // ==========================================
         function startVoiceRecognition() {
             if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-                showToast('❌ Seu navegador/celular não suporta essa função. Tente digitar!', 'error');
+                showToast('❌ Seu navegador não suporta reconhecimento de voz.', 'error');
                 return;
             }
 
@@ -438,10 +402,9 @@
                 showToast('🎙️ Voz capturada!', 'success');
             };
 
-            recognition.onerror = function(event) {
+            recognition.onerror = function() {
                 statusIndicator.classList.add('hidden');
                 input.placeholder = "Digite ou fale...";
-                if(event.error === 'not-allowed') showToast('⚠️ Microfone bloqueado no celular/navegador.', 'error');
             };
 
             recognition.onend = function() {
@@ -452,9 +415,6 @@
             recognition.start();
         }
 
-        // ==========================================
-        // LÓGICA DE IA (CHAT & APP)
-        // ==========================================
         async function sendChatMessage() {
             const input = document.getElementById('chat-input');
             const msg = input.value.trim();
@@ -475,7 +435,7 @@
 
             if (engine === 'mock') {
                 setTimeout(() => {
-                    chatWindow.innerHTML += `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-sm">Estou no modo Simulador! Mude a chave para a Nuvem!</div></div>`;
+                    chatWindow.innerHTML += `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-sm">Estou no modo Simulador!</div></div>`;
                     chatWindow.scrollTop = chatWindow.scrollHeight;
                 }, 1000);
             } 
@@ -496,13 +456,20 @@
                 chatWindow.innerHTML += `<div id="${loadingId}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Consultando Nuvem... ☁️</div>`;
                 chatWindow.scrollTop = chatWindow.scrollHeight;
                 try {
-                    if(NGROK_URL === "SUA_URL_DO_NGROK_AQUI") throw new Error("Ngrok não configurado!");
+                    if(NGROK_URL.includes("SUA_URL_DO_NGROK_AQUI")) {
+                        showToast("⚠️ ERRO: Configure o link do Ngrok no código!", "error");
+                        throw new Error("Ngrok não configurado");
+                    }
                     const response = await fetch(NGROK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'llama3-70b-8192', messages: [{ role: 'user', content: msg }] }) });
                     if (!response.ok) throw new Error('Erro');
                     const data = await response.json();
                     document.getElementById(loadingId).remove();
                     appendBotMsg(data.choices[0].message.content);
-                } catch (error) { document.getElementById(loadingId).remove(); startErrorGame(); }
+                } catch (error) { 
+                    document.getElementById(loadingId).remove(); 
+                    if(!error.message.includes("Ngrok")) showToast("⚠️ Servidor Offline! Verifique o Ngrok.", "error");
+                    startErrorGame(); 
+                }
             }
         }
 
@@ -526,7 +493,7 @@
 
             if (engine === 'mock') {
                 setTimeout(() => {
-                    injectAppCode(`<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"><\/script></head><body class="bg-slate-900 flex items-center justify-center h-screen p-4 text-center"><div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 w-full"><h1 class="text-2xl font-black text-white mb-2">Simulador</h1><p class="text-slate-400">Mude para Nuvem para gerar código real.</p></div></body></html>`);
+                    injectAppCode(`<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"><\/script></head><body class="bg-slate-900 flex items-center justify-center h-screen p-4 text-center"><div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 w-full"><h1 class="text-2xl font-black text-white mb-2">Simulador</h1><p class="text-slate-400">Aplicativo de teste simulado com sucesso!</p></div></body></html>`);
                     btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`;
                 }, 1500);
             } 
@@ -540,12 +507,18 @@
             }
             else if (engine === 'groq') {
                 try {
-                    if(NGROK_URL === "SUA_URL_DO_NGROK_AQUI") throw new Error("Ngrok não configurado");
+                    if(NGROK_URL.includes("SUA_URL_DO_NGROK_AQUI")) {
+                        showToast("⚠️ ERRO: Link do Ngrok não configurado no código!", "error");
+                        throw new Error("Ngrok não configurado");
+                    }
                     const response = await fetch(NGROK_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'llama3-70b-8192', messages: [{ role: 'user', content: prompt }] }) });
                     if (!response.ok) throw new Error('Erro');
                     const data = await response.json();
                     injectAppCode(data.choices[0].message.content.replace(/```html/g, '').replace(/```/g, '').trim());
-                } catch (error) { startErrorGame(); } finally { btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`; }
+                } catch (error) { 
+                    if(!error.message.includes("Ngrok")) showToast("⚠️ Falha ao criar App! Servidor Offline.", "error");
+                    startErrorGame(); 
+                } finally { btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`; }
             }
         }
 
@@ -555,23 +528,18 @@
             iframe.classList.remove('hidden');
             iframe.srcdoc = code;
             
-            // Rola suavemente a tela para o Preview se estiver num celular
             if(window.innerWidth < 1024) {
                 iframe.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
             showToast('✅ App gerado com sucesso!', 'success');
         }
 
-        // ==========================================
-        // MINI-GAME: ALIEN JUMPER (QUANDO DÁ ERRO)
-        // ==========================================
         let gameLoopId;
         function startErrorGame() {
             openModal('modal-error');
             const canvas = document.getElementById('game-canvas');
             const ctx = canvas.getContext('2d');
             
-            // Ajusta o tamanho real do canvas para responsividade
             canvas.width = canvas.parentElement.clientWidth;
             canvas.height = canvas.parentElement.clientHeight;
             
@@ -601,7 +569,6 @@
                 if (isGameOver) return;
                 ctx.clearRect(0, 0, canvas.width, canvas.height);
                 
-                // Física
                 alien.dy += alien.gravity;
                 alien.y += alien.dy;
                 if (alien.y + alien.height >= canvas.height - 20) {
@@ -610,13 +577,11 @@
                     alien.isGrounded = true;
                 }
 
-                // Obstáculos
                 frameCount++;
                 if (frameCount % 90 === 0) {
                     obstacles.push({ x: canvas.width, y: canvas.height - 50, width: 20, height: 30, speed: 4 + (score * 0.1) });
                 }
 
-                // Move e Colisão
                 for (let i = 0; i < obstacles.length; i++) {
                     obstacles[i].x -= obstacles[i].speed;
                     
@@ -634,15 +599,12 @@
                     }
                 }
 
-                // Chão
                 ctx.fillStyle = '#334155';
                 ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
 
-                // Desenha Obstáculos
                 ctx.fillStyle = '#EF4444';
                 obstacles.forEach(obs => ctx.fillRect(obs.x, obs.y, obs.width, obs.height));
 
-                // Desenha Alien
                 ctx.fillStyle = '#0EA5E9';
                 ctx.beginPath();
                 ctx.arc(alien.x + alien.width/2, alien.y + alien.height/2, alien.width/2, 0, Math.PI * 2);
@@ -652,7 +614,6 @@
                 ctx.arc(alien.x + alien.width/2 + 5, alien.y + alien.height/4, 4, 0, Math.PI * 2);
                 ctx.fill();
 
-                // Placar
                 ctx.fillStyle = 'white';
                 ctx.font = '14px sans-serif';
                 ctx.fillText(`Pulos: ${score}`, 10, 25);
@@ -664,7 +625,6 @@
             resetGame();
         }
         
-        // Recalcular tamanho do canvas se a tela for redimensionada
         window.addEventListener('resize', () => {
             if(!document.getElementById('modal-error').classList.contains('hidden')) {
                 const canvas = document.getElementById('game-canvas');
