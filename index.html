@@ -97,9 +97,9 @@
                 <div>
                     <div class="flex items-center gap-2">
                         <h1 class="font-black text-2xl tracking-tight text-white">Fábrica de <span class="gradient-text">Robôs</span></h1>
-                        <span class="px-3 py-1 text-[10px] font-black tracking-widest uppercase bg-brand-500/20 text-brand-300 border-2 border-brand-500/30 rounded-full animate-bounce mt-1">Super Fácil!</span>
+                        <span class="px-3 py-1 text-[10px] font-black tracking-widest uppercase bg-brand-500/20 text-brand-300 border-2 border-brand-500/30 rounded-full animate-bounce mt-1">100% Livre</span>
                     </div>
-                    <p class="text-sm font-semibold text-gray-400 hidden sm:block">Crie sua própria Inteligência Artificial em poucos cliques. ✨</p>
+                    <p class="text-sm font-semibold text-gray-400 hidden sm:block">Crie sistemas para QUALQUER área. Não dependa de nenhuma empresa! 🌍</p>
                 </div>
             </div>
 
@@ -139,7 +139,7 @@
                     </div>
                     <div>
                         <h2 class="font-black text-2xl text-white">Bem-vindo à Oficina!</h2>
-                        <p class="text-base text-gray-300 mt-1 font-medium">Preencha as caixinhas abaixo como se estivesse ensinando uma criança. Nós fazemos a mágica virar um robô de verdade!</p>
+                        <p class="text-base text-gray-300 mt-1 font-medium">Crie sistemas para Finanças, Saúde, Vendas... O robô que sair daqui é SEU e roda em qualquer lugar, sem depender do Gemini!</p>
                     </div>
                 </div>
                 
@@ -326,11 +326,11 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-bold text-gray-300 mb-2">Escolha o Motor do Cérebro:</label>
+                            <label class="block text-sm font-bold text-gray-300 mb-2">Escolha o Motor do Cérebro (Livre de Lock-in):</label>
                             <select id="pg-provider" onchange="handleProviderChange()" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl px-4 py-3 text-sm font-bold text-brand-300 focus:outline-none focus:border-brand-500 shadow-inner cursor-pointer">
-                                <option value="simulated">🟢 Faz de Conta (Teste sem gastar)</option>
-                                <option value="groq">⚡ API de Verdade (Avançado)</option>
-                                <option value="ollama">💻 Meu Próprio Computador (Ollama)</option>
+                                <option value="simulated">🟢 Faz de Conta (Teste Rápido Aqui)</option>
+                                <option value="groq">⚡ Groq Cloud (API Llama 3 - Super Rápido)</option>
+                                <option value="ollama">💻 Meu Próprio Computador (Ollama - 100% Offline)</option>
                             </select>
                         </div>
 
@@ -418,6 +418,11 @@
             </div>
 
             <p class="text-sm font-medium text-gray-400">Copie o código abaixo e cole no seu sistema. Ele já vai com toda a inteligência pronta!</p>
+            
+            <div class="bg-emerald-900/20 border border-emerald-500/30 p-3 rounded-xl flex items-start gap-3">
+                <i class="fa-solid fa-lock-open text-emerald-400 mt-1"></i>
+                <p class="text-xs text-emerald-300 font-medium"><strong>Liberdade Total:</strong> Este código gera um sistema independente. Ele usa o padrão aberto (compatível com Ollama local, Groq, OpenRouter, etc) e <strong>NÃO</strong> te prende ao Gemini ou à OpenAI. É plugar e usar onde for mais barato!</p>
+            </div>
 
             <div class="flex items-center gap-3">
                 <button onclick="switchCodeLang('python')" id="btn-lang-python" class="px-5 py-2.5 text-sm font-bold rounded-xl bg-brand-600 text-white shadow-md btn-friendly">🐍 Python</button>
@@ -496,8 +501,8 @@
             blueprints: [
                 {
                     id: 'b1',
-                    title: 'O Vendedor Campeão 🏆',
-                    description: 'Um robô focado em conversar no WhatsApp e convencer clientes que estão em dúvida, oferecendo ajuda e soluções educadas.',
+                    title: 'O Vendedor Campeão 🛍️',
+                    description: 'Sistema de vendas automáticas pelo WhatsApp. Ideal para comércio e serviços.',
                     framework: 'CO-STAR',
                     roi: 'Aumentar vendas e não perder clientes no WhatsApp.',
                     role: 'Você é um atendente de luxo, super prestativo e simpático.',
@@ -507,25 +512,25 @@
                 },
                 {
                     id: 'b2',
-                    title: 'Professor Particular 📚',
-                    description: 'Ele explica coisas super difíceis (como matemática ou história) como se você tivesse 5 anos de idade.',
+                    title: 'Consultor Financeiro 💰',
+                    description: 'Sistema de educação financeira e orçamento. Analisa gastos e sugere cortes.',
                     framework: 'RTF',
-                    roi: 'Aprender qualquer coisa muito rápido.',
-                    role: 'Você é um professor muito engraçado, paciente e que usa exemplos do dia a dia (como videogame ou comida).',
-                    context: 'Estou tentando estudar para uma prova e não entendo a matéria.',
-                    rules: '- Explique como se eu tivesse 5 anos.\n- Não use palavras difíceis.\n- Dê um exemplo prático no final.',
-                    variables: [ { key: 'materia', value: 'Fração matemática' } ]
+                    roi: 'Ajudar pessoas a saírem das dívidas e pouparem dinheiro.',
+                    role: 'Você é um consultor financeiro super pragmático, mas encorajador.',
+                    context: 'Analisar uma lista de gastos mensais que o usuário vai enviar e encontrar desperdícios.',
+                    rules: '- Nunca julgue as compras do cliente.\n- Seja direto ao ponto e use tabelas (markdown).\n- Foque na regra 50-30-20.',
+                    variables: [ { key: 'lista_de_gastos', value: 'Aluguel 1500, Ifood 800, Netflix 50, Academia 100' } ]
                 },
                 {
                     id: 'b3',
-                    title: 'Criador de Historinhas 🐉',
-                    description: 'Você dá os personagens e ele inventa uma historinha mágica de ninar na hora.',
+                    title: 'Treinador de Saúde 🍎',
+                    description: 'Sistema para criar planos de exercícios ou análise de rotina alimentar.',
                     framework: 'CO-STAR',
-                    roi: 'Divertir e fazer crianças dormirem felizes.',
-                    role: 'Você é o maior contador de histórias infantis do mundo, cheio de imaginação.',
-                    context: 'Preciso de uma historinha curta para ler antes de dormir.',
-                    rules: '- A história tem que ter um final feliz.\n- Use linguagem mágica e sonhadora.\n- Máximo de 3 parágrafos curtos.',
-                    variables: [ { key: 'personagem_principal', value: 'O Cachorrinho Trovão' } ]
+                    roi: 'Criar rotinas saudáveis e gerar planos de bem-estar personalizados.',
+                    role: 'Você é um personal trainer e nutricionista amigável, focado em pequenas mudanças diárias.',
+                    context: 'O usuário quer começar a ser saudável, mas não tem tempo e odeia academia.',
+                    rules: '- Não recomende dietas restritivas extremas.\n- Foque em exercícios que podem ser feitos em casa.\n- Seja motivador.',
+                    variables: [ { key: 'objetivo_do_aluno', value: 'Ter mais energia durante o trabalho' } ]
                 }
             ]
         };
@@ -689,9 +694,9 @@
             if (provider === 'simulated') {
                 configBox.innerHTML = `<div class="p-4 bg-emerald-900/20 border-2 border-emerald-500/30 rounded-xl"><p class="text-sm text-emerald-400 font-bold flex items-center gap-2"><i class="fa-solid fa-face-smile-wink text-xl"></i> O modo Faz de Conta finge que o robô responde para você testar sem gastar nada. Divirta-se!</p></div>`;
             } else if (provider === 'groq') {
-                configBox.innerHTML = `<div><label class="block text-sm font-bold text-gray-300 mb-1">Sua Chave Mágica (API Key) 🗝️</label><input type="password" id="pg-groq-key" placeholder="Cole a chave aqui..." class="w-full bg-dark-bg border-2 border-dark-border rounded-xl px-4 py-3 text-sm text-white font-mono shadow-inner focus:border-brand-500 focus:outline-none"></div>`;
+                configBox.innerHTML = `<div><label class="block text-sm font-bold text-gray-300 mb-1">Chave da API (Groq/OpenRouter) 🗝️</label><input type="password" id="pg-groq-key" placeholder="Cole a chave aqui..." class="w-full bg-dark-bg border-2 border-dark-border rounded-xl px-4 py-3 text-sm text-white font-mono shadow-inner focus:border-brand-500 focus:outline-none"><p class="text-xs text-gray-500 mt-2">Isso conecta seu robô a modelos velozes e super baratos fora das "Big Techs".</p></div>`;
             } else {
-                configBox.innerHTML = `<div><label class="block text-sm font-bold text-gray-300 mb-1">Endereço do seu Computador (Ollama) 💻</label><input type="text" id="pg-ollama-host" value="http://localhost:11434" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl px-4 py-3 text-sm text-white font-mono shadow-inner focus:border-brand-500 focus:outline-none"></div>`;
+                configBox.innerHTML = `<div><label class="block text-sm font-bold text-gray-300 mb-1">Endereço do seu Computador (Ollama) 💻</label><input type="text" id="pg-ollama-host" value="http://localhost:11434" class="w-full bg-dark-bg border-2 border-dark-border rounded-xl px-4 py-3 text-sm text-white font-mono shadow-inner focus:border-brand-500 focus:outline-none"><p class="text-xs text-emerald-500 font-bold mt-2"><i class="fa-solid fa-shield-halved"></i> 100% Grátis, Offline e Privado.</p></div>`;
             }
         }
 
@@ -789,9 +794,9 @@
             const promptText = document.getElementById('compiled-prompt-output').textContent;
 
             if (lang === 'python') {
-                pre.textContent = `import requests\n\n# Inteligência: ${appState.system.title}\nurl = "http://localhost:11434/api/generate"\n\nconfiguracao = {\n    "model": "llama3",\n    "prompt": ${JSON.stringify(promptText)},\n    "stream": False\n}\n\nresposta = requests.post(url, json=configuracao)\nprint("Robô respondeu:", resposta.json()["response"])`;
+                pre.textContent = `import requests\nimport json\n\n# Sistema: ${appState.system.title}\n# --------------------------------------------------------\n# Este código está pronto para rodar em provedores Abertos \n# (Ollama Local, Groq, OpenRouter) - Livre de Lock-in!\n# --------------------------------------------------------\n\nurl = "http://localhost:11434/api/generate" # Exemplo rodando no seu próprio PC\n\nprompt_do_sistema = ${JSON.stringify(promptText)}\n\npayload = {\n    "model": "llama3", # Ou o modelo que você preferir\n    "prompt": prompt_do_sistema,\n    "stream": False\n}\n\nheaders = { "Content-Type": "application/json" }\n\nresposta = requests.post(url, data=json.dumps(payload), headers=headers)\nresultado = resposta.json()\n\nprint("🤖 Resposta do seu Sistema:")\nprint(resultado.get("response", "Erro ao conectar"))`;
             } else {
-                pre.textContent = `const fetch = require('node-fetch');\n\n// Inteligência: ${appState.system.title}\nasync function ligarRobo() {\n    const chamada = await fetch('http://localhost:11434/api/generate', {\n        method: 'POST',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify({\n            model: 'llama3',\n            prompt: ${JSON.stringify(promptText)},\n            stream: false\n        })\n    });\n    const respostaDoRobo = await chamada.json();\n    console.log("Robô respondeu:", respostaDoRobo.response);\n}\n\nligarRobo();`;
+                pre.textContent = `// Sistema: ${appState.system.title}\n// --------------------------------------------------------\n// Este código está pronto para rodar em provedores Abertos \n// (Ollama Local, Groq, OpenRouter) - Livre de Lock-in!\n// --------------------------------------------------------\n\nasync function ligarSistema() {\n    const promptDoSistema = ${JSON.stringify(promptText)};\n\n    const configuracao = {\n        method: 'POST',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify({\n            model: 'llama3', // Ou o modelo que preferir\n            prompt: promptDoSistema,\n            stream: false\n        })\n    };\n\n    try {\n        // Exemplo apontando para o seu próprio computador (Ollama)\n        const chamada = await fetch('http://localhost:11434/api/generate', configuracao);\n        const resposta = await chamada.json();\n        console.log("🤖 Resposta do seu Sistema:\\n", resposta.response);\n    } catch (erro) {\n        console.error("Ops! Verifique se a IA local está rodando:", erro);\n    }\n}\n\nligarSistema();`;
             }
         }
 
