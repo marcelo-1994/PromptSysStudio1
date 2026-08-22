@@ -274,11 +274,11 @@
         <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
             <h2 class="text-xl font-bold text-white mb-2">Compartilhe a Fábrica</h2>
             <p class="text-slate-400 text-sm mb-4">Convide amigos para criar aplicativos incríveis.</p>
-            <div class="bg-dark-bg p-3 rounded-lg border border-dark-border flex items-center gap-2 mb-4">
-                <input type="text" value="https://sua-url-da-vercel.vercel.app" class="bg-transparent w-full text-slate-300 text-sm outline-none" readonly id="share-url">
-                <button onclick="copyShare()" class="text-brand-400 hover:text-brand-300 p-2"><i class="fa-regular fa-copy"></i></button>
-            </div>
-            <button onclick="closeModal('modal-share')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-xl transition-colors">Fechar</button>
+        <div class="bg-dark-bg p-3 rounded-lg border border-dark-border flex items-center gap-2 mb-4">
+            <input type="text" value="" class="bg-transparent w-full text-slate-300 text-sm outline-none" readonly id="share-url">
+            <button onclick="copyShare()" class="text-brand-400 hover:text-brand-300 p-2"><i class="fa-regular fa-copy"></i></button>
+        </div>
+        <button onclick="closeModal('modal-share')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-2 rounded-xl transition-colors">Fechar</button>
         </div>
     </div>
 
@@ -319,6 +319,12 @@
         window.addEventListener('DOMContentLoaded', () => {
             openModal('modal-welcome');
             updateEnergyUI();
+            
+            // Capta a URL real do seu site automaticamente
+            const shareInput = document.getElementById('share-url');
+            if (shareInput) {
+                shareInput.value = window.location.origin;
+            }
         });
 
         // ==========================================
