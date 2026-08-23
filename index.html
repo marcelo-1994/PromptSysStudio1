@@ -266,9 +266,13 @@
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 
     <script>
+        // ==========================================
         // CONFIGURAÇÕES DE API E SEGURANÇA
+        // ==========================================
         const DIRECT_GROQ_KEY = "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";
-        let NGROK_URL = ""; // Deixe vazio para usar a Nuvem direta com segurança total
+        
+        // AQUI ESTÁ O SEU LINK DO NGROK ATUALIZADO!
+        let NGROK_URL = "https://deepen-reanalyze-outcome.ngrok-free.dev/gerar"; 
         
         let wallet = { energy: 500, isPremium: false };
         let adminClicks = 0;
@@ -424,7 +428,7 @@
             if (engine === 'mock') {
                 return isAppGeneration 
                     ? `<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"><\/script></head><body class="bg-slate-900 flex items-center justify-center h-screen p-4 text-center"><div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 w-full"><h1 class="text-2xl font-black text-white mb-2">Simulador Ativo</h1><p class="text-slate-400">Aplicativo de teste simulado com sucesso!</p></div></body></html>`
-                    : "Olá! Estou operando no modo simulador local. Altere para Nuvem para respostas reais.";
+                    : "Olá! Estou operando no modo simulador local. Altere para Nuvem ou Ngrok para respostas reais.";
             }
 
             if (engine === 'ollama') {
@@ -438,20 +442,54 @@
                 return data.message.content;
             }
 
-            // Tenta usar o Ngrok se estiver configurado, caso contrário vai direto para o Groq Cloud Seguro
-            let endpoint = NGROK_URL ? NGROK_URL : "https://api.groq.com/openai/v1/chat/completions";
-            let payload = { model: 'llama3-70b-8192', messages: [{ role: 'user', content: promptText }] };
+            // Lógica de Conexão (Ngrok vs Direto na Groq)
+            let endpoint = "";
+            let payload = {};
             let headers = { 'Content-Type': 'application/json' };
 
-            if (!NGROK_URL) {
+            if (engine === 'ngrok') {
+                if (!NGROK_URL || NGROK_URL.trim() === "") {
+                    showToast('⚠️ Link do Ngrok não configurado. Usando a Nuvem Direta...', 'info');
+                    endpoint = "https://api.groq.com/openai/v1/chat/completions";
+                    headers['Authorization'] = `Bearer ${DIRECT_GROQ_KEY}`;
+                    payload = { model: 'llama3-70b-8192', messages: [{ role: 'user', content: promptText }] };
+                } else {
+                    endpoint = NGROK_URL;
+                    payload = { model: 'llama3-70b-8192', messages: [{ role: 'user', content: promptText }] };
+                }
+            } else {
+                // Nuvem Direta
+                endpoint = "https://api.groq.com/openai/v1/chat/completions";
                 headers['Authorization'] = `Bearer ${DIRECT_GROQ_KEY}`;
+                payload = { model: 'llama3-70b-8192', messages: [{ role: 'user', content: promptText }] };
             }
 
-            const response = await fetch(endpoint, { method: 'POST', headers: headers, body: JSON.stringify(payload) });
-            if (!response.ok) throw new Error('Erro na API');
-            const data = await response.json();
-            
-            return data.choices ? data.choices[0].message.content : data.message.content;
+            try {
+                const response = await fetch(endpoint, { method: 'POST', headers: headers, body: JSON.stringify(payload) });
+                
+                if (!response.ok) {
+                    // Se o Ngrok falhar, tenta a Groq direto para não deixar o usuário na mão
+                    if (engine === 'ngrok') {
+                        showToast('⚠️ Servidor local (Ngrok) fora do ar. Usando Nuvem de emergência...', 'info');
+                        const fallbackResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", { 
+                            method: 'POST', 
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DIRECT_GROQ_KEY}` }, 
+                            body: JSON.stringify(payload) 
+                        });
+                        if (!fallbackResponse.ok) throw new Error('Erro na API Nuvem');
+                        const fallbackData = await fallbackResponse.json();
+                        return fallbackData.choices ? fallbackData.choices[0].message.content : fallbackData.message.content;
+                    }
+                    throw new Error('Erro na API');
+                }
+                
+                const data = await response.json();
+                return data.choices ? data.choices[0].message.content : data.message.content;
+                
+            } catch (err) {
+                console.error(err);
+                throw err;
+            }
         }
 
         async function sendChatMessage() {
@@ -471,7 +509,7 @@
             chatWindow.scrollTop = chatWindow.scrollHeight;
 
             const loadingId = 'loading-' + Date.now();
-            chatWindow.innerHTML += `<div id="${loadingId}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Pensando na nuvem... ☁️</div>`;
+            chatWindow.innerHTML += `<div id="${loadingId}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Pensando... ☁️</div>`;
             chatWindow.scrollTop = chatWindow.scrollHeight;
 
             try {
