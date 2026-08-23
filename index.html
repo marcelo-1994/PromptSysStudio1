@@ -63,7 +63,6 @@
 
     <main class="flex-1 overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row w-full">
         
-        <!-- Painel Lateral: Chat e Arquiteto -->
         <section class="h-[55vh] lg:h-full w-full lg:w-[420px] flex flex-col border-b lg:border-b-0 lg:border-r border-dark-border bg-dark-bg/50 shrink-0">
             <div class="p-3 lg:p-4 border-b border-dark-border glass-panel shrink-0 flex items-center justify-between">
                 <h2 class="font-semibold text-slate-200 flex items-center gap-2 text-sm lg:text-base">
@@ -250,11 +249,10 @@
         </div>
     </div>
 
-    <!-- Container de Notificações (Toasts) -->
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 
     <script>
-        // CHAVE DA NUVEM - Funciona 24/7 (Segurança de Fallback)
+        // CHAVE DA NUVEM (Segurança de Fallback)
         const DIRECT_GROQ_KEY = "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";
         
         // URL DO NGROK - Coloque aqui a sua URL caso vá usar. Ex: "https://abcd-1234.ngrok-free.app/gerar"
@@ -402,10 +400,9 @@
                     : "Olá! Estou operando no modo simulador local. Altere para Nuvem ou Ngrok para respostas reais.";
             }
 
-            // ATUALIZAÇÃO: Nome do modelo atualizado para a versão mais recente da Groq
-            let payload = { model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: promptText }] };
+            // ATUALIZAÇÃO: Nome do modelo atualizado para llama3-70b-8192 (Oficial Groq)
+            let payload = { model: 'llama3-70b-8192', messages: [{ role: 'user', content: promptText }] };
 
-            // ESTRATÉGIA HÍBRIDA: Tenta Ngrok primeiro
             if (engine === 'ngrok' && NGROK_URL && NGROK_URL.trim() !== "") {
                 try {
                     const controller = new AbortController();
@@ -431,7 +428,6 @@
                 showToast('⚠️ Ngrok não configurado. Usando Nuvem Direta...', 'info');
             }
 
-            // FALLBACK SEGURO: MODO NUVEM
             try {
                 const cloudEndpoint = "https://api.groq.com/openai/v1/chat/completions";
                 const cloudHeaders = { 
@@ -482,7 +478,6 @@
                 appendBotMsg(reply);
             } catch (error) {
                 document.getElementById(loadingId).remove();
-                // ATUALIZAÇÃO: Mostra na tela o erro exato que a Groq enviou
                 showToast(`❌ Falha: ${error.message}`, 'error');
             }
         }
