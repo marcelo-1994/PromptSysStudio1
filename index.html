@@ -402,12 +402,12 @@
                     : "Olá! Estou operando no modo simulador local. Altere para Nuvem ou Ngrok para respostas reais.";
             }
 
-            let payload = { model: 'llama3-70b-8192', messages: [{ role: 'user', content: promptText }] };
+            // ATUALIZAÇÃO: Nome do modelo atualizado para a versão mais recente da Groq
+            let payload = { model: 'llama-3.3-70b-versatile', messages: [{ role: 'user', content: promptText }] };
 
-            // ESTRATÉGIA HÍBRIDA: Tenta Ngrok primeiro, se falhar, pula silenciosamente para a Nuvem.
+            // ESTRATÉGIA HÍBRIDA: Tenta Ngrok primeiro
             if (engine === 'ngrok' && NGROK_URL && NGROK_URL.trim() !== "") {
                 try {
-                    // Espera no máximo 4 segundos pelo Ngrok para não travar a tela
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 4000);
                     
@@ -425,8 +425,7 @@
                         return data.choices ? data.choices[0].message.content : data.message.content;
                     }
                 } catch (e) {
-                    showToast('⚠️ Túnel Ngrok fechado. Conectando à Nuvem...', 'info');
-                    // Se deu erro ou demorou demais, ele continua e executa o código da Nuvem abaixo
+                    showToast('⚠️ Túnel Ngrok fechado. Tentando usar a Nuvem...', 'info');
                 }
             } else if (engine === 'ngrok') {
                 showToast('⚠️ Ngrok não configurado. Usando Nuvem Direta...', 'info');
@@ -442,14 +441,18 @@
 
                 const response = await fetch(cloudEndpoint, { method: 'POST', headers: cloudHeaders, body: JSON.stringify(payload) });
                 
-                if (!response.ok) throw new Error('Erro na API Nuvem');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error("Erro da Groq:", errorData);
+                    throw new Error(errorData.error?.message || 'Erro nos servidores da Groq');
+                }
                 
                 const data = await response.json();
                 return data.choices ? data.choices[0].message.content : data.message.content;
                 
             } catch (err) {
-                console.error(err);
-                throw new Error('Falha completa. Ambos servidores indisponíveis.');
+                console.error("Detalhes do erro:", err);
+                throw new Error(err.message || 'Falha de conexão com a Nuvem e com o Local.');
             }
         }
 
@@ -479,7 +482,8 @@
                 appendBotMsg(reply);
             } catch (error) {
                 document.getElementById(loadingId).remove();
-                showToast('❌ Erro Crítico. Sem conexão com Nuvem ou Servidor Local.', 'error');
+                // ATUALIZAÇÃO: Mostra na tela o erro exato que a Groq enviou
+                showToast(`❌ Falha: ${error.message}`, 'error');
             }
         }
 
