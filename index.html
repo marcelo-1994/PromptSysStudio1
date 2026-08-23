@@ -89,7 +89,7 @@
                     <button onclick="startVoiceRecognition()" class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-dark-border hover:bg-slate-600 flex items-center justify-center text-slate-300 transition-colors shrink-0" title="Falar por voz">
                         <i class="fa-solid fa-microphone"></i>
                     </button>
-                    <textarea id="chat-input" rows="1" class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-3 py-2 lg:px-4 lg:py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none text-sm" placeholder="Digite ou fale sua ideia..."></textarea>
+                    <textarea id="chat-input" rows="1" class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-3 py-2 lg:px-4 lg:py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none text-sm" placeholder="Digite sua ideia (Enter p/ enviar, Shift+Enter p/ pular linha)..."></textarea>
                     <button onclick="sendChatMessage()" class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-brand-600 hover:bg-brand-500 flex items-center justify-center text-white transition-colors shadow-lg shadow-brand-500/20 shrink-0" title="Enviar mensagem">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
@@ -255,8 +255,8 @@
         // CHAVE DA NUVEM (Segurança de Fallback)
         const DIRECT_GROQ_KEY = "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";
         
-        // URL DO NGROK - Deixe vazio e ele usará a Nuvem direto
-        let NGROK_URL = ""; 
+        // URL DO NGROK
+        let NGROK_URL = "https://deepen-reanalyze-outcome.ngrok-free.dev/gerar"; 
         
         let wallet = { energy: 500, isPremium: false };
         let adminClicks = 0;
@@ -391,19 +391,19 @@
 
             recognition.onerror = function() {
                 statusIndicator.classList.add('hidden');
-                input.placeholder = "Digite ou fale sua ideia...";
+                input.placeholder = "Digite sua ideia (Enter p/ enviar, Shift+Enter p/ pular linha)...";
             };
 
             recognition.onend = function() {
                 statusIndicator.classList.add('hidden');
-                input.placeholder = "Digite ou fale sua ideia...";
+                input.placeholder = "Digite sua ideia (Enter p/ enviar, Shift+Enter p/ pular linha)...";
             };
 
             recognition.start();
         }
 
         async function callAI(promptText, isAppGeneration = false) {
-            const engine = document.getElementById('global-engine').value;
+            let engine = document.getElementById('global-engine').value;
 
             if (engine === 'mock') {
                 return isAppGeneration 
@@ -411,19 +411,25 @@
                     : "Olá! Estou operando no modo simulador local. Altere para Nuvem ou Ngrok para respostas reais.";
             }
 
-            // ATUALIZADO: Nome do modelo oficial e ativo no Groq (agosto/2026)
-            let payload = { model: 'llama-3.1-70b-versatile', messages: [{ role: 'user', content: promptText }] };
+            // ATENÇÃO: Modelos Groq foram atualizados. Llama substituído pela família OpenAI GPT-OSS.
+            let payload = { 
+                model: 'openai/gpt-oss-120b', 
+                messages: [{ role: 'user', content: promptText }] 
+            };
+            
             let responseReceived = null;
             let ngrokFailed = false;
 
-            // 1. TENTA NGROK SE ESTIVER SELECIONADO E CONFIGURADO
+            // 1. TENTA NGROK PRIMEIRO
             if (engine === 'ngrok' && NGROK_URL && NGROK_URL.trim() !== "") {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 4000);
+                    const timeoutId = setTimeout(() => controller.abort(), 4000); // 4 seg max
+                    
                     const ngrokResponse = await fetch(NGROK_URL, { 
                         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: controller.signal
                     });
+                    
                     clearTimeout(timeoutId);
 
                     if (ngrokResponse.ok) {
@@ -435,14 +441,16 @@
                     ngrokFailed = true;
                 }
             } else if (engine === 'ngrok') {
-                ngrokFailed = true; // Força pular pra nuvem se não tem URL configurada
+                ngrokFailed = true; 
             }
 
-            // 2. TENTA NUVEM (GROQ DIRETO) COMO FALLBACK (ou se for o selecionado)
+            // 2. SE NGROK FALHOU, PULA PARA NUVEM AUTOMATICAMENTE
             if (engine === 'groq' || ngrokFailed) {
-                if (ngrokFailed) {
-                    showToast('⚠️ Ngrok inativo ou não configurado. Utilizando Nuvem Direta...', 'info');
+                if (ngrokFailed && engine === 'ngrok') {
+                    showToast('⚠️ Servidor Local offline. Redirecionando para Nuvem (Groq)...', 'info');
+                    document.getElementById('global-engine').value = 'groq'; // Muda a caixinha sozinho
                 }
+                
                 try {
                     const cloudResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", { 
                         method: 'POST', 
@@ -452,7 +460,7 @@
                     
                     if (!cloudResponse.ok) {
                         const err = await cloudResponse.json();
-                        throw new Error(err.error?.message || "Erro desconhecido na API da Groq");
+                        throw new Error(err.error?.message || "Bloqueio desconhecido na API.");
                     }
                     responseReceived = await cloudResponse.json();
                 } catch (e) {
@@ -460,11 +468,11 @@
                 }
             }
 
-            // 3. EXTRAI O TEXTO DA RESPOSTA SE DEU TUDO CERTO
+            // 3. RETORNA TEXTO
             if (responseReceived) {
-                return responseReceived.choices ? responseReceived.choices[0].message.content : responseReceived.message.content;
+                return responseReceived.choices ? responseReceived.choices[0].message.content : responseReceived.message?.content || "Sem resposta.";
             } else {
-                throw new Error("Erro Crítico. Sem resposta do servidor.");
+                throw new Error("Erro Crítico. Sem conexão com Nuvem ou Servidor Local.");
             }
         }
 
