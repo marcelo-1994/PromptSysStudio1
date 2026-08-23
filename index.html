@@ -1,4 +1,3 @@
-<!-- STREAMING_CHUNK:Rendering header navigation bar... -->
 <header class="glass-panel border-b border-dark-border px-3 lg:px-6 py-3 flex items-center justify-between z-10 shrink-0">
     <div class="flex items-center gap-2 lg:gap-4">
         <div id="admin-trigger" class="w-8 h-8 lg:w-10 lg:h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-lg shadow-brand-500/20 cursor-pointer shrink-0" onclick="countAdminClicks()">
@@ -38,7 +37,6 @@
     </div>
 </header>
 
-<!-- STREAMING_CHUNK:Rendering main workspace layout... -->
 <main class="flex-1 overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row w-full relative">
     
     <!-- Painel de Chat / Arquiteto -->
@@ -79,9 +77,9 @@
         </div>
     </section>
 
-    <!-- STREAMING_CHUNK:Rendering live preview workspace... -->
+    <!-- Preview Workspace -->
     <section class="h-[60vh] lg:h-full flex-1 flex flex-col relative bg-[#0b1121]">
-        <div class="absolute inset-0 bg-[url('[https://www.transparenttextures.com/patterns/cubes.png](https://www.transparenttextures.com/patterns/cubes.png)')] opacity-5"></div>
+        <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
         
         <div class="p-3 lg:p-4 border-b border-dark-border flex justify-between items-center bg-dark-bg/80 z-10 backdrop-blur-sm shrink-0">
             <div class="flex items-center gap-2 lg:gap-3">
@@ -110,7 +108,7 @@
         </div>
     </section>
 
-    <!-- STREAMING_CHUNK:Rendering history drawer overlay... -->
+    <!-- Histórico Drawer -->
     <div id="history-drawer" class="absolute inset-y-0 right-0 w-full sm:w-[400px] bg-dark-panel border-l border-dark-border shadow-2xl z-40 transform translate-x-full transition-transform duration-300 flex flex-col">
         <div class="p-4 border-b border-dark-border flex items-center justify-between bg-dark-bg">
             <h3 class="font-bold text-white text-base flex items-center gap-2">
@@ -121,7 +119,7 @@
             </button>
         </div>
         <div id="history-list" class="flex-1 overflow-y-auto p-4 space-y-3">
-            <!-- Apps salvos entram aqui dinamicamente -->
+            <!-- Itens do histórico -->
         </div>
         <div class="p-4 border-t border-dark-border bg-dark-bg text-center">
             <button onclick="clearHistory()" class="text-xs text-red-400 hover:text-red-300 font-medium">
@@ -131,7 +129,7 @@
     </div>
 </main>
 
-<!-- STREAMING_CHUNK:Rendering application modals... -->
+<!-- Modal Welcome -->
 <div id="modal-welcome" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-lg w-full p-6 lg:p-8 shadow-2xl relative overflow-hidden">
         <div class="absolute -top-20 -right-20 w-40 h-40 bg-brand-500 rounded-full blur-[80px] opacity-30"></div>
@@ -150,7 +148,7 @@
     </div>
 </div>
 
-<!-- Modal de Paywall -->
+<!-- Modal Paywall -->
 <div id="modal-paywall" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden overflow-y-auto">
     <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-4xl w-full p-4 lg:p-10 shadow-2xl relative my-auto">
         <button onclick="closeModal('modal-paywall')" class="absolute top-3 right-3 lg:top-4 lg:right-4 text-slate-400 hover:text-white">
@@ -165,12 +163,12 @@
             <div class="bg-dark-bg border border-dark-border rounded-2xl p-4 flex flex-col">
                 <h3 class="text-lg font-bold text-white mb-2">Recarga Rápida ⚡</h3>
                 <div class="text-3xl font-black text-white mb-4">R$ 9,90</div>
-                <a href="[https://mpago.la/1hMvZHb](https://mpago.la/1hMvZHb)" target="_blank" class="block w-full bg-white text-slate-900 font-bold py-3 rounded-xl text-center">Comprar Recarga</a>
+                <a href="https://mpago.la/1hMvZHb" target="_blank" class="block w-full bg-white text-slate-900 font-bold py-3 rounded-xl text-center">Comprar Recarga</a>
             </div>
             <div class="bg-gradient-to-b from-brand-900/40 to-dark-bg border border-brand-500 rounded-2xl p-4 flex flex-col">
                 <h3 class="text-lg font-bold text-white mb-2">Passe Premium (Pro) 👑</h3>
                 <div class="text-3xl font-black text-white mb-4">R$ 49,90 <span class="text-sm font-normal text-brand-300">/mês</span></div>
-                <a href="[https://mpago.la/2fLHcpu](https://mpago.la/2fLHcpu)" target="_blank" class="block w-full bg-brand-500 text-white font-bold py-3 rounded-xl text-center">Assinar Ilimitado</a>
+                <a href="https://mpago.la/2fLHcpu" target="_blank" class="block w-full bg-brand-500 text-white font-bold py-3 rounded-xl text-center">Assinar Ilimitado</a>
             </div>
         </div>
     </div>
@@ -189,7 +187,7 @@
     </div>
 </div>
 
-<!-- Modal Compartilhar -->
+<!-- Modal Share -->
 <div id="modal-share" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
         <h2 class="text-xl font-bold text-white mb-2">Compartilhe a Fábrica</h2>
@@ -206,7 +204,6 @@
 
 <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 
-<!-- STREAMING_CHUNK:Initializing core application script logic... -->
 <script>
     const GROQ_API_KEY = "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";
     let wallet = { energy: 500, isPremium: false };
@@ -219,8 +216,8 @@
         const manifest = {
             name: "Fábrica Livre", short_name: "Fábrica", start_url: ".", display: "standalone",
             background_color: "#0F172A", theme_color: "#0F172A",
-            icons: [{ src: "[https://placehold.co/192x192/0EA5E9/FFFFFF?text=FL](https://placehold.co/192x192/0EA5E9/FFFFFF?text=FL)", sizes: "192x192", type: "image/png" },
-                    { src: "[https://placehold.co/512x512/0EA5E9/FFFFFF?text=FL](https://placehold.co/512x512/0EA5E9/FFFFFF?text=FL)", sizes: "512x512", type: "image/png" }]
+            icons: [{ src: "https://placehold.co/192x192/0EA5E9/FFFFFF?text=FL", sizes: "192x192", type: "image/png" },
+                    { src: "https://placehold.co/512x512/0EA5E9/FFFFFF?text=FL", sizes: "512x512", type: "image/png" }]
         };
         const manifestUrl = URL.createObjectURL(new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'}));
         document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="${manifestUrl}">`);
@@ -296,7 +293,7 @@
     function shareWhatsApp() {
         const url = window.location.origin;
         const message = `Crie aplicativos de IA em segundos usando sua voz! 🚀\n\nTeste a Fábrica Livre: ${url}`;
-        window.open(`[https://api.whatsapp.com/send?text=$](https://api.whatsapp.com/send?text=$){encodeURIComponent(message)}`, '_blank');
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
         closeModal('modal-share');
     }
 
@@ -375,7 +372,7 @@
         };
         
         try {
-            const response = await fetch("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", { 
+            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", { 
                 method: 'POST', 
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` }, 
                 body: JSON.stringify(payload) 
@@ -441,7 +438,6 @@
         chatWindow.scrollTop = chatWindow.scrollHeight;
     }
 
-    // STREAMING_CHUNK:Defining AI Self-Improvement & History management...
     async function optimizePromptWithAI() {
         const input = document.getElementById('chat-input');
         const currentText = input.value.trim() || "Crie um micro-aplicativo útil para empreendedores";
@@ -470,10 +466,8 @@
 
         try {
             const rawReply = await callAI(prompt);
-            let cleanedCode = rawReply.replace(/
-html/g, '').replace(//g, '').trim();
-
-            // Salva no histórico
+            let cleanedCode = rawReply.replace(/```html/g, '').replace(/```/g, '').trim();
+            
             saveToHistory(msgs.substring(0, 40) + '...', cleanedCode);
             injectAppCode(cleanedCode);
         } catch (error) {
@@ -494,7 +488,7 @@ html/g, '').replace(//g, '').trim();
     function saveToHistory(title, code) {
         const newItem = { id: Date.now(), title, code, date: new Date().toLocaleDateString('pt-BR') };
         appHistory.unshift(newItem);
-        if (appHistory.length > 20) appHistory.pop(); // Mantém os últimos 20
+        if (appHistory.length > 20) appHistory.pop();
         localStorage.setItem('fabrica_livre_history', JSON.stringify(appHistory));
         renderHistoryUI();
     }
