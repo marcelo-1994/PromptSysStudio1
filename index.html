@@ -255,8 +255,8 @@
         // CHAVE DA NUVEM (Segurança de Fallback)
         const DIRECT_GROQ_KEY = "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";
         
-        // URL DO NGROK - Coloque aqui a sua URL caso vá usar. Ex: "https://abcd-1234.ngrok-free.app/gerar"
-        let NGROK_URL = "https://deepen-reanalyze-outcome.ngrok-free.dev/gerar"; 
+        // URL DO NGROK - Deixe vazio e ele usará a Nuvem direto
+        let NGROK_URL = ""; 
         
         let wallet = { energy: 500, isPremium: false };
         let adminClicks = 0;
@@ -271,13 +271,13 @@
                 shareInput.value = window.location.origin;
             }
             
-            // --- NOVIDADE: Enviar mensagem apertando a tecla Enter ---
+            // OTIMIZAÇÃO DO TECLADO: Enter para enviar, Shift+Enter para pular linha
             const chatInput = document.getElementById('chat-input');
             if (chatInput) {
                 chatInput.addEventListener('keydown', function(event) {
                     if (event.key === 'Enter' && !event.shiftKey) {
-                        event.preventDefault(); // Evita que o Enter pule uma linha no campo
-                        sendChatMessage(); // Aciona a função de enviar mensagem na mesma hora
+                        event.preventDefault(); // Evita que o Enter quebre a linha sozinho
+                        sendChatMessage(); // Envia direto
                     }
                 });
             }
@@ -290,14 +290,14 @@
                 error: 'bg-red-500/20 border-red-500/50 text-red-400',
                 info: 'bg-brand-500/20 border-brand-500/50 text-brand-400'
             };
-            toast.className = `px-4 py-3 rounded-xl border backdrop-blur-md shadow-lg ${colors[type]} transform translate-y-10 opacity-0 transition-all duration-300 text-sm z-50`;
+            toast.className = `px-4 py-3 rounded-xl border backdrop-blur-md shadow-lg ${colors[type]} transform translate-y-10 opacity-0 transition-all duration-300 text-sm z-50 max-w-sm`;
             toast.innerHTML = `<span class="font-medium">${message}</span>`;
             document.getElementById('toast-container').appendChild(toast);
             requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
             setTimeout(() => {
                 toast.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => toast.remove(), 300);
-            }, 4000);
+            }, 5000);
         }
 
         function openModal(id) { document.getElementById(id)?.classList.remove('hidden'); }
@@ -411,55 +411,60 @@
                     : "Olá! Estou operando no modo simulador local. Altere para Nuvem ou Ngrok para respostas reais.";
             }
 
-            // ATUALIZAÇÃO: Nome do modelo atualizado para llama3-70b-8192 (Oficial Groq)
-            let payload = { model: 'llama3-70b-8192', messages: [{ role: 'user', content: promptText }] };
+            // ATUALIZADO: Nome do modelo oficial e ativo no Groq (agosto/2026)
+            let payload = { model: 'llama-3.1-70b-versatile', messages: [{ role: 'user', content: promptText }] };
+            let responseReceived = null;
+            let ngrokFailed = false;
 
+            // 1. TENTA NGROK SE ESTIVER SELECIONADO E CONFIGURADO
             if (engine === 'ngrok' && NGROK_URL && NGROK_URL.trim() !== "") {
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 4000);
-                    
                     const ngrokResponse = await fetch(NGROK_URL, { 
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify(payload),
-                        signal: controller.signal
+                        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload), signal: controller.signal
                     });
-                    
                     clearTimeout(timeoutId);
 
                     if (ngrokResponse.ok) {
-                        const data = await ngrokResponse.json();
-                        return data.choices ? data.choices[0].message.content : data.message.content;
+                        responseReceived = await ngrokResponse.json();
+                    } else {
+                        ngrokFailed = true;
                     }
                 } catch (e) {
-                    showToast('⚠️ Túnel Ngrok fechado. Tentando usar a Nuvem...', 'info');
+                    ngrokFailed = true;
                 }
             } else if (engine === 'ngrok') {
-                showToast('⚠️ Ngrok não configurado. Usando Nuvem Direta...', 'info');
+                ngrokFailed = true; // Força pular pra nuvem se não tem URL configurada
             }
 
-            try {
-                const cloudEndpoint = "https://api.groq.com/openai/v1/chat/completions";
-                const cloudHeaders = { 
-                    'Content-Type': 'application/json', 
-                    'Authorization': `Bearer ${DIRECT_GROQ_KEY}` 
-                };
-
-                const response = await fetch(cloudEndpoint, { method: 'POST', headers: cloudHeaders, body: JSON.stringify(payload) });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    console.error("Erro da Groq:", errorData);
-                    throw new Error(errorData.error?.message || 'Erro nos servidores da Groq');
+            // 2. TENTA NUVEM (GROQ DIRETO) COMO FALLBACK (ou se for o selecionado)
+            if (engine === 'groq' || ngrokFailed) {
+                if (ngrokFailed) {
+                    showToast('⚠️ Ngrok inativo ou não configurado. Utilizando Nuvem Direta...', 'info');
                 }
-                
-                const data = await response.json();
-                return data.choices ? data.choices[0].message.content : data.message.content;
-                
-            } catch (err) {
-                console.error("Detalhes do erro:", err);
-                throw new Error(err.message || 'Falha de conexão com a Nuvem e com o Local.');
+                try {
+                    const cloudResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DIRECT_GROQ_KEY}` }, 
+                        body: JSON.stringify(payload) 
+                    });
+                    
+                    if (!cloudResponse.ok) {
+                        const err = await cloudResponse.json();
+                        throw new Error(err.error?.message || "Erro desconhecido na API da Groq");
+                    }
+                    responseReceived = await cloudResponse.json();
+                } catch (e) {
+                    throw new Error(e.message);
+                }
+            }
+
+            // 3. EXTRAI O TEXTO DA RESPOSTA SE DEU TUDO CERTO
+            if (responseReceived) {
+                return responseReceived.choices ? responseReceived.choices[0].message.content : responseReceived.message.content;
+            } else {
+                throw new Error("Erro Crítico. Sem resposta do servidor.");
             }
         }
 
@@ -515,7 +520,7 @@
                 let cleanedCode = rawReply.replace(/```html/g, '').replace(/```/g, '').trim();
                 injectAppCode(cleanedCode);
             } catch (error) {
-                showToast('❌ Falha ao gerar código. Servidor offline.', 'error');
+                showToast(`❌ Falha: ${error.message}`, 'error');
             } finally {
                 btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`;
             }
