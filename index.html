@@ -22,7 +22,6 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #0F172A; color: #F8FAFC; }
         .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid #334155; }
-        #game-canvas { display: block; margin: 0 auto; background: linear-gradient(to bottom, #0F172A, #1E293B); border: 2px solid #334155; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-width: 100%; }
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
@@ -247,31 +246,11 @@
         </div>
     </div>
 
-    <div id="modal-error" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 hidden">
-        <div class="text-center mb-6">
-            <h2 class="text-xl lg:text-2xl font-black text-red-400 uppercase tracking-widest"><i class="fa-solid fa-triangle-exclamation"></i> Conexão Ocupada</h2>
-            <p class="text-slate-300 mt-2 text-sm lg:text-base">O servidor demorou a responder, mas relaxe! Divirta-se jogando enquanto tentamos reconectar.</p>
-            <p class="text-brand-400 font-bold mt-1 text-xs lg:text-sm">(Pressione Espaço ou Toque na tela para pular)</p>
-        </div>
-        
-        <div class="w-full max-w-[600px] overflow-hidden rounded-xl border-2 border-slate-700 bg-slate-900 mx-auto relative h-[150px] lg:h-[200px]">
-            <canvas id="game-canvas" class="w-full h-full object-cover"></canvas>
-        </div>
-        
-        <button onclick="closeModal('modal-error')" class="mt-8 bg-dark-border hover:bg-slate-600 text-white px-6 py-3 rounded-xl font-bold transition-colors">
-            Voltar para a Plataforma
-        </button>
-    </div>
-
     <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2"></div>
 
     <script>
-        // ==========================================
-        // CONFIGURAÇÕES DE API E SEGURANÇA
-        // ==========================================
         const DIRECT_GROQ_KEY = "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";
         
-        // AQUI ESTÁ O SEU LINK DO NGROK ATUALIZADO!
         let NGROK_URL = "https://deepen-reanalyze-outcome.ngrok-free.dev/gerar"; 
         
         let wallet = { energy: 500, isPremium: false };
@@ -369,16 +348,8 @@
                 wallet.isPremium = true;
                 updateEnergyUI();
                 closeModal('modal-admin');
-                showToast('👑 MODO DEUS ATIVADO! Energia Infinita & Ollama Local Liberados.', 'success');
+                showToast('👑 MODO DEUS ATIVADO! Energia Infinita Liberada.', 'success');
                 document.getElementById('admin-serial').value = '';
-                
-                const sel = document.getElementById('global-engine');
-                if(sel && !sel.querySelector('option[value="ollama"]')) {
-                    const opt = document.createElement('option');
-                    opt.value = 'ollama';
-                    opt.innerText = '💻 Meu PC (Ollama Local)';
-                    sel.appendChild(opt);
-                }
             } else {
                 showToast('❌ Chave de Acesso Incorreta!', 'error');
             }
@@ -431,34 +402,17 @@
                     : "Olá! Estou operando no modo simulador local. Altere para Nuvem ou Ngrok para respostas reais.";
             }
 
-            if (engine === 'ollama') {
-                const response = await fetch('http://localhost:11434/api/chat', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify({ model: 'llama3', messages: [{ role: 'user', content: promptText }], stream: false }) 
-                });
-                if (!response.ok) throw new Error('Erro no Ollama');
-                const data = await response.json();
-                return data.message.content;
-            }
-
-            // Lógica de Conexão (Ngrok vs Direto na Groq)
             let endpoint = "";
             let payload = {};
             let headers = { 'Content-Type': 'application/json' };
 
-            if (engine === 'ngrok') {
-                if (!NGROK_URL || NGROK_URL.trim() === "") {
-                    showToast('⚠️ Link do Ngrok não configurado. Usando a Nuvem Direta...', 'info');
-                    endpoint = "https://api.groq.com/openai/v1/chat/completions";
-                    headers['Authorization'] = `Bearer ${DIRECT_GROQ_KEY}`;
-                    payload = { model: 'llama3-70b-8192', messages: [{ role: 'user', content: promptText }] };
-                } else {
-                    endpoint = NGROK_URL;
-                    payload = { model: 'llama3-70b-8192', messages: [{ role: 'user', content: promptText }] };
-                }
+            if (engine === 'ngrok' && NGROK_URL && NGROK_URL.trim() !== "") {
+                endpoint = NGROK_URL;
+                payload = { model: 'llama3-70b-8192', messages: [{ role: 'user', content: promptText }] };
             } else {
-                // Nuvem Direta
+                if (engine === 'ngrok') {
+                    showToast('⚠️ Ngrok não configurado. Usando a Nuvem Direta...', 'info');
+                }
                 endpoint = "https://api.groq.com/openai/v1/chat/completions";
                 headers['Authorization'] = `Bearer ${DIRECT_GROQ_KEY}`;
                 payload = { model: 'llama3-70b-8192', messages: [{ role: 'user', content: promptText }] };
@@ -468,9 +422,8 @@
                 const response = await fetch(endpoint, { method: 'POST', headers: headers, body: JSON.stringify(payload) });
                 
                 if (!response.ok) {
-                    // Se o Ngrok falhar, tenta a Groq direto para não deixar o usuário na mão
                     if (engine === 'ngrok') {
-                        showToast('⚠️ Servidor local (Ngrok) fora do ar. Usando Nuvem de emergência...', 'info');
+                        showToast('⚠️ Servidor local fora do ar. Usando Nuvem de emergência...', 'info');
                         const fallbackResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", { 
                             method: 'POST', 
                             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DIRECT_GROQ_KEY}` }, 
@@ -518,7 +471,7 @@
                 appendBotMsg(reply);
             } catch (error) {
                 document.getElementById(loadingId).remove();
-                startErrorGame();
+                showToast('❌ Erro de conexão! Verifique seu servidor local ou mude para a Nuvem.', 'error');
             }
         }
 
@@ -544,7 +497,7 @@
                 let cleanedCode = rawReply.replace(/```html/g, '').replace(/```/g, '').trim();
                 injectAppCode(cleanedCode);
             } catch (error) {
-                startErrorGame();
+                showToast('❌ Erro ao gerar o app. O servidor demorou a responder.', 'error');
             } finally {
                 btn.innerHTML = `<i class="fa-solid fa-play"></i> Gerar App`;
             }
@@ -561,105 +514,6 @@
             }
             showToast('✅ Aplicativo gerado com sucesso!', 'success');
         }
-
-        let gameLoopId;
-        function startErrorGame() {
-            openModal('modal-error');
-            const canvas = document.getElementById('game-canvas');
-            const ctx = canvas.getContext('2d');
-            
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-            
-            let alien = { x: 50, y: canvas.height - 50, width: 25, height: 25, dy: 0, gravity: 0.6, jumpStrength: -10, isGrounded: true };
-            let obstacles = [];
-            let frameCount = 0;
-            let score = 0;
-            let isGameOver = false;
-
-            const jump = (e) => {
-                if(e && e.type === 'keydown' && e.code !== 'Space') return;
-                if(isGameOver) { resetGame(); return; }
-                if(alien.isGrounded) { alien.dy = alien.jumpStrength; alien.isGrounded = false; }
-            };
-            
-            window.addEventListener('keydown', jump);
-            canvas.addEventListener('mousedown', jump);
-            canvas.addEventListener('touchstart', jump, {passive: true});
-
-            function resetGame() {
-                alien.y = canvas.height - 50; alien.dy = 0;
-                obstacles = []; frameCount = 0; score = 0; isGameOver = false;
-                gameLoop();
-            }
-
-            function gameLoop() {
-                if (isGameOver) return;
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                alien.dy += alien.gravity;
-                alien.y += alien.dy;
-                if (alien.y + alien.height >= canvas.height - 20) {
-                    alien.y = canvas.height - 20 - alien.height;
-                    alien.dy = 0;
-                    alien.isGrounded = true;
-                }
-
-                frameCount++;
-                if (frameCount % 90 === 0) {
-                    obstacles.push({ x: canvas.width, y: canvas.height - 50, width: 20, height: 30, speed: 4 + (score * 0.1) });
-                }
-
-                for (let i = 0; i < obstacles.length; i++) {
-                    obstacles[i].x -= obstacles[i].speed;
-                    
-                    if (alien.x < obstacles[i].x + obstacles[i].width && alien.x + alien.width > obstacles[i].x && alien.y < obstacles[i].y + obstacles[i].height && alien.y + alien.height > obstacles[i].y) {
-                        isGameOver = true;
-                        ctx.fillStyle = 'white';
-                        ctx.font = 'bold 16px sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.fillText('FIM DE JOGO! Clique para reiniciar.', canvas.width/2, canvas.height/2);
-                        ctx.textAlign = 'left';
-                        return; 
-                    }
-                    if(obstacles[i].x + obstacles[i].width < 0) {
-                        obstacles.splice(i, 1); score++; i--;
-                    }
-                }
-
-                ctx.fillStyle = '#334155';
-                ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
-
-                ctx.fillStyle = '#EF4444';
-                obstacles.forEach(obs => ctx.fillRect(obs.x, obs.y, obs.width, obs.height));
-
-                ctx.fillStyle = '#0EA5E9';
-                ctx.beginPath();
-                ctx.arc(alien.x + alien.width/2, alien.y + alien.height/2, alien.width/2, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = 'white';
-                ctx.beginPath();
-                ctx.arc(alien.x + alien.width/2 + 5, alien.y + alien.height/4, 4, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.fillStyle = 'white';
-                ctx.font = '14px sans-serif';
-                ctx.fillText(`Pulos: ${score}`, 10, 25);
-
-                gameLoopId = requestAnimationFrame(gameLoop);
-            }
-            
-            cancelAnimationFrame(gameLoopId);
-            resetGame();
-        }
-        
-        window.addEventListener('resize', () => {
-            if(!document.getElementById('modal-error').classList.contains('hidden')) {
-                const canvas = document.getElementById('game-canvas');
-                canvas.width = canvas.parentElement.clientWidth;
-                canvas.height = canvas.parentElement.clientHeight;
-            }
-        });
     </script>
 </body>
 </html>
