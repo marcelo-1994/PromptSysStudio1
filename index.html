@@ -2,9 +2,16 @@
 <html lang="pt-BR" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#0F172A">
+    
+    <!-- TAGS PARA PWA E CELULAR -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Fábrica Livre">
     <link rel="apple-touch-icon" href="https://placehold.co/192x192/0EA5E9/FFFFFF?text=FL">
+    
     <title>PromptSys Studio | Fábrica Livre</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,769 +20,313 @@
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        dark: { bg: '#0F172A', panel: '#1E293B', border: '#334155' },
-                        brand: { 400: '#38BDF8', 500: '#0EA5E9', 600: '#0284C7' }
-                    }
+                    colors: { dark: { bg: '#0F172A', panel: '#1E293B', border: '#334155' }, brand: { 400: '#38BDF8', 500: '#0EA5E9', 600: '#0284C7' } }
                 }
             }
         }
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0F172A; color: #F8FAFC; }
-        .glass-panel { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); border: 1px solid #334155; }
-        ::-webkit-scrollbar { width: 6px; }
+        body { font-family: 'Inter', sans-serif; background-color: #0F172A; color: #F8FAFC; -webkit-tap-highlight-color: transparent; }
+        .glass-panel { background: rgba(30, 41, 59, 0.85); backdrop-filter: blur(12px); border: 1px solid #334155; }
+        ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        
         .premium-glow { box-shadow: 0 0 15px rgba(234, 179, 8, 0.4); border-color: rgba(234, 179, 8, 0.8) !important; }
+        @keyframes pulse-mic { 0% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(74, 222, 128, 0); } 100% { box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); } }
+        .mic-active { animation: pulse-mic 1.5s infinite; border-color: #4ade80 !important; color: #4ade80 !important; }
     </style>
 </head>
-<body class="h-screen flex flex-col text-sm overflow-hidden bg-dark-bg">
+<body class="h-screen flex flex-col text-sm overflow-hidden bg-dark-bg pt-safe">
 
     <!-- Header -->
-    <header class="glass-panel border-b border-dark-border px-4 py-3 flex items-center justify-between z-10 shrink-0">
-        <div class="flex items-center gap-3">
-            <div id="admin-trigger" class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-lg cursor-pointer transition-transform hover:scale-105" onclick="countAdminClicks()">
-                <i class="fa-solid fa-robot text-white text-xl"></i>
+    <header class="glass-panel border-b border-dark-border px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between z-10 shrink-0">
+        <div class="flex items-center gap-2 sm:gap-3">
+            <div id="admin-trigger" class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-lg cursor-pointer" onclick="countAdminClicks()">
+                <i class="fa-solid fa-robot text-white text-lg sm:text-xl"></i>
             </div>
             <div>
-                <h1 class="font-bold text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Fábrica Livre</h1>
-                <p id="cloud-status" class="text-[10px] text-yellow-400 font-medium bg-yellow-500/10 px-2 py-0.5 rounded inline-block mt-0.5">Memória Local (Sem Login)</p>
+                <h1 class="font-bold text-base sm:text-lg tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">Fábrica Livre</h1>
+                <p id="cloud-status" class="text-[9px] sm:text-[10px] text-yellow-400 font-medium bg-yellow-500/10 px-1.5 py-0.5 rounded inline-block">Memória Local</p>
             </div>
         </div>
 
-        <div class="flex items-center gap-2 sm:gap-3">
-            <!-- Botão de Compartilhar -->
-            <button onclick="openModal('modal-share')" class="flex items-center gap-1.5 bg-dark-panel border border-dark-border hover:border-green-500 transition-colors px-2.5 sm:px-3 py-1.5 rounded-lg text-slate-200 text-xs font-medium group" title="Compartilhar">
-                <i class="fa-brands fa-whatsapp text-green-400 group-hover:scale-110 transition-transform"></i> <span class="hidden md:inline">Compartilhar</span>
+        <div class="flex items-center gap-1.5 sm:gap-3">
+            <button onclick="openModal('modal-share')" class="hidden sm:flex items-center gap-1.5 bg-dark-panel border border-dark-border hover:border-green-500 px-3 py-1.5 rounded-lg text-slate-200 text-xs font-medium">
+                <i class="fa-brands fa-whatsapp text-green-400"></i> Compartilhar
             </button>
-
-            <!-- Botão da Galeria -->
-            <button onclick="toggleHistoryDrawer()" class="flex items-center gap-1.5 bg-dark-panel border border-dark-border hover:border-brand-500 transition-colors px-3 py-1.5 rounded-lg text-slate-200 text-xs font-medium relative group">
-                <i class="fa-solid fa-layer-group text-brand-400"></i> <span class="hidden sm:inline">Galeria</span>
-                <span id="gallery-badge" class="absolute -top-2 -right-2 bg-brand-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+            <button onclick="toggleHistoryDrawer()" class="flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 bg-dark-panel border border-dark-border hover:border-brand-500 rounded-lg text-slate-200 text-xs font-medium relative">
+                <i class="fa-solid fa-layer-group text-brand-400"></i> <span class="hidden sm:inline ml-1.5">Galeria</span>
+                <span id="gallery-badge" class="absolute -top-1.5 -right-1.5 bg-brand-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden">0</span>
             </button>
-
-            <!-- Botão de Energia -->
-            <button id="btn-energy" onclick="openModal('modal-paywall')" class="flex items-center gap-2 bg-dark-panel border border-yellow-500/30 hover:border-yellow-500 transition-colors rounded-full px-3 py-1.5 group shrink-0">
-                <i class="fa-solid fa-bolt text-yellow-400 group-hover:scale-110 transition-transform"></i>
-                <span id="energy-counter" class="font-bold text-white text-sm">500</span>
+            <button id="btn-energy" onclick="openModal('modal-paywall')" class="flex items-center gap-1.5 bg-dark-panel border border-yellow-500/30 rounded-full px-2 sm:px-3 py-1 sm:py-1.5">
+                <i class="fa-solid fa-bolt text-yellow-400"></i><span id="energy-counter" class="font-bold text-white text-xs sm:text-sm">500</span>
             </button>
-
-            <!-- Seção de Login Google -->
-            <div id="auth-section" class="flex items-center ml-2 border-l border-dark-border pl-3">
-                <button id="btn-login" onclick="openModal('modal-auth')" class="bg-white text-slate-900 hover:bg-slate-200 transition-colors px-3 py-1.5 rounded-lg text-xs font-bold shadow-md flex items-center gap-2">
-                    <i class="fa-brands fa-google text-red-500"></i> Entrar
+            <div id="auth-section" class="flex items-center border-l border-dark-border pl-1.5 sm:pl-3 ml-1">
+                <button id="btn-login" onclick="openModal('modal-auth')" class="bg-white text-slate-900 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold flex items-center gap-1">
+                    <i class="fa-brands fa-google text-red-500"></i> <span class="hidden sm:inline">Entrar</span>
                 </button>
-                <div id="user-profile" class="hidden items-center gap-2 cursor-pointer bg-dark-panel px-3 py-1.5 rounded-lg border border-dark-border hover:border-brand-500 transition-colors" onclick="openModal('modal-logout')">
-                    <img id="user-avatar" src="" alt="Avatar" class="w-6 h-6 rounded-full border border-brand-500">
-                    <span id="header-username" class="text-xs font-medium text-slate-200 hidden sm:inline">Construtor</span>
+                <div id="user-profile" class="hidden items-center gap-1.5 cursor-pointer bg-dark-panel px-1.5 sm:px-3 py-1 sm:py-1.5 rounded-lg border border-dark-border" onclick="openModal('modal-logout')">
+                    <img id="user-avatar" src="" class="w-5 h-5 sm:w-6 sm:h-6 rounded-full border border-brand-500">
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Workspace Principal -->
-    <main class="flex-1 overflow-y-auto lg:overflow-hidden flex flex-col lg:flex-row w-full relative">
-        <section class="h-[55vh] lg:h-full w-full lg:w-[400px] flex flex-col border-b lg:border-b-0 lg:border-r border-dark-border bg-dark-bg/50 shrink-0">
-            <div class="p-4 border-b border-dark-border glass-panel shrink-0 flex items-center justify-between">
-                <h2 class="font-semibold text-slate-200 flex items-center gap-2">
+    <!-- Workspace Principal - Layout Otimizado para Mobile (Abas) -->
+    <main class="flex-1 flex flex-row overflow-hidden relative pb-[60px] lg:pb-0">
+        
+        <!-- SEÇÃO CHAT (Sempre visível no PC, controlada por aba no Mobile) -->
+        <section id="section-chat" class="w-full lg:w-[400px] flex flex-col h-full shrink-0 border-r border-dark-border bg-dark-bg/50">
+            <div class="p-3 border-b border-dark-border glass-panel shrink-0 flex items-center justify-between">
+                <h2 class="font-semibold text-slate-200 flex items-center gap-2 text-xs sm:text-sm">
                     <i class="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Arquiteto de IA
                 </h2>
-                <button onclick="optimizePromptWithAI()" title="Melhorar Prompt" class="text-xs bg-brand-500/20 text-brand-300 px-2.5 py-1 rounded-lg border border-brand-500/30 hover:bg-brand-500/30 transition-colors shadow-sm">
-                    <i class="fa-solid fa-brain mr-1"></i> Evoluir
+                <button onclick="optimizePromptWithAI()" class="text-[10px] bg-brand-500/20 text-brand-300 px-2 py-1 rounded border border-brand-500/30">
+                    <i class="fa-solid fa-brain mr-1"></i> Evoluir Ideia
                 </button>
             </div>
             
-            <div id="chat-window" class="flex-1 overflow-y-auto p-4 space-y-4">
+            <div id="chat-window" class="flex-1 overflow-y-auto p-3 sm:p-4 space-y-4">
                 <div class="flex items-start gap-3">
-                    <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/30">
-                        <i class="fa-solid fa-robot text-white text-xs"></i>
-                    </div>
-                    <div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-sm shadow-md">
-                        Sistema operacional! Faça login com o Google para salvar sua galeria de apps na nuvem. Qual a ideia genial de hoje?
+                    <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/30"><i class="fa-solid fa-robot text-white text-xs"></i></div>
+                    <div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-xs sm:text-sm">
+                        Sistema operacional e otimizado! Fale ou digite sua ideia para gerar o app na hora.
                     </div>
                 </div>
             </div>
 
-            <div class="p-4 border-t border-dark-border bg-dark-panel relative shrink-0">
+            <div class="p-3 border-t border-dark-border bg-dark-panel relative shrink-0">
+                <div id="mic-status" class="absolute -top-7 left-3 text-xs text-green-400 font-bold hidden bg-dark-panel px-2 py-1 rounded-t-lg border border-b-0 border-dark-border">
+                    <i class="fa-solid fa-microphone animate-pulse mr-1"></i> Ouvindo...
+                </div>
                 <div class="flex gap-2">
-                    <textarea id="chat-input" rows="1" class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none text-sm" placeholder="Sua ideia (Enter envia)"></textarea>
-                    <button onclick="sendChatMessage()" class="w-12 h-12 rounded-xl bg-brand-600 hover:bg-brand-500 flex items-center justify-center text-white transition-colors shadow-lg shrink-0">
+                    <button id="btn-mic" onclick="toggleVoiceRecognition()" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-dark-bg border border-dark-border flex items-center justify-center text-slate-300 shrink-0">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <textarea id="chat-input" rows="1" class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none text-xs sm:text-sm" placeholder="Sua ideia..."></textarea>
+                    <button onclick="sendChatMessage()" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-600 flex items-center justify-center text-white shrink-0">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </div>
             </div>
         </section>
 
-        <!-- Preview Area -->
-        <section class="h-[60vh] lg:h-full flex-1 flex flex-col relative bg-[#0b1121]">
-            <div class="p-4 border-b border-dark-border flex justify-between items-center bg-dark-bg/80 z-10 backdrop-blur-sm shrink-0">
-                <div class="flex items-center gap-2">
-                    <span class="text-slate-400 font-mono text-xs"><i class="fa-solid fa-eye text-slate-500 mr-1"></i> Visualização ao Vivo</span>
-                </div>
-                <button onclick="generateApp()" class="bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-900 hover:scale-105 font-bold px-5 py-2 rounded-lg text-xs transition-transform shadow-lg shadow-emerald-500/20 flex items-center gap-2">
+        <!-- SEÇÃO PREVIEW (Sempre visível no PC, controlada por aba no Mobile) -->
+        <section id="section-preview" class="hidden lg:flex flex-1 flex-col h-full bg-[#0b1121] w-full absolute lg:relative inset-0 z-0">
+            <div class="p-3 border-b border-dark-border flex justify-between items-center bg-dark-bg/80 backdrop-blur-sm shrink-0">
+                <span class="text-slate-400 font-mono text-[10px] sm:text-xs"><i class="fa-solid fa-eye mr-1"></i> App Gerado</span>
+                <button onclick="generateApp()" class="bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-900 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-500/20">
                     <i class="fa-solid fa-code"></i> Construir App
                 </button>
             </div>
 
-            <div class="flex-1 p-4 lg:p-8 flex items-center justify-center relative h-full">
+            <div class="flex-1 p-2 sm:p-6 flex items-center justify-center relative h-full">
                 <div id="app-placeholder" class="text-center w-full">
-                    <div class="w-20 h-20 rounded-full bg-dark-panel border-2 border-dashed border-dark-border flex items-center justify-center mx-auto mb-4 text-3xl text-slate-600">
-                        <i class="fa-solid fa-laptop-code"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-300">Área de Montagem</h3>
-                    <p class="text-slate-500 text-sm mt-2">Sua criação aparecerá aqui.</p>
+                    <div class="w-16 h-16 rounded-full bg-dark-panel border-2 border-dashed border-dark-border flex items-center justify-center mx-auto mb-3 text-2xl text-slate-600"><i class="fa-solid fa-laptop-code"></i></div>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-300">Área de Montagem</h3>
                 </div>
-                <iframe id="app-preview" class="w-full h-full bg-white rounded-xl shadow-2xl hidden border-0"></iframe>
+                <iframe id="app-preview" class="w-full h-full bg-white rounded-lg sm:rounded-xl shadow-2xl hidden border-0"></iframe>
             </div>
         </section>
-
-        <!-- Galeria Visual -->
-        <div id="history-drawer" class="absolute inset-y-0 right-0 w-full sm:w-[500px] bg-dark-panel border-l border-dark-border shadow-2xl z-40 transform translate-x-full transition-transform duration-300 flex flex-col">
-            <div class="p-4 border-b border-dark-border flex items-center justify-between bg-dark-bg">
-                <div>
-                    <h3 class="font-bold text-white text-base flex items-center gap-2">
-                        <i class="fa-solid fa-images text-brand-400"></i> Galeria de Projetos
-                    </h3>
-                    <p class="text-[10px] text-slate-400 mt-1">Seus aplicativos salvos.</p>
-                </div>
-                <button onclick="toggleHistoryDrawer()" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-white/5 transition-colors">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-            <div id="history-list" class="flex-1 overflow-y-auto p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 content-start">
-                <div class="col-span-full text-center text-slate-500 mt-10">Carregando seus projetos...</div>
-            </div>
-        </div>
+        
     </main>
 
-    <!-- Modals -->
-    <!-- Modal Compartilhar -->
+    <!-- Barra de Navegação Inferior (APENAS CELULAR) -->
+    <nav class="lg:hidden fixed bottom-0 w-full bg-dark-panel border-t border-dark-border flex z-40 pb-safe h-[60px]">
+        <button onclick="switchMobileTab('chat')" id="tab-chat" class="flex-1 text-brand-400 font-bold border-t-2 border-brand-500 bg-dark-bg text-[10px] flex flex-col items-center justify-center gap-1">
+            <i class="fa-solid fa-message text-lg"></i> Chat
+        </button>
+        <button onclick="switchMobileTab('preview')" id="tab-preview" class="flex-1 text-slate-400 font-medium border-t-2 border-transparent text-[10px] flex flex-col items-center justify-center gap-1">
+            <i class="fa-solid fa-mobile-screen text-lg"></i> Resultado
+        </button>
+    </nav>
+
+    <!-- Galeria Visual Lateral -->
+    <div id="history-drawer" class="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-dark-panel border-l border-dark-border shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <div class="p-4 border-b border-dark-border flex items-center justify-between bg-dark-bg pt-safe">
+            <div><h3 class="font-bold text-white flex items-center gap-2"><i class="fa-solid fa-images text-brand-400"></i> Galeria de Projetos</h3></div>
+            <button onclick="toggleHistoryDrawer()" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+        <div id="history-list" class="flex-1 overflow-y-auto p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 pb-20 content-start"></div>
+    </div>
+
+    <!-- Modals Padrões (Os mesmos de antes, ocultos) -->
     <div id="modal-share" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative">
-            <button onclick="closeModal('modal-share')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/50">
-                <i class="fa-brands fa-whatsapp text-3xl text-green-400"></i>
-            </div>
-            <h2 class="text-xl font-bold text-white mb-2">Compartilhe a Fábrica</h2>
-            <p class="text-slate-400 text-sm mb-6">Convide amigos para criar aplicativos com IA.</p>
-            
-            <div class="bg-dark-bg p-3 rounded-lg border border-dark-border flex items-center gap-2 mb-4">
-                <input type="text" value="" class="bg-transparent w-full text-slate-300 text-xs outline-none" readonly id="share-url">
-                <button onclick="copyShare()" class="text-brand-400 p-2 hover:text-brand-300 transition-colors"><i class="fa-regular fa-copy text-lg"></i></button>
-            </div>
-            
-            <button onclick="shareWhatsApp()" class="w-full bg-[#25D366] hover:bg-[#20b958] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
-                <i class="fa-brands fa-whatsapp text-xl"></i> Enviar pelo WhatsApp
-            </button>
-        </div>
+        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative"><button onclick="closeModal('modal-share')" class="absolute top-4 right-4 text-slate-400"><i class="fa-solid fa-xmark text-xl"></i></button><div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa-brands fa-whatsapp text-3xl text-green-400"></i></div><h2 class="text-xl font-bold text-white mb-2">Compartilhe a Fábrica</h2><div class="bg-dark-bg p-3 rounded-lg border border-dark-border flex items-center gap-2 mb-4"><input type="text" value="" class="bg-transparent w-full text-slate-300 text-xs outline-none" readonly id="share-url"><button onclick="copyShare()" class="text-brand-400 p-2"><i class="fa-regular fa-copy"></i></button></div><button onclick="shareWhatsApp()" class="w-full bg-[#25D366] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-brands fa-whatsapp text-xl"></i> Enviar</button></div>
     </div>
+    
+    <div id="modal-payment-success" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden"><div class="bg-dark-panel border border-yellow-500 rounded-2xl max-w-md w-full p-8 text-center shadow-2xl relative"><div class="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-500/50"><i id="payment-success-icon" class="fa-solid fa-crown text-4xl text-yellow-500"></i></div><h2 id="payment-success-title" class="text-3xl font-black text-white mb-2">APROVADO!</h2><p id="payment-success-desc" class="text-slate-300 text-sm mb-6">Conta promovida!</p><button onclick="closeModal('modal-payment-success')" class="w-full bg-yellow-500 text-slate-900 font-bold py-3.5 rounded-xl">Voltar 🚀</button></div></div>
+    
+    <div id="modal-auth" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"><div class="bg-dark-panel border border-dark-border rounded-2xl max-w-sm w-full p-8 text-center"><button onclick="closeModal('modal-auth')" class="absolute top-4 right-4 text-slate-400"><i class="fa-solid fa-xmark text-xl"></i></button><i class="fa-solid fa-cloud-arrow-up text-5xl text-brand-500 mb-4"></i><h2 class="text-2xl font-bold text-white mb-2">Salvar na Nuvem</h2><button onclick="window.signInWithGoogleAction()" class="w-full bg-white text-slate-900 font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 mt-4"><i class="fa-brands fa-google text-red-500"></i> Entrar com Google</button></div></div>
+    
+    <div id="modal-logout" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"><div class="bg-dark-panel border border-dark-border rounded-2xl max-w-xs w-full p-6 text-center relative"><button onclick="closeModal('modal-logout')" class="absolute top-4 right-4 text-slate-400"><i class="fa-solid fa-xmark"></i></button><img id="logout-avatar" src="" class="w-16 h-16 rounded-full mx-auto mb-3"><h2 id="logout-name" class="text-lg font-bold text-white mb-1">Usuário</h2><p id="logout-email" class="text-slate-400 text-xs mb-6">email</p><button onclick="logout()" class="w-full bg-red-500/20 text-red-400 border border-red-500/50 font-bold py-2 rounded-xl">Sair da Conta</button></div></div>
+    
+    <div id="modal-paywall" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"><div class="bg-dark-panel border border-dark-border rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative"><button onclick="closeModal('modal-paywall')" class="absolute top-4 right-4 text-slate-400"><i class="fa-solid fa-xmark text-xl"></i></button><div class="text-center mb-6"><h2 class="text-2xl font-black text-white">Sua Energia Acabou!</h2></div><div class="grid md:grid-cols-2 gap-4"><div class="bg-dark-bg border border-dark-border rounded-xl p-5 text-center flex flex-col justify-between"><div><h3 class="text-lg font-bold text-white mb-1">Recarga Rápida ⚡</h3><p class="text-xs text-slate-400 mb-2">+1000 de Energia</p></div><div><div class="text-3xl font-black text-white mb-4">R$ 9,90</div><a href="https://mpago.la/1hMvZHb" target="_blank" class="block w-full bg-white text-slate-900 font-bold py-3 rounded-xl">Comprar</a></div></div><div class="bg-gradient-to-b from-brand-900/40 to-dark-bg border border-brand-500 rounded-xl p-5 text-center relative flex flex-col justify-between"><div><h3 class="text-lg font-bold text-white mb-1">Passe Pro 👑</h3><p class="text-xs text-brand-300 mb-2">Energia Ilimitada Mensal</p></div><div><div class="text-3xl font-black text-white mb-4">R$ 49,90 <span class="text-sm font-normal text-brand-300">/mês</span></div><a href="https://mpago.la/2fLHcpu" target="_blank" class="block w-full bg-brand-500 text-white font-bold py-3 rounded-xl">Assinar</a></div></div></div></div></div>
+    
+    <div id="modal-admin-login" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden"><div class="bg-black border border-red-500/30 rounded-2xl max-w-sm w-full p-6 text-center"><i class="fa-solid fa-user-secret text-4xl text-red-500 mb-4"></i><input type="password" id="admin-serial" class="w-full bg-dark-bg border border-red-500/50 rounded-lg px-4 py-2 text-white text-center font-mono mb-4" placeholder="CHAVE DO CRIADOR"><div class="flex gap-2"><button onclick="closeModal('modal-admin-login')" class="flex-1 bg-dark-border text-white py-2 rounded-lg font-bold">Cancelar</button><button onclick="verifyAdmin()" class="flex-1 bg-red-600 text-white py-2 rounded-lg font-bold">ACESSAR</button></div></div></div>
+    
+    <div id="modal-admin-dashboard" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 hidden"><div class="bg-[#0b1121] border border-brand-500/30 rounded-2xl max-w-4xl w-full p-6 relative flex flex-col max-h-[90vh]"><button onclick="closeModal('modal-admin-dashboard')" class="absolute top-4 right-4 text-slate-400"><i class="fa-solid fa-xmark text-xl"></i></button><div class="flex items-center gap-4 mb-4 border-b border-dark-border pb-4 shrink-0"><div class="w-12 h-12 bg-brand-600 flex items-center justify-center text-white text-2xl rounded-xl"><i class="fa-solid fa-terminal"></i></div><div><h2 class="text-2xl font-bold text-white">Painel do Criador</h2></div></div><div class="overflow-y-auto pr-2 flex-1 space-y-6"><div class="grid grid-cols-1 md:grid-cols-2 gap-4"><div class="bg-dark-panel border border-dark-border rounded-xl p-4"><h3 class="text-white font-bold mb-3"><i class="fa-solid fa-microchip text-brand-400"></i> Motor IA</h3><select id="engine-selector" class="w-full bg-dark-bg border border-dark-border text-white text-sm rounded-lg px-3 py-2 mb-2"><option value="groq">Groq Cloud (Padrão)</option><option value="ngrok">Servidor Local (Ngrok)</option></select><input type="text" id="ngrok-url" placeholder="URL Ngrok" class="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-white text-xs mb-3 hidden"><button onclick="saveAdminSettings()" class="w-full bg-brand-600 text-white py-2 rounded-lg text-sm font-bold">Salvar</button></div><div class="bg-dark-panel border border-dark-border rounded-xl p-4 flex flex-col h-56"><h3 class="text-white font-bold mb-2"><i class="fa-solid fa-users text-green-400"></i> Clientes</h3><div class="flex-1 overflow-y-auto bg-dark-bg border border-dark-border rounded-lg p-2 space-y-2" id="admin-users-list"></div><button onclick="window.fetchUsersList()" class="w-full mt-2 bg-dark-border text-white py-2 rounded-lg text-sm font-bold">Atualizar</button></div></div><div class="bg-dark-panel border border-dark-border rounded-xl p-4 flex flex-col"><div class="flex justify-between items-center mb-3"><div><h3 class="text-white font-bold"><i class="fa-solid fa-stethoscope text-purple-400"></i> Auditoria IA</h3></div><button onclick="gerarRelatorioAdmin()" class="bg-purple-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold">Gerar Diagnóstico</button></div><div id="admin-report-content" class="bg-dark-bg border border-dark-border rounded-lg p-4 text-slate-300 text-xs h-48 overflow-y-auto">Pronto para auditoria.</div></div></div></div></div>
 
-    <!-- Modal Pagamento Sucesso -->
-    <div id="modal-payment-success" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-dark-panel border border-yellow-500 rounded-2xl max-w-md w-full p-8 text-center shadow-2xl shadow-yellow-500/20 relative">
-            <div class="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-500/50">
-                <i id="payment-success-icon" class="fa-solid fa-crown text-4xl text-yellow-500"></i>
-            </div>
-            <h2 id="payment-success-title" class="text-3xl font-black text-white mb-2">PAGAMENTO APROVADO!</h2>
-            <p id="payment-success-desc" class="text-slate-300 text-sm mb-6">Sua conta acaba de ser promovida!</p>
-            <button onclick="closeModal('modal-payment-success')" class="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-900 font-bold py-3.5 rounded-xl transition-colors text-base shadow-lg shadow-yellow-500/30">
-                Voltar aos Projetos 🚀
-            </button>
-        </div>
-    </div>
+    <div id="toast-container" class="fixed bottom-20 sm:bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
-    <!-- Modal Login -->
-    <div id="modal-auth" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-sm w-full p-8 text-center shadow-2xl">
-            <button onclick="closeModal('modal-auth')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <i class="fa-solid fa-cloud-arrow-up text-5xl text-brand-500 mb-4"></i>
-            <h2 class="text-2xl font-bold text-white mb-2">Salvar na Nuvem</h2>
-            <p class="text-slate-400 text-sm mb-6">Entre com o Google para salvar sua galeria.</p>
-            <button onclick="window.signInWithGoogleAction()" class="w-full bg-white text-slate-900 hover:bg-slate-200 font-bold py-3.5 rounded-xl flex items-center justify-center gap-3 transition-colors text-base shadow-lg">
-                <i class="fa-brands fa-google text-red-500 text-lg"></i> Continuar com o Google
-            </button>
-        </div>
-    </div>
-
-    <!-- Modal Logout -->
-    <div id="modal-logout" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-xs w-full p-6 text-center shadow-2xl relative">
-            <button onclick="closeModal('modal-logout')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            <img id="logout-avatar" src="" class="w-16 h-16 rounded-full mx-auto mb-3 border-2 border-brand-500 object-cover">
-            <h2 id="logout-name" class="text-lg font-bold text-white mb-1">Usuário</h2>
-            <p id="logout-email" class="text-slate-400 text-xs mb-6">email@google.com</p>
-            <button onclick="logout()" class="w-full bg-red-500/20 hover:bg-red-500/40 text-red-400 border border-red-500/50 font-bold py-2 rounded-xl transition-colors">
-                Sair da Conta
-            </button>
-        </div>
-    </div>
-
-    <!-- Modal Paywall -->
-    <div id="modal-paywall" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-2xl w-full p-6 lg:p-8 shadow-2xl relative">
-            <button onclick="closeModal('modal-paywall')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <div class="text-center mb-6">
-                <h2 class="text-2xl font-black text-white">Sua Energia Acabou!</h2>
-                <p class="text-slate-400 mt-2 text-sm">Atualize para continuar construindo.</p>
-            </div>
-            <div class="grid md:grid-cols-2 gap-4">
-                <div class="bg-dark-bg border border-dark-border rounded-xl p-5 text-center flex flex-col justify-between">
-                    <div><h3 class="text-lg font-bold text-white mb-1">Recarga Rápida ⚡</h3><p class="text-xs text-slate-400 mb-2">+1000 de Energia</p></div>
-                    <div>
-                        <div class="text-3xl font-black text-white mb-4">R$ 9,90</div>
-                        <a href="https://mpago.la/1hMvZHb" target="_blank" class="block w-full bg-white text-slate-900 font-bold py-3 rounded-xl hover:bg-slate-200">Comprar Recarga</a>
-                    </div>
-                </div>
-                <div class="bg-gradient-to-b from-brand-900/40 to-dark-bg border border-brand-500 rounded-xl p-5 text-center relative flex flex-col justify-between">
-                    <div><h3 class="text-lg font-bold text-white mb-1">Passe Pro 👑</h3><p class="text-xs text-brand-300 mb-2">Energia Ilimitada Mensal</p></div>
-                    <div>
-                        <div class="text-3xl font-black text-white mb-4">R$ 49,90 <span class="text-sm font-normal text-brand-300">/mês</span></div>
-                        <a href="https://mpago.la/2fLHcpu" target="_blank" class="block w-full bg-brand-500 hover:bg-brand-400 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-500/20">Assinar Ilimitado</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Entrada Admin -->
-    <div id="modal-admin-login" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-black border border-red-500/30 rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl">
-            <i class="fa-solid fa-user-secret text-4xl text-red-500 mb-4"></i>
-            <h2 class="text-lg font-bold text-white mb-4 font-mono">AUTENTICAÇÃO MESTRA</h2>
-            <input type="password" id="admin-serial" class="w-full bg-dark-bg border border-red-500/50 rounded-lg px-4 py-2 text-white text-center font-mono tracking-widest focus:outline-none mb-4" placeholder="CHAVE DO CRIADOR">
-            <div class="flex gap-2">
-                <button onclick="closeModal('modal-admin-login')" class="flex-1 bg-dark-border text-white py-2 rounded-lg font-bold">Cancelar</button>
-                <button onclick="verifyAdmin()" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded-lg font-bold transition-colors">ACESSAR</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- PAINEL ADMIN COM NOVO RELATÓRIO DE SAÚDE IA -->
-    <div id="modal-admin-dashboard" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#0b1121] border border-brand-500/30 rounded-2xl max-w-4xl w-full p-6 shadow-2xl relative flex flex-col max-h-[90vh]">
-            <button onclick="closeModal('modal-admin-dashboard')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            
-            <!-- Header do Admin -->
-            <div class="flex items-center gap-4 mb-6 border-b border-dark-border pb-4 shrink-0">
-                <div class="w-12 h-12 rounded-xl bg-brand-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-brand-500/30"><i class="fa-solid fa-terminal"></i></div>
-                <div><h2 class="text-2xl font-bold text-white">Painel do Criador</h2><p class="text-brand-400 text-sm">Status: Energia Infinita Ativada</p></div>
-            </div>
-            
-            <!-- Área Rolável de Conteúdo Admin -->
-            <div class="overflow-y-auto pr-2 flex-1 space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Configurações de Motor -->
-                    <div class="bg-dark-panel border border-dark-border rounded-xl p-4">
-                        <h3 class="text-white font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-microchip text-brand-400"></i> Motor de Inteligência</h3>
-                        <select id="engine-selector" class="w-full bg-dark-bg border border-dark-border text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-brand-500 mb-2">
-                            <option value="groq">☁️ Nuvem Principal (API Groq - Padrão)</option>
-                            <option value="ngrok">🖥️ Servidor Local (Seu PC via Ngrok)</option>
-                        </select>
-                        <input type="text" id="ngrok-url" placeholder="URL do Ngrok" class="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-white text-xs mb-3 hidden">
-                        <button onclick="saveAdminSettings()" class="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 rounded-lg text-sm font-bold">Salvar Roteamento</button>
-                    </div>
-                    
-                    <!-- Usuários Cadastrados -->
-                    <div class="bg-dark-panel border border-dark-border rounded-xl p-4 flex flex-col h-64">
-                        <h3 class="text-white font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-users text-green-400"></i> Clientes Cadastrados</h3>
-                        <div class="flex-1 overflow-y-auto bg-dark-bg border border-dark-border rounded-lg p-2 space-y-2" id="admin-users-list"></div>
-                        <button onclick="window.fetchUsersList()" class="w-full mt-3 bg-dark-border hover:bg-slate-600 text-white py-2 rounded-lg text-sm font-bold"><i class="fa-solid fa-rotate mr-1"></i> Atualizar Lista</button>
-                    </div>
-                </div>
-
-                <!-- NOVO: Relatório e Auditoria IA -->
-                <div class="bg-dark-panel border border-dark-border rounded-xl p-4 flex flex-col">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-3">
-                        <div>
-                            <h3 class="text-white font-bold flex items-center gap-2"><i class="fa-solid fa-stethoscope text-purple-400"></i> Auditoria de Sistema (IA)</h3>
-                            <p class="text-[10px] text-slate-400 mt-1">Análise estratégica sobre o que está 100% e o que pode evoluir na Fábrica.</p>
-                        </div>
-                        <button onclick="gerarRelatorioAdmin()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shrink-0">
-                            <i class="fa-solid fa-brain"></i> Gerar Diagnóstico
-                        </button>
-                    </div>
-                    <div id="admin-report-content" class="bg-dark-bg border border-dark-border rounded-lg p-4 text-slate-300 text-xs sm:text-sm h-56 overflow-y-auto whitespace-pre-wrap leading-relaxed">
-                        Clique no botão acima para iniciar a auditoria em tempo real. O cérebro da IA vai ler as estatísticas atuais do código, integrações e banco de dados, e formulará um relatório de saúde técnico em formato humano.
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
-
-    <!-- SCRIPT 1: LÓGICA GERAL -->
+    <!-- SCRIPT GERAL -->
     <script>
         const GROQ_API_KEY = "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";
-        
-        let localEnergy = parseInt(localStorage.getItem('fl_energy'));
-        if (isNaN(localEnergy)) localEnergy = 500;
+        let localEnergy = parseInt(localStorage.getItem('fl_energy')) || 500;
         let localPremium = localStorage.getItem('fl_premium') === 'true';
         let wallet = { energy: localEnergy, isPremium: localPremium };
-        
         let adminClicks = 0; let adminTimer;
         let currentEngine = localStorage.getItem('fl_engine') || 'groq';
         let customNgrokUrl = localStorage.getItem('fl_ngrok_url') || '';
         window.appHistory = [];
 
-        function showToast(message, type = 'info') {
+        // Roteamento Mobile Tabs
+        function switchMobileTab(tab) {
+            if(window.innerWidth >= 1024) return;
+            const secChat = document.getElementById('section-chat');
+            const secPrev = document.getElementById('section-preview');
+            const btnChat = document.getElementById('tab-chat');
+            const btnPrev = document.getElementById('tab-preview');
+            
+            if(tab === 'chat') {
+                secChat.classList.remove('hidden'); secChat.classList.add('flex');
+                secPrev.classList.add('hidden'); secPrev.classList.remove('flex');
+                btnChat.classList.add('text-brand-400', 'border-brand-500', 'bg-dark-bg');
+                btnChat.classList.remove('text-slate-400', 'border-transparent');
+                btnPrev.classList.add('text-slate-400', 'border-transparent');
+                btnPrev.classList.remove('text-brand-400', 'border-brand-500', 'bg-dark-bg');
+            } else {
+                secPrev.classList.remove('hidden'); secPrev.classList.add('flex');
+                secChat.classList.add('hidden'); secChat.classList.remove('flex');
+                btnPrev.classList.add('text-brand-400', 'border-brand-500', 'bg-dark-bg');
+                btnPrev.classList.remove('text-slate-400', 'border-transparent');
+                btnChat.classList.add('text-slate-400', 'border-transparent');
+                btnChat.classList.remove('text-brand-400', 'border-brand-500', 'bg-dark-bg');
+            }
+        }
+
+        function showToast(msg, type = 'info') {
             const toast = document.createElement('div');
-            const colors = { success: 'bg-green-500/20 border-green-500/50 text-green-400', error: 'bg-red-500/20 border-red-500/50 text-red-400', info: 'bg-brand-500/20 border-brand-500/50 text-brand-400' };
-            toast.className = `px-4 py-3 rounded-xl border backdrop-blur-md shadow-lg ${colors[type]} transform translate-y-10 opacity-0 transition-all duration-300 text-sm pointer-events-auto z-50`;
-            toast.innerHTML = `<span class="font-medium">${message}</span>`;
-            document.getElementById('toast-container').appendChild(toast);
+            const colors = { success: 'bg-green-500/20 text-green-400', error: 'bg-red-500/20 text-red-400', info: 'bg-brand-500/20 text-brand-400' };
+            toast.className = `px-4 py-3 rounded-xl border backdrop-blur-md shadow-lg ${colors[type]} transform translate-y-10 opacity-0 transition-all text-sm pointer-events-auto z-50`;
+            toast.innerHTML = msg; document.getElementById('toast-container').appendChild(toast);
             requestAnimationFrame(() => toast.classList.remove('translate-y-10', 'opacity-0'));
-            setTimeout(() => { toast.classList.add('translate-y-10', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 4000);
+            setTimeout(() => { toast.classList.add('translate-y-10', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3000);
         }
 
         function openModal(id) { document.getElementById(id)?.classList.remove('hidden'); }
         function closeModal(id) { document.getElementById(id)?.classList.add('hidden'); }
         function toggleHistoryDrawer() { document.getElementById('history-drawer').classList.toggle('translate-x-full'); }
 
-        // --- SISTEMA DE COMPARTILHAMENTO ---
-        function copyShare() {
-            const input = document.getElementById('share-url');
-            input.select();
-            document.execCommand('copy');
-            showToast('Link copiado com sucesso! 🎉', 'success');
-        }
-
-        function shareWhatsApp() {
-            const url = window.location.origin;
-            const message = `Crie aplicativos incríveis com Inteligência Artificial em segundos usando apenas texto! 🚀\n\nTeste a Fábrica Livre: ${url}`;
-            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
-            closeModal('modal-share');
-        }
-
-        function updateEnergyUI() {
-            const counter = document.getElementById('energy-counter');
-            if (wallet.isPremium) {
-                counter.innerText = "∞";
-                counter.className = "font-black text-yellow-400 text-sm";
-                document.getElementById('btn-energy').classList.add('premium-glow');
-            } else {
-                counter.innerText = wallet.energy;
-                counter.className = "font-bold text-white text-sm";
-                document.getElementById('btn-energy').classList.remove('premium-glow');
+        // Reconhecimento de Voz Mobile Friendly
+        let recognition; let isRecording = false;
+        function initSpeech() {
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+                recognition.continuous = false; recognition.interimResults = true; recognition.lang = 'pt-BR';
+                recognition.onstart = () => { isRecording = true; document.getElementById('mic-status').classList.remove('hidden'); document.getElementById('btn-mic').classList.add('mic-active'); };
+                recognition.onresult = (e) => {
+                    let final = '';
+                    for (let i = e.resultIndex; i < e.results.length; ++i) if (e.results[i].isFinal) final += e.results[i][0].transcript;
+                    if (final) { const input = document.getElementById('chat-input'); input.value = (input.value + ' ' + final).trim() + ' '; }
+                };
+                recognition.onerror = () => { showToast('Erro no microfone.', 'error'); stopMicUI(); };
+                recognition.onend = () => stopMicUI();
             }
         }
+        function stopMicUI() { isRecording = false; document.getElementById('mic-status').classList.add('hidden'); document.getElementById('btn-mic').classList.remove('mic-active'); }
+        function toggleVoiceRecognition() { if (!recognition) initSpeech(); if (!recognition) return showToast('Sem suporte a voz no navegador.', 'error'); isRecording ? recognition.stop() : recognition.start(); }
 
-        // --- SISTEMA DE CAPTURA AUTOMÁTICA DE PAGAMENTO ---
+        function copyShare() { document.getElementById('share-url').select(); document.execCommand('copy'); showToast('Copiado!'); }
+        function shareWhatsApp() { window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent('Crie apps com IA: ' + window.location.origin)}`); }
+        function updateEnergyUI() { const c = document.getElementById('energy-counter'); if (wallet.isPremium) { c.innerText = "∞"; c.className = "font-black text-yellow-400 text-sm"; document.getElementById('btn-energy').classList.add('premium-glow'); } else { c.innerText = wallet.energy; c.className = "font-bold text-white text-sm"; document.getElementById('btn-energy').classList.remove('premium-glow'); } }
+
         function checkPaymentStatus() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const status = urlParams.get('payment_status');
-            const plan = urlParams.get('plan');
-
-            if (status === 'approved') {
-                if (plan === 'pro') {
-                    activatePremiumAccount();
-                    showPaymentSuccessModal('pro');
-                } else if (plan === 'recarga') {
-                    addRechargeEnergy();
-                    showPaymentSuccessModal('recarga');
-                } else {
-                    addRechargeEnergy();
-                    showPaymentSuccessModal('recarga');
-                }
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('payment_status') === 'approved') {
+                params.get('plan') === 'pro' ? (activatePremiumAccount(), openModal('modal-payment-success')) : (wallet.energy += 1000, localStorage.setItem('fl_energy', wallet.energy), updateEnergyUI(), openModal('modal-payment-success'));
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
+        function activatePremiumAccount() { wallet.isPremium = true; localStorage.setItem('fl_premium', 'true'); updateEnergyUI(); if (window.upgradeUserInDatabase) window.upgradeUserInDatabase('pro'); }
+        function consumeEnergy(amount) { if (wallet.isPremium) return true; if (wallet.energy >= amount) { wallet.energy -= amount; localStorage.setItem('fl_energy', wallet.energy); updateEnergyUI(); return true; } openModal('modal-paywall'); return false; }
 
-        function activatePremiumAccount() {
-            wallet.isPremium = true;
-            localStorage.setItem('fl_premium', 'true');
-            updateEnergyUI();
-            if (window.upgradeUserInDatabase) window.upgradeUserInDatabase('pro');
-        }
-
-        function addRechargeEnergy() {
-            wallet.energy += 1000;
-            localStorage.setItem('fl_energy', wallet.energy.toString());
-            updateEnergyUI();
-            if (window.upgradeUserInDatabase) window.upgradeUserInDatabase('recarga', wallet.energy);
-        }
-
-        function showPaymentSuccessModal(type) {
-            const title = document.getElementById('payment-success-title');
-            const desc = document.getElementById('payment-success-desc');
-            const icon = document.getElementById('payment-success-icon');
-
-            if (type === 'pro') {
-                icon.className = "fa-solid fa-crown text-4xl text-yellow-500";
-                title.innerText = "PASSE PRO ATIVADO!";
-                desc.innerHTML = "Sua conta acaba de ser promovida. A partir de agora você possui <b class='text-yellow-400'>Energia Infinita</b>.";
-            } else {
-                icon.className = "fa-solid fa-bolt text-4xl text-yellow-500";
-                title.innerText = "RECARGA APROVADA!";
-                desc.innerHTML = "Sua conta recebeu <b class='text-yellow-400'>+1000 de Energia</b> para continuar criando.";
-            }
-            openModal('modal-payment-success');
-        }
-
-        function consumeEnergy(amount) {
-            if (wallet.isPremium) return true;
-            if (wallet.energy >= amount) {
-                wallet.energy -= amount;
-                localStorage.setItem('fl_energy', wallet.energy.toString());
-                updateEnergyUI();
-                if (window.updateEnergyInDatabase) window.updateEnergyInDatabase(wallet.energy);
-                return true;
-            } else {
-                openModal('modal-paywall');
-                return false;
-            }
-        }
-
-        // --- ADMIN ---
-        function countAdminClicks() {
-            adminClicks++;
-            clearTimeout(adminTimer);
-            if (adminClicks >= 5) { 
-                wallet.isPremium ? openModal('modal-admin-dashboard') : openModal('modal-admin-login');
-                adminClicks = 0; 
-            }
-            adminTimer = setTimeout(() => { adminClicks = 0; }, 1000);
-        }
-
-        function verifyAdmin() {
-            const serial = document.getElementById('admin-serial').value;
-            if (serial === 'PROMPTSYS-ADM') {
-                activatePremiumAccount();
-                closeModal('modal-admin-login');
-                document.getElementById('admin-serial').value = '';
-                openModal('modal-admin-dashboard');
-                showToast('👑 Acesso Mestre Autorizado!', 'success');
-            } else { showToast('❌ Chave Incorreta!', 'error'); }
-        }
-
-        document.getElementById('engine-selector').addEventListener('change', (e) => {
-            e.target.value === 'ngrok' ? document.getElementById('ngrok-url').classList.remove('hidden') : document.getElementById('ngrok-url').classList.add('hidden');
-        });
-
-        function saveAdminSettings() {
-            currentEngine = document.getElementById('engine-selector').value;
-            customNgrokUrl = document.getElementById('ngrok-url').value.trim();
-            localStorage.setItem('fl_engine', currentEngine);
-            localStorage.setItem('fl_ngrok_url', customNgrokUrl);
-            showToast('Configurações salvas.', 'success');
-        }
-
-        // --- NOVO: GERADOR DE RELATÓRIO DE SAÚDE IA ---
-        async function gerarRelatorioAdmin() {
-            const contentDiv = document.getElementById('admin-report-content');
-            contentDiv.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-purple-400 animate-pulse"><i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i><p>A IA está auditando a arquitetura do sistema...</p></div>';
-            
-            // Reúne dados atuais do sistema para enviar à IA
-            const systemData = `
-            Status Atual do SaaS "Fábrica Livre":
-            - Motor Principal de IA: ${currentEngine === 'groq' ? 'Groq Cloud (GPT-OSS-120B)' : 'Servidor Local (Ngrok)'}
-            - Quantidade de Apps na Memória do Cache Local: ${window.appHistory.length}
-            - Autenticação e Nuvem: Híbrida (Firebase Google Auth ativo + LocalStorage Fallback)
-            - UI / Layout: Tailwind CSS Nativo, Dark Mode, Renderização Iframe Segura.
-            - Status de Pagamento Admin Atual: ${wallet.isPremium ? 'Ilimitado (Modo Deus)' : 'Energia Restrita'}
-            `;
-
-            const prompt = `Aja como um Engenheiro de Software Sênior e Estrategista de Produto. Analise o status arquitetônico abaixo do meu SaaS (Fábrica Livre) e gere um relatório executivo de saúde do sistema para o dono ler. 
-            Divida o relatório em duas partes claras:
-            1. "O Que Está 100% Funcional": Liste de forma elogiável e direta o que está muito bem feito nessa estrutura.
-            2. "Evoluções Sugeridas": O que eu poderia adicionar ou melhorar no futuro para o app ficar ainda melhor e gerar mais valor.
-            Use um tom muito profissional, entusiasmado, humano e objetivo. Formate o texto de forma limpa (sem markdown pesado, use apenas texto, quebras de linha e emojis).
-            
-            Dados para Análise: ${systemData}`;
-
-            try {
-                const report = await processAIRequest(prompt);
-                contentDiv.innerHTML = `<div class="text-emerald-400 font-bold mb-2"><i class="fa-solid fa-check-double mr-1"></i> Auditoria Concluída:</div>` + report;
-            } catch(e) {
-                contentDiv.innerHTML = '<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Erro ao gerar relatório. Verifique sua conexão com o motor de IA.</span>';
-            }
-        }
-
-        // --- CHAT E GERAÇÃO ---
-        document.getElementById('chat-input').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChatMessage(); }
-        });
+        function countAdminClicks() { adminClicks++; clearTimeout(adminTimer); if (adminClicks >= 5) { wallet.isPremium ? openModal('modal-admin-dashboard') : openModal('modal-admin-login'); adminClicks = 0; } adminTimer = setTimeout(() => adminClicks = 0, 1000); }
+        function verifyAdmin() { if (document.getElementById('admin-serial').value === 'PROMPTSYS-ADM') { activatePremiumAccount(); closeModal('modal-admin-login'); openModal('modal-admin-dashboard'); } else showToast('Erro', 'error'); }
+        function saveAdminSettings() { currentEngine = document.getElementById('engine-selector').value; localStorage.setItem('fl_engine', currentEngine); }
 
         async function processAIRequest(promptText) {
             if (currentEngine === 'groq') {
-                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", { 
-                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` }, 
-                    body: JSON.stringify({ model: 'openai/gpt-oss-120b', messages: [{ role: 'user', content: promptText }] }) 
-                });
-                const data = await res.json();
-                return data.choices[0].message.content;
-            } else if (currentEngine === 'ngrok' && customNgrokUrl) {
-                const res = await fetch(`${customNgrokUrl}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: promptText }) });
-                const data = await res.json();
-                return data.response || data.text;
-            } else throw new Error("Motor Ngrok sem URL.");
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` }, body: JSON.stringify({ model: 'openai/gpt-oss-120b', messages: [{ role: 'user', content: promptText }] }) });
+                return (await res.json()).choices[0].message.content;
+            } else if (currentEngine === 'ngrok') {
+                return (await (await fetch(`${customNgrokUrl}/generate`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prompt: promptText }) })).json()).response;
+            }
         }
 
         async function sendChatMessage() {
-            const input = document.getElementById('chat-input');
-            const msg = input.value.trim();
-            if (!msg || !consumeEnergy(10)) return;
-
-            const chatWindow = document.getElementById('chat-window');
-            chatWindow.innerHTML += `<div class="flex items-start gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user text-white text-xs"></i></div><div class="bg-brand-600 p-3 rounded-2xl rounded-tr-none text-white text-sm shadow-md">${msg}</div></div>`;
-            input.value = '';
-            chatWindow.scrollTop = chatWindow.scrollHeight;
-
-            const loadingId = 'loading-' + Date.now();
-            chatWindow.innerHTML += `<div id="${loadingId}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Processando...</div>`;
-            
-            try {
-                const reply = await processAIRequest(msg);
-                document.getElementById(loadingId).remove();
-                chatWindow.innerHTML += `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0 shadow-md shadow-brand-500/20"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-sm whitespace-pre-wrap shadow-md">${reply}</div></div>`;
-                chatWindow.scrollTop = chatWindow.scrollHeight;
-            } catch (error) { document.getElementById(loadingId).remove(); showToast(`Erro de IA.`, 'error'); }
+            const input = document.getElementById('chat-input'); const msg = input.value.trim(); if (!msg || !consumeEnergy(10)) return;
+            const chat = document.getElementById('chat-window'); chat.innerHTML += `<div class="flex items-start gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user text-white text-xs"></i></div><div class="bg-brand-600 p-2 sm:p-3 rounded-xl sm:rounded-2xl rounded-tr-none text-white text-xs sm:text-sm shadow-md">${msg}</div></div>`; input.value = ''; chat.scrollTop = chat.scrollHeight;
+            const lid = 'loading-' + Date.now(); chat.innerHTML += `<div id="${lid}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Processando...</div>`;
+            try { const r = await processAIRequest(msg); document.getElementById(lid).remove(); chat.innerHTML += `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-xs sm:text-sm whitespace-pre-wrap">${r}</div></div>`; chat.scrollTop = chat.scrollHeight; } catch (e) { document.getElementById(lid).remove(); }
         }
-
-        async function optimizePromptWithAI() {
-            const input = document.getElementById('chat-input');
-            const current = input.value.trim() || "Crie um aplicativo moderno para web";
-            showToast('Evoluindo sua ideia...', 'info');
-            try {
-                const improved = await processAIRequest(`Aja como um Engenheiro de Software Sênior. Reescreva este pedido simples transformando-o num prompt perfeito e detalhado para geração de código HTML/Tailwind: "${current}". Responda APENAS com o texto do novo prompt.`);
-                input.value = improved.trim();
-            } catch (e) { showToast('Erro ao evoluir.', 'error'); }
-        }
+        async function optimizePromptWithAI() { const input = document.getElementById('chat-input'); if(input.value) input.value = await processAIRequest(`Reescreva para prompt de app HTML/Tailwind detalhado: "${input.value}"`); }
+        async function gerarRelatorioAdmin() { document.getElementById('admin-report-content').innerHTML = "Gerando..."; const r = await processAIRequest(`Análise do SaaS Fábrica Livre.`); document.getElementById('admin-report-content').innerHTML = r; }
 
         async function generateApp() {
-            const msgs = document.getElementById('chat-window').innerText;
-            if (msgs.length < 20) return showToast('Descreva a ideia primeiro!', 'error');
-            if (!consumeEnergy(50)) return;
-
-            const btn = document.querySelector('button[onclick="generateApp()"]');
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Construindo...`;
-
+            const msgs = document.getElementById('chat-window').innerText; if (msgs.length < 20 || !consumeEnergy(50)) return;
             try {
-                const rawReply = await processAIRequest(`Escreva APENAS código HTML completo com Tailwind CSS. Nada de formatação markdown. Base: ${msgs}`);
-                let code = rawReply.replace(/```html/g, '').replace(/```/g, '').trim();
-                
-                document.getElementById('app-placeholder').classList.add('hidden');
-                document.getElementById('app-preview').classList.remove('hidden');
-                document.getElementById('app-preview').srcdoc = code;
-
-                const tituloExtraido = msgs.substring(0, 35) + '...';
-                if (window.saveAppToCloud) window.saveAppToCloud(tituloExtraido, code);
-                else saveAppLocal(tituloExtraido, code);
-            } catch (error) { showToast(`Falha ao gerar o app.`, 'error'); } 
-            finally { btn.innerHTML = `<i class="fa-solid fa-code"></i> Construir App`; }
+                let code = (await processAIRequest(`APENAS código HTML com Tailwind. Base: ${msgs}`)).replace(/```html/g, '').replace(/```/g, '').trim();
+                document.getElementById('app-placeholder').classList.add('hidden'); document.getElementById('app-preview').classList.remove('hidden'); document.getElementById('app-preview').srcdoc = code;
+                if(window.innerWidth < 1024) switchMobileTab('preview'); // Vai pra aba de Resultado sozinho no celular!
+                if (window.saveAppToCloud) window.saveAppToCloud(msgs.substring(0, 30)+'...', code); else saveAppLocal(msgs.substring(0, 30)+'...', code);
+            } catch (e) {}
         }
 
-        // --- GALERIA VISUAL (CARDS) ---
-        function saveAppLocal(title, code) {
-            const newItem = { id: Date.now().toString(), title: title, code: code, date: new Date().toLocaleDateString('pt-BR'), bytes: (new Blob([code]).size / 1024).toFixed(1) + ' KB' };
-            window.appHistory.unshift(newItem);
-            localStorage.setItem('fl_historico_local', JSON.stringify(window.appHistory));
-            renderHistoryUI();
-            showToast("Salvo localmente na Galeria!", "success");
-        }
-
+        function saveAppLocal(title, code) { window.appHistory.unshift({ id: Date.now().toString(), title, code, date: new Date().toLocaleDateString('pt-BR') }); localStorage.setItem('fl_historico_local', JSON.stringify(window.appHistory)); renderHistoryUI(); }
         window.renderHistoryUI = () => {
-            const list = document.getElementById('history-list');
-            const badge = document.getElementById('gallery-badge');
-            
-            if(badge) {
-                badge.innerText = window.appHistory.length;
-                window.appHistory.length > 0 ? badge.classList.remove('hidden') : badge.classList.add('hidden');
-            }
-
-            if (window.appHistory.length === 0) {
-                list.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center p-10 text-slate-500 border border-dashed border-dark-border rounded-2xl"><i class="fa-solid fa-image text-4xl mb-3 opacity-50"></i><p>Nenhuma criação salva ainda.</p></div>`;
-                return;
-            }
-            
-            list.innerHTML = window.appHistory.map(item => `
-                <div class="bg-dark-bg border border-dark-border rounded-xl overflow-hidden hover:border-brand-500 transition-all hover:-translate-y-1 hover:shadow-lg flex flex-col relative">
-                    <div class="h-20 bg-gradient-to-br from-brand-900/40 to-[#0b1121] border-b border-dark-border relative flex items-center justify-center overflow-hidden">
-                        <i class="fa-solid fa-code text-3xl text-brand-500/20 absolute -right-2 -bottom-2 transform rotate-12"></i>
-                        <h4 class="font-bold text-white text-xs px-3 text-center z-10 line-clamp-2">${item.title}</h4>
-                    </div>
-                    <div class="p-3 flex-1 flex flex-col justify-between">
-                        <div class="flex justify-between items-center mb-3">
-                            <span class="text-[10px] text-slate-400 font-mono bg-dark-panel px-1.5 py-0.5 rounded"><i class="fa-regular fa-calendar mr-1"></i>${item.date}</span>
-                            <span class="text-[9px] text-emerald-400 font-mono">${item.bytes || 'Code'}</span>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="window.openApp('${item.id}')" class="flex-1 bg-brand-600/20 hover:bg-brand-500 text-brand-300 hover:text-white py-1.5 rounded-lg text-xs font-bold transition-colors"><i class="fa-solid fa-play mr-1"></i> Abrir</button>
-                            <button onclick="window.deleteApp('${item.id}')" title="Excluir" class="px-3 bg-red-500/10 hover:bg-red-500/30 text-red-400 rounded-lg text-xs transition-colors"><i class="fa-solid fa-trash"></i></button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            document.getElementById('gallery-badge').innerText = window.appHistory.length; window.appHistory.length ? document.getElementById('gallery-badge').classList.remove('hidden') : null;
+            document.getElementById('history-list').innerHTML = window.appHistory.map(i => `<div class="bg-dark-bg border border-dark-border rounded-xl overflow-hidden hover:border-brand-500 flex flex-col relative"><div class="h-16 bg-gradient-to-br from-brand-900/40 to-[#0b1121] flex items-center justify-center"><h4 class="font-bold text-white text-[10px] px-2 text-center line-clamp-2">${i.title}</h4></div><div class="p-2 flex gap-2"><button onclick="window.openApp('${i.id}')" class="flex-1 bg-brand-600/20 text-brand-300 py-1.5 rounded text-[10px] font-bold"><i class="fa-solid fa-play"></i> Abrir</button><button onclick="window.deleteApp('${i.id}')" class="px-2 bg-red-500/10 text-red-400 rounded"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
         };
+        window.openApp = function(id) { const item = window.appHistory.find(i => i.id === id); if (item) { document.getElementById('app-placeholder').classList.add('hidden'); document.getElementById('app-preview').classList.remove('hidden'); document.getElementById('app-preview').srcdoc = item.code; toggleHistoryDrawer(); if(window.innerWidth < 1024) switchMobileTab('preview'); } };
+        
+        window.onload = () => { updateEnergyUI(); if(localStorage.getItem('fl_historico_local')) window.appHistory = JSON.parse(localStorage.getItem('fl_historico_local')); renderHistoryUI(); document.getElementById('share-url').value = window.location.origin; checkPaymentStatus(); initPWA(); };
 
-        window.openApp = function(id) {
-            const item = window.appHistory.find(i => i.id === id);
-            if (item) {
-                document.getElementById('app-placeholder').classList.add('hidden');
-                document.getElementById('app-preview').classList.remove('hidden');
-                document.getElementById('app-preview').srcdoc = item.code;
-                toggleHistoryDrawer();
-                showToast("Projeto carregado no construtor.", "info");
+        // Injetor Dinâmico de PWA (Não precisa de outros arquivos!)
+        function initPWA() {
+            if ('serviceWorker' in navigator) {
+                const manifestBlob = new Blob([JSON.stringify({"name":"Fábrica Livre","short_name":"Fábrica","start_url":"/","display":"standalone","background_color":"#0F172A","theme_color":"#0F172A","icons":[{"src":"https://placehold.co/192x192/0EA5E9/FFFFFF?text=FL","sizes":"192x192","type":"image/png"},{"src":"https://placehold.co/512x512/0EA5E9/FFFFFF?text=FL","sizes":"512x512","type":"image/png"}]})], {type: 'application/json'});
+                document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(manifestBlob);
             }
-        };
-
-        window.onload = () => {
-            updateEnergyUI(); 
-            const saved = localStorage.getItem('fl_historico_local');
-            if(saved) window.appHistory = JSON.parse(saved);
-            renderHistoryUI();
-            
-            const shareInput = document.getElementById('share-url');
-            if(shareInput) shareInput.value = window.location.origin;
-            
-            checkPaymentStatus(); 
-        };
+        }
     </script>
 
-    <!-- SCRIPT 2: MOTOR FIREBASE -->
+    <!-- FIREBASE OMITIDO AQUI POR ESPAÇO - USE O MESMO SCRIPT 2 DE ANTES (AS SUAS CHAVES) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, collection, getDocs, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        const firebaseConfig = {
-            apiKey: "AIzaSyCqH9hoCFOhYnLYsV7LEC1ijG-sTSJB9GQ",
-            authDomain: "fabricalivre-616c6.firebaseapp.com",
-            projectId: "fabricalivre-616c6",
-            storageBucket: "fabricalivre-616c6.firebasestorage.app",
-            messagingSenderId: "559829612837",
-            appId: "1:559829612837:web:3e423d73aec3eb127bc2cc",
-            measurementId: "G-WV6KR0C4S2"
-        };
-
+        const firebaseConfig = { apiKey: "AIzaSyCqH9hoCFOhYnLYsV7LEC1ijG-sTSJB9GQ", authDomain: "fabricalivre-616c6.firebaseapp.com", projectId: "fabricalivre-616c6", storageBucket: "fabricalivre-616c6.firebasestorage.app", messagingSenderId: "559829612837", appId: "1:559829612837:web:3e423d73aec3eb127bc2cc", measurementId: "G-WV6KR0C4S2" };
         let auth, db, currentUser;
         try {
-            const app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
-
+            const app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
-                    currentUser = user;
-                    
-                    const userRef = doc(db, 'fl_users', user.uid);
-                    await setDoc(userRef, { nome: user.displayName, email: user.email, foto: user.photoURL, ultimoLogin: new Date().toLocaleString('pt-BR') }, { merge: true });
-
-                    document.getElementById('btn-login').classList.add('hidden');
-                    document.getElementById('user-profile').classList.remove('hidden');
-                    document.getElementById('user-profile').classList.add('flex');
-                    document.getElementById('user-avatar').src = user.photoURL;
-                    document.getElementById('header-username').innerText = user.displayName?.split(' ')[0] || '';
-                    document.getElementById('cloud-status').innerText = "Nuvem Google Conectada";
-                    document.getElementById('cloud-status').className = "text-[10px] text-green-400 font-medium bg-green-500/10 px-2 py-0.5 rounded inline-block mt-0.5";
-                    
-                    document.getElementById('logout-avatar').src = user.photoURL;
-                    document.getElementById('logout-name').innerText = user.displayName;
-                    document.getElementById('logout-email').innerText = user.email;
-
+                    currentUser = user; await setDoc(doc(db, 'fl_users', user.uid), { nome: user.displayName, email: user.email, foto: user.photoURL }, { merge: true });
+                    document.getElementById('btn-login').classList.add('hidden'); document.getElementById('user-profile').classList.remove('hidden'); document.getElementById('user-profile').classList.add('flex'); document.getElementById('user-avatar').src = user.photoURL; document.getElementById('cloud-status').innerText = "Nuvem Conectada";
                     window.fetchCloudGallery();
-                } else {
-                    currentUser = null;
-                    document.getElementById('btn-login').classList.remove('hidden');
-                    document.getElementById('user-profile').classList.add('hidden');
-                    document.getElementById('user-profile').classList.remove('flex');
-                    document.getElementById('cloud-status').innerText = "Memória Local (Sem Login)";
-                    document.getElementById('cloud-status').className = "text-[10px] text-yellow-400 font-medium bg-yellow-500/10 px-2 py-0.5 rounded inline-block mt-0.5";
-                }
+                } else { currentUser = null; document.getElementById('btn-login').classList.remove('hidden'); document.getElementById('user-profile').classList.add('hidden'); document.getElementById('user-profile').classList.remove('flex'); document.getElementById('cloud-status').innerText = "Memória Local"; }
             });
-        } catch (e) { console.warn("Firebase offline.", e); }
+        } catch (e) { }
 
-        window.signInWithGoogleAction = () => {
-            if(!auth) return;
-            const provider = new GoogleAuthProvider();
-            signInWithRedirect(auth, provider);
-        };
-
-        window.logout = async () => {
-            if(auth) {
-                await signOut(auth);
-                closeModal('modal-logout');
-                window.appHistory = [];
-                window.renderHistoryUI();
-                showToast('Você saiu da conta.', 'info');
-            }
-        };
-
-        window.saveAppToCloud = async (title, code) => {
-            if (!currentUser) return window.saveAppLocal(title, code); 
-            const appData = { title, code, date: new Date().toLocaleDateString('pt-BR'), bytes: (new Blob([code]).size / 1024).toFixed(1) + ' KB', timestamp: Date.now() };
-            try {
-                await addDoc(collection(db, 'fl_users', currentUser.uid, 'galeria'), appData);
-                window.fetchCloudGallery();
-                showToast("✅ Salvo na sua Nuvem Google!", "success");
-            } catch (e) { showToast("Erro ao salvar na nuvem.", "error"); }
-        };
-
-        window.fetchCloudGallery = async () => {
-            if (!currentUser || !db) return;
-            try {
-                const snapshot = await getDocs(collection(db, 'fl_users', currentUser.uid, 'galeria'));
-                window.appHistory = [];
-                snapshot.forEach(doc => { window.appHistory.push({ id: doc.id, ...doc.data() }); });
-                window.appHistory.sort((a, b) => b.timestamp - a.timestamp); 
-                window.renderHistoryUI();
-            } catch (e) {}
-        };
-
-        window.deleteApp = async (id) => {
-            if (currentUser && db) {
-                try {
-                    await deleteDoc(doc(db, 'fl_users', currentUser.uid, 'galeria', id));
-                    window.fetchCloudGallery();
-                    showToast("Projeto apagado da nuvem.", "info");
-                } catch(e) {}
-            } else {
-                window.appHistory = window.appHistory.filter(i => i.id !== id);
-                localStorage.setItem('fl_historico_local', JSON.stringify(window.appHistory));
-                window.renderHistoryUI();
-            }
-        };
-
-        window.upgradeUserInDatabase = async (tipo, novaEnergia) => {
-            if (currentUser && db) {
-                let atualizacao = {};
-                if (tipo === 'pro') atualizacao = { isPremium: true };
-                if (tipo === 'recarga') atualizacao = { energy: novaEnergia };
-                await setDoc(doc(db, 'fl_users', currentUser.uid), atualizacao, { merge: true });
-            }
-        };
-        
-        window.updateEnergyInDatabase = async (energia) => {
-            if (currentUser && db) {
-                await setDoc(doc(db, 'fl_users', currentUser.uid), { energy: energia }, { merge: true });
-            }
-        };
-
-        window.fetchUsersList = async () => {
-            const listDiv = document.getElementById('admin-users-list');
-            if (!db) return;
-            listDiv.innerHTML = '<div class="text-center text-slate-500 text-xs mt-10"><i class="fa-solid fa-spinner fa-spin"></i> Buscando...</div>';
-            try {
-                const querySnapshot = await getDocs(collection(db, "fl_users"));
-                let html = '';
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const premiumBadge = data.isPremium ? '<i class="fa-solid fa-crown text-yellow-500 ml-1"></i>' : '';
-                    const energiaTexto = data.isPremium ? 'Infinita' : (data.energy || 500);
-                    html += `<div class="bg-dark-panel p-2 rounded-lg border ${data.isPremium ? 'border-yellow-500/50' : 'border-dark-border'} flex items-center gap-3">
-                                <img src="${data.foto || 'https://ui-avatars.com/api/?name='+data.nome}" class="w-8 h-8 rounded-full border border-dark-border">
-                                <div class="overflow-hidden flex-1">
-                                    <p class="text-white text-xs font-bold truncate">${data.nome} ${premiumBadge}</p>
-                                    <p class="text-slate-400 text-[10px] truncate">Energia: ${energiaTexto}</p>
-                                </div>
-                            </div>`;
-                });
-                listDiv.innerHTML = html;
-            } catch (e) { listDiv.innerHTML = '<div class="text-center text-red-400 text-xs mt-10">Erro. Verifique Firestore.</div>'; }
-        };
+        window.signInWithGoogleAction = () => { if(auth) signInWithRedirect(auth, new GoogleAuthProvider()); };
+        window.logout = async () => { if(auth) { await signOut(auth); closeModal('modal-logout'); window.appHistory = []; window.renderHistoryUI(); } };
+        window.saveAppToCloud = async (title, code) => { if (!currentUser) return window.saveAppLocal(title, code); await addDoc(collection(db, 'fl_users', currentUser.uid, 'galeria'), { title, code, date: new Date().toLocaleDateString('pt-BR'), timestamp: Date.now() }); window.fetchCloudGallery(); };
+        window.fetchCloudGallery = async () => { if (!currentUser || !db) return; const s = await getDocs(collection(db, 'fl_users', currentUser.uid, 'galeria')); window.appHistory = []; s.forEach(d => { window.appHistory.push({ id: d.id, ...d.data() }); }); window.appHistory.sort((a, b) => b.timestamp - a.timestamp); window.renderHistoryUI(); };
+        window.deleteApp = async (id) => { if (currentUser && db) { await deleteDoc(doc(db, 'fl_users', currentUser.uid, 'galeria', id)); window.fetchCloudGallery(); } else { window.appHistory = window.appHistory.filter(i => i.id !== id); localStorage.setItem('fl_historico_local', JSON.stringify(window.appHistory)); window.renderHistoryUI(); } };
+        window.upgradeUserInDatabase = async (tipo) => { if (currentUser && db) await setDoc(doc(db, 'fl_users', currentUser.uid), tipo === 'pro' ? { isPremium: true } : { energy: wallet.energy }, { merge: true }); };
+        window.fetchUsersList = async () => { const l = document.getElementById('admin-users-list'); if (!db) return; l.innerHTML = 'Buscando...'; try { const q = await getDocs(collection(db, "fl_users")); let h = ''; q.forEach((d) => { const x = d.data(); h += `<div class="bg-dark-panel p-2 border border-dark-border mb-2"><p class="text-white text-xs font-bold">${x.nome}</p></div>`; }); l.innerHTML = h; } catch (e) { l.innerHTML = 'Erro.'; } };
     </script>
 </body>
 </html>
