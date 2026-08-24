@@ -54,7 +54,7 @@
                 <i class="fa-brands fa-whatsapp text-green-400"></i> Compartilhar
             </button>
             <button onclick="toggleHistoryDrawer()" class="flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1.5 bg-dark-panel border border-dark-border hover:border-brand-500 rounded-lg text-slate-200 text-xs font-medium relative">
-                <i class="fa-solid fa-layer-group text-brand-400"></i> <span class="hidden sm:inline ml-1.5">Galeria</span>
+                <i class="fa-solid fa-gamepad text-brand-400"></i> <span class="hidden sm:inline ml-1.5">Slots (Save)</span>
                 <span id="gallery-badge" class="absolute -top-1.5 -right-1.5 bg-brand-500 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full hidden">0</span>
             </button>
             <button id="btn-energy" onclick="openModal('modal-paywall')" class="flex items-center gap-1.5 bg-dark-panel border border-yellow-500/30 rounded-full px-2 sm:px-3 py-1 sm:py-1.5">
@@ -89,7 +89,7 @@
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/30"><i class="fa-solid fa-robot text-white text-xs"></i></div>
                     <div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-xs sm:text-sm">
-                        Sistema operacional! Fale ou digite sua ideia para gerar o app na hora.
+                        Sistema operacional pronto! Fale ou digite sua ideia, ou peça refinamentos (ex: "mude a cor para azul").
                     </div>
                 </div>
             </div>
@@ -102,7 +102,7 @@
                     <button id="btn-mic" onclick="toggleVoiceRecognition()" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-dark-bg border border-dark-border hover:bg-slate-700 flex items-center justify-center text-slate-300 shrink-0">
                         <i class="fa-solid fa-microphone"></i>
                     </button>
-                    <textarea id="chat-input" rows="1" class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none text-xs sm:text-sm" placeholder="Sua ideia..."></textarea>
+                    <textarea id="chat-input" rows="1" class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-brand-500 resize-none text-xs sm:text-sm" placeholder="Sua ideia ou ajuste..."></textarea>
                     <button onclick="sendChatMessage()" class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-600 flex items-center justify-center text-white shrink-0">
                         <i class="fa-solid fa-paper-plane"></i>
                     </button>
@@ -110,16 +110,24 @@
             </div>
         </section>
 
-        <!-- SEÇÃO PREVIEW -->
+        <!-- SEÇÃO PREVIEW / EDITOR / AUTO-HOSPEDAGEM -->
         <section id="section-preview" class="hidden lg:flex flex-1 flex-col h-full bg-[#0b1121] w-full absolute lg:relative inset-0 z-0">
-            <div class="p-3 border-b border-dark-border flex justify-between items-center bg-dark-bg/80 backdrop-blur-sm shrink-0">
-                <span class="text-slate-400 font-mono text-[10px] sm:text-xs"><i class="fa-solid fa-eye mr-1"></i> App Gerado</span>
-                <div class="flex gap-2">
+            <div class="p-3 border-b border-dark-border flex justify-between items-center bg-dark-bg/80 backdrop-blur-sm shrink-0 flex-wrap gap-2">
+                <!-- Abas de Visualização: Preview ou Raio-X (Código) -->
+                <div class="flex items-center bg-dark-panel border border-dark-border rounded-lg p-0.5">
+                    <button onclick="switchViewMode('preview')" id="btn-mode-preview" class="px-3 py-1 rounded-md text-xs font-bold bg-brand-600 text-white transition-colors">Visual</button>
+                    <button onclick="switchViewMode('code')" id="btn-mode-code" class="px-3 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white transition-colors">Raio-X (Código)</button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button onclick="downloadAppZip()" title="Baixar Arquivo HTML" class="bg-dark-panel border border-slate-600 hover:border-white text-white px-2.5 py-1.5 rounded-lg text-xs flex items-center gap-1 transition-colors">
+                        <i class="fa-solid fa-download"></i> <span class="hidden sm:inline">Baixar</span>
+                    </button>
                     <button onclick="preparaGitHubDeploy()" class="bg-dark-panel border border-slate-600 hover:border-white text-white font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow-lg transition-colors">
-                        <i class="fa-brands fa-github"></i> <span class="hidden sm:inline">Exportar GitHub</span>
+                        <i class="fa-brands fa-github"></i> <span>Auto-Hospedar (GitHub)</span>
                     </button>
                     <button onclick="generateApp()" class="bg-gradient-to-r from-emerald-500 to-emerald-400 text-slate-900 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-500/20">
-                        <i class="fa-solid fa-code"></i> Construir App
+                        <i class="fa-solid fa-code"></i> Construir / Refinar
                     </button>
                 </div>
             </div>
@@ -129,7 +137,10 @@
                     <div class="w-16 h-16 rounded-full bg-dark-panel border-2 border-dashed border-dark-border flex items-center justify-center mx-auto mb-3 text-2xl text-slate-600"><i class="fa-solid fa-laptop-code"></i></div>
                     <h3 class="text-base sm:text-lg font-bold text-slate-300">Área de Montagem</h3>
                 </div>
+                <!-- Visualizador de App -->
                 <iframe id="app-preview" class="w-full h-full bg-white rounded-lg sm:rounded-xl shadow-2xl hidden border-0"></iframe>
+                <!-- Editor Raio-X de Código -->
+                <textarea id="code-editor" class="w-full h-full bg-[#090d16] text-emerald-400 font-mono text-xs p-4 rounded-xl border border-dark-border resize-none hidden focus:outline-none focus:border-brand-500" placeholder="// O código HTML gerado aparecerá aqui para edições manuais..." oninput="syncCodeChanges(this.value)"></textarea>
             </div>
         </section>
         
@@ -141,33 +152,33 @@
             <i class="fa-solid fa-message text-lg"></i> Chat
         </button>
         <button onclick="switchMobileTab('preview')" id="tab-preview" class="flex-1 text-slate-400 font-medium border-t-2 border-transparent text-[10px] flex flex-col items-center justify-center gap-1">
-            <i class="fa-solid fa-mobile-screen text-lg"></i> Resultado
+            <i class="fa-solid fa-mobile-screen text-lg"></i> App / Código
         </button>
     </nav>
 
-    <!-- Galeria Visual Lateral -->
+    <!-- Gaveta de "Slots de Save Game" (Galeria) -->
     <div id="history-drawer" class="fixed inset-y-0 right-0 w-full sm:w-[450px] bg-dark-panel border-l border-dark-border shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
         <div class="p-4 border-b border-dark-border flex items-center justify-between bg-dark-bg pt-safe">
-            <div><h3 class="font-bold text-white flex items-center gap-2"><i class="fa-solid fa-images text-brand-400"></i> Galeria de Projetos</h3></div>
+            <div><h3 class="font-bold text-white flex items-center gap-2"><i class="fa-solid fa-gamepad text-brand-400"></i> Slots de Save (Projetos)</h3></div>
             <button onclick="toggleHistoryDrawer()" class="text-slate-400 hover:text-white p-2"><i class="fa-solid fa-xmark text-xl"></i></button>
         </div>
-        <div id="history-list" class="flex-1 overflow-y-auto p-4 grid grid-cols-1 sm:grid-cols-2 gap-4 pb-20 content-start"></div>
+        <div id="history-list" class="flex-1 overflow-y-auto p-4 grid grid-cols-1 gap-3 pb-20 content-start"></div>
     </div>
 
-    <!-- MODAL GITHUB DEPLOY -->
+    <!-- MODAL AUTO-HOSPEDAGEM GITHUB & PAGES -->
     <div id="modal-github" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative">
             <button onclick="closeModal('modal-github')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-600">
                 <i class="fa-brands fa-github text-3xl text-white"></i>
             </div>
-            <h2 class="text-xl font-bold text-white mb-1">Deploy para GitHub</h2>
-            <p class="text-slate-400 text-xs mb-6">Envie seu código direto para sua conta profissional.</p>
+            <h2 class="text-xl font-bold text-white mb-1">Auto-Hospedagem GitHub</h2>
+            <p class="text-slate-400 text-xs mb-6">Cria o repositório e ativa o link público instantaneamente via GitHub Pages.</p>
             
             <div class="text-left space-y-4">
                 <div>
-                    <label class="text-[10px] text-brand-400 font-bold uppercase tracking-wider mb-1 block">Nome do Repositório</label>
-                    <input type="text" id="github-repo-name" placeholder="ex: meu-novo-app" class="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-white text-sm focus:border-brand-500 outline-none">
+                    <label class="text-[10px] text-brand-400 font-bold uppercase tracking-wider mb-1 block">Nome do App</label>
+                    <input type="text" id="github-repo-name" placeholder="ex: meu-app-incrivel" class="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-white text-sm focus:border-brand-500 outline-none">
                 </div>
                 <div>
                     <label class="text-[10px] text-brand-400 font-bold uppercase tracking-wider mb-1 block">GitHub Token (Classic)</label>
@@ -176,8 +187,8 @@
                 </div>
             </div>
             
-            <button onclick="executeGitHubDeploy()" id="btn-github-deploy" class="w-full bg-white hover:bg-slate-200 text-slate-900 font-bold py-3 rounded-xl flex items-center justify-center gap-2 mt-6 transition-colors">
-                <i class="fa-solid fa-cloud-arrow-up"></i> Enviar Código
+            <button onclick="executeGitHubAutoHost()" id="btn-github-deploy" class="w-full bg-white hover:bg-slate-200 text-slate-900 font-bold py-3 rounded-xl flex items-center justify-center gap-2 mt-6 transition-colors">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Publicar Site no Ar
             </button>
         </div>
     </div>
@@ -218,6 +229,32 @@
                 btnPrev.classList.add('text-brand-400', 'border-brand-500', 'bg-dark-bg'); btnPrev.classList.remove('text-slate-400', 'border-transparent');
                 btnChat.classList.add('text-slate-400', 'border-transparent'); btnChat.classList.remove('text-brand-400', 'border-brand-500', 'bg-dark-bg');
             }
+        }
+
+        // Alternar entre Visualização e Código Raio-X
+        function switchViewMode(mode) {
+            const preview = document.getElementById('app-preview');
+            const editor = document.getElementById('code-editor');
+            const btnPrev = document.getElementById('btn-mode-preview');
+            const btnCode = document.getElementById('btn-mode-code');
+
+            if(mode === 'preview') {
+                preview.classList.remove('hidden');
+                editor.classList.add('hidden');
+                preview.srcdoc = currentCodeToExport;
+                btnPrev.className = "px-3 py-1 rounded-md text-xs font-bold bg-brand-600 text-white transition-colors";
+                btnCode.className = "px-3 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white transition-colors";
+            } else {
+                preview.classList.add('hidden');
+                editor.classList.remove('hidden');
+                editor.value = currentCodeToExport;
+                btnCode.className = "px-3 py-1 rounded-md text-xs font-bold bg-brand-600 text-white transition-colors";
+                btnPrev.className = "px-3 py-1 rounded-md text-xs font-medium text-slate-400 hover:text-white transition-colors";
+            }
+        }
+
+        function syncCodeChanges(newCode) {
+            currentCodeToExport = newCode;
         }
 
         function showToast(msg, type = 'info') {
@@ -278,27 +315,81 @@
             }
         }
 
+        // --- SISTEMA DE REFINAMENTO INTELIGENTE (CHAT CONTEXTUAL) ---
         async function sendChatMessage() {
-            const input = document.getElementById('chat-input'); const msg = input.value.trim(); if (!msg || !consumeEnergy(10)) return;
-            const chat = document.getElementById('chat-window'); chat.innerHTML += `<div class="flex items-start gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user text-white text-xs"></i></div><div class="bg-brand-600 p-2 sm:p-3 rounded-xl sm:rounded-2xl rounded-tr-none text-white text-xs sm:text-sm shadow-md">${msg}</div></div>`; input.value = ''; chat.scrollTop = chat.scrollHeight;
-            const lid = 'loading-' + Date.now(); chat.innerHTML += `<div id="${lid}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Processando...</div>`;
-            try { const r = await processAIRequest(msg); document.getElementById(lid).remove(); chat.innerHTML += `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-xs sm:text-sm whitespace-pre-wrap">${r}</div></div>`; chat.scrollTop = chat.scrollHeight; } catch (e) { document.getElementById(lid).remove(); }
+            const input = document.getElementById('chat-input'); 
+            const msg = input.value.trim(); 
+            if (!msg || !consumeEnergy(10)) return;
+
+            const chat = document.getElementById('chat-window'); 
+            chat.innerHTML += `<div class="flex items-start gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user text-white text-xs"></i></div><div class="bg-brand-600 p-2 sm:p-3 rounded-xl sm:rounded-2xl rounded-tr-none text-white text-xs sm:text-sm shadow-md">${msg}</div></div>`; 
+            input.value = ''; 
+            chat.scrollTop = chat.scrollHeight;
+
+            const lid = 'loading-' + Date.now(); 
+            chat.innerHTML += `<div id="${lid}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2">Processando cérebro da IA...</div>`;
+            
+            try {
+                let aiPrompt = msg;
+                // Se já existe um código ativo na tela, a IA faz o refinamento em cima dele!
+                if(currentCodeToExport) {
+                    aiPrompt = `Aqui está o código HTML/Tailwind atual do aplicativo:\n\n${currentCodeToExport}\n\nO usuário pediu a seguinte alteração/refinamento: "${msg}". Modifique o código mantendo a estrutura e devolva APENAS o código HTML completo atualizado, sem formatação markdown.`;
+                } else {
+                    aiPrompt = `Escreva APENAS código HTML completo com Tailwind CSS baseado neste pedido: "${msg}". Sem markdown.`;
+                }
+
+                const rawReply = await processAIRequest(aiPrompt);
+                let code = rawReply.replace(/```html/g, '').replace(/```/g, '').trim();
+                if(code.startsWith('<') && code.endsWith('>')) {
+                    currentCodeToExport = code;
+                    document.getElementById('app-placeholder').classList.add('hidden'); 
+                    document.getElementById('app-preview').classList.remove('hidden'); 
+                    document.getElementById('app-preview').srcdoc = code;
+                    if(window.innerWidth < 1024) switchMobileTab('preview');
+                    saveAppLocal(msg.substring(0, 30) + '...', code);
+                }
+
+                document.getElementById(lid).remove(); 
+                chat.innerHTML += `<div class="flex items-start gap-3"><div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0"><i class="fa-solid fa-robot text-white text-xs"></i></div><div class="bg-dark-panel border border-dark-border p-3 rounded-2xl rounded-tl-none text-slate-200 text-xs sm:text-sm whitespace-pre-wrap">Pronto! Aplicativo gerado/refinado com sucesso.</div></div>`; 
+                chat.scrollTop = chat.scrollHeight; 
+            } catch (e) { 
+                document.getElementById(lid).remove(); 
+                showToast('Erro no processamento da IA.', 'error');
+            }
         }
-        async function optimizePromptWithAI() { const input = document.getElementById('chat-input'); if(input.value) input.value = await processAIRequest(`Reescreva para prompt de app HTML/Tailwind detalhado: "${input.value}"`); }
-        async function gerarRelatorioAdmin() { document.getElementById('admin-report-content').innerHTML = "Gerando..."; const r = await processAIRequest(`Análise do SaaS Fábrica Livre.`); document.getElementById('admin-report-content').innerHTML = r; }
+
+        async function optimizePromptWithAI() { 
+            const input = document.getElementById('chat-input'); 
+            if(input.value) input.value = await processAIRequest(`Reescreva para prompt de app HTML/Tailwind detalhado: "${input.value}"`); 
+        }
+        
+        async function gerarRelatorioAdmin() { 
+            document.getElementById('admin-report-content').innerHTML = "Gerando..."; 
+            const r = await processAIRequest(`Análise do SaaS Fábrica Livre.`); 
+            document.getElementById('admin-report-content').innerHTML = r; 
+        }
 
         async function generateApp() {
-            const msgs = document.getElementById('chat-window').innerText; if (msgs.length < 20 || !consumeEnergy(50)) return;
-            try {
-                let code = (await processAIRequest(`APENAS código HTML com Tailwind. Base: ${msgs}`)).replace(/```html/g, '').replace(/```/g, '').trim();
-                currentCodeToExport = code; 
-                document.getElementById('app-placeholder').classList.add('hidden'); document.getElementById('app-preview').classList.remove('hidden'); document.getElementById('app-preview').srcdoc = code;
-                if(window.innerWidth < 1024) switchMobileTab('preview'); 
-                if (window.saveAppToCloud) window.saveAppToCloud(msgs.substring(0, 30)+'...', code); else saveAppLocal(msgs.substring(0, 30)+'...', code);
-            } catch (e) {}
+            const msgs = document.getElementById('chat-window').innerText; 
+            if (msgs.length < 20 || !consumeEnergy(50)) return;
+            sendChatMessage();
         }
 
-        // --- SISTEMA GITHUB DEPLOY (NOVO E CORRIGIDO) ---
+        // --- EXPORTAÇÃO FÍSICA (DOWNLOAD ZIP / HTML) ---
+        function downloadAppZip() {
+            if(!currentCodeToExport) return showToast('Nenhum app na tela para baixar!', 'error');
+            const blob = new Blob([currentCodeToExport], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'index.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showToast('✅ Download do app concluído!', 'success');
+        }
+
+        // --- SISTEMA AUTO-HOSPEDAGEM GITHUB & PAGES ---
         function preparaGitHubDeploy() {
             if(!currentCodeToExport) return showToast('Você precisa gerar um App primeiro!', 'error');
             const savedToken = localStorage.getItem('fl_github_token');
@@ -306,73 +397,125 @@
             openModal('modal-github');
         }
 
-        async function executeGitHubDeploy() {
+        async function executeGitHubAutoHost() {
             const token = document.getElementById('github-token').value.trim();
             let repoNameRaw = document.getElementById('github-repo-name').value.trim();
-            // Formata automaticamente o nome (remove espaços, acentos, põe em minúsculo)
             let repoName = repoNameRaw.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-').replace(/[^a-z0-9-_]/g, '');
-            
             const btn = document.getElementById('btn-github-deploy');
 
-            if(!token || !repoName) return showToast('Preencha o nome do App e o Token.', 'error');
-            if(!token.startsWith('ghp_')) return showToast('O token clássico deve começar com "ghp_"', 'error');
+            if(!token || !repoName) return showToast('Preencha o nome e o Token.', 'error');
+            if(!token.startsWith('ghp_')) return showToast('O token deve começar com "ghp_"', 'error');
             
             localStorage.setItem('fl_github_token', token);
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Criando repositório...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Criando Repositório...';
 
             try {
                 // 1. Criar Repositório
                 const createRes = await fetch('https://api.github.com/user/repos', {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name: repoName, description: 'Gerado via Fábrica Livre', private: false, auto_init: true })
+                    body: JSON.stringify({ name: repoName, description: 'Hospedado via Fábrica Livre', private: false, auto_init: true })
                 });
 
                 if(!createRes.ok) {
                     const errInfo = await createRes.json();
-                    if(createRes.status === 401) throw new Error('Token Inválido ou Vencido. Verifique se copiou certo.');
-                    if(errInfo.message && errInfo.message.includes('name already exists')) throw new Error('Esse nome de repositório já existe.');
+                    if(createRes.status === 401) throw new Error('Token Inválido.');
+                    if(errInfo.message && errInfo.message.includes('name already exists')) throw new Error('Nome de repositório já existe.');
                     throw new Error('Erro GitHub: ' + (errInfo.message || createRes.status));
                 }
                 
                 const repoData = await createRes.json();
                 const owner = repoData.owner.login;
 
-                // 2. Fazer Push do Código
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Injetando código...';
+                // 2. Fazer Push do index.html
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Injetando Código...';
                 const contentEncoded = btoa(unescape(encodeURIComponent(currentCodeToExport)));
 
                 const uploadRes = await fetch(`https://api.github.com/repos/${owner}/${repoName}/contents/index.html`, {
                     method: 'PUT',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: '🚀 Deploy autônomo via Fábrica Livre', content: contentEncoded })
+                    body: JSON.stringify({ message: '🚀 Auto-deploy via Fábrica Livre', content: contentEncoded })
                 });
 
-                if(!uploadRes.ok) {
-                    const uploadErr = await uploadRes.json();
-                    throw new Error('Erro ao enviar arquivo: ' + (uploadErr.message || uploadRes.status));
-                }
+                if(!uploadRes.ok) throw new Error('Erro ao enviar o arquivo.');
 
-                showToast('✅ Deploy concluído com sucesso!', 'success');
-                window.open(repoData.html_url, '_blank'); 
+                // 3. ATIVAR GITHUB PAGES AUTOMATICAMENTE
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ativando Pages (No Ar)...';
+                await fetch(`https://api.github.com/repos/${owner}/${repoName}/pages`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ source: { branch: "main", path: "/" } })
+                });
+
+                const liveUrl = `https://${owner}.github.io/${repoName}/`;
+                showToast('🚀 Site publicado no ar com sucesso!', 'success');
+                window.open(liveUrl, '_blank'); 
                 closeModal('modal-github');
 
             } catch(e) {
                 showToast(e.message, 'error');
             } finally {
-                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Enviar Código';
-                document.getElementById('github-repo-name').value = repoName; // Mostra o nome formatado pra você
+                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Publicar Site no Ar';
+                document.getElementById('github-repo-name').value = repoName;
             }
         }
 
-        function saveAppLocal(title, code) { window.appHistory.unshift({ id: Date.now().toString(), title, code, date: new Date().toLocaleDateString('pt-BR') }); localStorage.setItem('fl_historico_local', JSON.stringify(window.appHistory)); renderHistoryUI(); }
+        // --- SISTEMA SAVE GAME (SLOTS DE PROJETOS) ---
+        function saveAppLocal(title, code) {
+            const newItem = { id: Date.now().toString(), title, code, date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+            window.appHistory.unshift(newItem);
+            localStorage.setItem('fl_historico_local', JSON.stringify(window.appHistory));
+            renderHistoryUI();
+        }
+
         window.renderHistoryUI = () => {
-            document.getElementById('gallery-badge').innerText = window.appHistory.length; window.appHistory.length ? document.getElementById('gallery-badge').classList.remove('hidden') : null;
-            document.getElementById('history-list').innerHTML = window.appHistory.map(i => `<div class="bg-dark-bg border border-dark-border rounded-xl overflow-hidden hover:border-brand-500 flex flex-col relative"><div class="h-16 bg-gradient-to-br from-brand-900/40 to-[#0b1121] flex items-center justify-center"><h4 class="font-bold text-white text-[10px] px-2 text-center line-clamp-2">${i.title}</h4></div><div class="p-2 flex gap-2"><button onclick="window.openApp('${i.id}')" class="flex-1 bg-brand-600/20 text-brand-300 py-1.5 rounded text-[10px] font-bold"><i class="fa-solid fa-play"></i> Abrir</button><button onclick="window.deleteApp('${i.id}')" class="px-2 bg-red-500/10 text-red-400 rounded"><i class="fa-solid fa-trash"></i></button></div></div>`).join('');
+            const badge = document.getElementById('gallery-badge');
+            badge.innerText = window.appHistory.length; 
+            window.appHistory.length ? badge.classList.remove('hidden') : badge.classList.add('hidden');
+            
+            document.getElementById('history-list').innerHTML = window.appHistory.map((i, index) => `
+                <div class="bg-dark-bg border border-dark-border rounded-xl p-3 hover:border-brand-500 flex items-center justify-between gap-3 shadow-md">
+                    <div class="overflow-hidden">
+                        <span class="text-[9px] font-mono text-brand-400 bg-brand-500/10 px-1.5 py-0.5 rounded">SLOT 0${window.appHistory.length - index}</span>
+                        <h4 class="font-bold text-white text-xs truncate mt-1">${i.title}</h4>
+                        <p class="text-[10px] text-slate-500">${i.date}</p>
+                    </div>
+                    <div class="flex gap-1.5 shrink-0">
+                        <button onclick="window.openApp('${i.id}')" class="bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-colors"><i class="fa-solid fa-play"></i> Carregar</button>
+                        <button onclick="window.deleteApp('${i.id}')" class="bg-red-500/10 hover:bg-red-500/30 text-red-400 p-2 rounded-lg text-xs transition-colors"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
         };
-        window.openApp = function(id) { const item = window.appHistory.find(i => i.id === id); if (item) { currentCodeToExport = item.code; document.getElementById('app-placeholder').classList.add('hidden'); document.getElementById('app-preview').classList.remove('hidden'); document.getElementById('app-preview').srcdoc = item.code; toggleHistoryDrawer(); if(window.innerWidth < 1024) switchMobileTab('preview'); } };
+
+        window.openApp = function(id) { 
+            const item = window.appHistory.find(i => i.id === id); 
+            if (item) { 
+                currentCodeToExport = item.code; 
+                document.getElementById('app-placeholder').classList.add('hidden'); 
+                document.getElementById('app-preview').classList.remove('hidden'); 
+                document.getElementById('app-preview').srcdoc = item.code; 
+                toggleHistoryDrawer(); 
+                if(window.innerWidth < 1024) switchMobileTab('preview'); 
+                showToast('🎮 Slot Carregado com Sucesso!', 'success');
+            } 
+        };
+
+        window.deleteApp = function(id) {
+            window.appHistory = window.appHistory.filter(i => i.id !== id);
+            localStorage.setItem('fl_historico_local', JSON.stringify(window.appHistory));
+            renderHistoryUI();
+            showToast('Slot limpo.', 'info');
+        }
         
-        window.onload = () => { updateEnergyUI(); if(localStorage.getItem('fl_historico_local')) window.appHistory = JSON.parse(localStorage.getItem('fl_historico_local')); renderHistoryUI(); document.getElementById('share-url').value = window.location.origin; checkPaymentStatus(); initPWA(); };
+        window.onload = () => { 
+            updateEnergyUI(); 
+            if(localStorage.getItem('fl_historico_local')) window.appHistory = JSON.parse(localStorage.getItem('fl_historico_local')); 
+            renderHistoryUI(); 
+            document.getElementById('share-url').value = window.location.origin; 
+            checkPaymentStatus(); 
+            initPWA(); 
+        };
 
         function initPWA() {
             if ('serviceWorker' in navigator) {
@@ -380,33 +523,6 @@
                 document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(manifestBlob);
             }
         }
-    </script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithRedirect, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, collection, getDocs, addDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        const firebaseConfig = { apiKey: "AIzaSyCqH9hoCFOhYnLYsV7LEC1ijG-sTSJB9GQ", authDomain: "fabricalivre-616c6.firebaseapp.com", projectId: "fabricalivre-616c6", storageBucket: "fabricalivre-616c6.firebasestorage.app", messagingSenderId: "559829612837", appId: "1:559829612837:web:3e423d73aec3eb127bc2cc", measurementId: "G-WV6KR0C4S2" };
-        let auth, db, currentUser;
-        try {
-            const app = initializeApp(firebaseConfig); auth = getAuth(app); db = getFirestore(app);
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    currentUser = user; await setDoc(doc(db, 'fl_users', user.uid), { nome: user.displayName, email: user.email, foto: user.photoURL }, { merge: true });
-                    document.getElementById('btn-login').classList.add('hidden'); document.getElementById('user-profile').classList.remove('hidden'); document.getElementById('user-profile').classList.add('flex'); document.getElementById('user-avatar').src = user.photoURL; document.getElementById('cloud-status').innerText = "Nuvem Conectada";
-                    window.fetchCloudGallery();
-                } else { currentUser = null; document.getElementById('btn-login').classList.remove('hidden'); document.getElementById('user-profile').classList.add('hidden'); document.getElementById('user-profile').classList.remove('flex'); document.getElementById('cloud-status').innerText = "Memória Local"; }
-            });
-        } catch (e) { }
-
-        window.signInWithGoogleAction = () => { if(auth) signInWithRedirect(auth, new GoogleAuthProvider()); };
-        window.logout = async () => { if(auth) { await signOut(auth); closeModal('modal-logout'); window.appHistory = []; window.renderHistoryUI(); } };
-        window.saveAppToCloud = async (title, code) => { if (!currentUser) return window.saveAppLocal(title, code); await addDoc(collection(db, 'fl_users', currentUser.uid, 'galeria'), { title, code, date: new Date().toLocaleDateString('pt-BR'), timestamp: Date.now() }); window.fetchCloudGallery(); };
-        window.fetchCloudGallery = async () => { if (!currentUser || !db) return; const s = await getDocs(collection(db, 'fl_users', currentUser.uid, 'galeria')); window.appHistory = []; s.forEach(d => { window.appHistory.push({ id: d.id, ...d.data() }); }); window.appHistory.sort((a, b) => b.timestamp - a.timestamp); window.renderHistoryUI(); };
-        window.deleteApp = async (id) => { if (currentUser && db) { await deleteDoc(doc(db, 'fl_users', currentUser.uid, 'galeria', id)); window.fetchCloudGallery(); } else { window.appHistory = window.appHistory.filter(i => i.id !== id); localStorage.setItem('fl_historico_local', JSON.stringify(window.appHistory)); window.renderHistoryUI(); } };
-        window.upgradeUserInDatabase = async (tipo) => { if (currentUser && db) await setDoc(doc(db, 'fl_users', currentUser.uid), tipo === 'pro' ? { isPremium: true } : { energy: wallet.energy }, { merge: true }); };
-        window.fetchUsersList = async () => { const l = document.getElementById('admin-users-list'); if (!db) return; l.innerHTML = 'Buscando...'; try { const q = await getDocs(collection(db, "fl_users")); let h = ''; q.forEach((d) => { const x = d.data(); h += `<div class="bg-dark-panel p-2 border border-dark-border mb-2"><p class="text-white text-xs font-bold">${x.nome}</p></div>`; }); l.innerHTML = h; } catch (e) { l.innerHTML = 'Erro.'; } };
     </script>
 </body>
 </html>
