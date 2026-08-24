@@ -66,7 +66,7 @@
     <!-- Header -->
     <header class="glass-panel border-b border-dark-border px-3 sm:px-4 py-2 sm:py-3 flex items-center justify-between z-10 shrink-0">
         <div class="flex items-center gap-2 sm:gap-3">
-            <div id="admin-trigger" class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-lg cursor-pointer transition-transform hover:scale-105" onclick="countAdminClicks()">
+            <div id="admin-trigger" class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-brand-400 flex items-center justify-center shadow-lg cursor-pointer transition-transform hover:scale-105" onclick="countAdminClicks()" ondblclick="generateRandomSaaS()">
                 <i class="fa-solid fa-robot text-white text-lg sm:text-xl"></i>
             </div>
             <div>
@@ -115,7 +115,7 @@
                 <div class="flex items-start gap-3">
                     <div class="w-8 h-8 rounded-full bg-brand-600 flex items-center justify-center shrink-0 shadow-lg shadow-brand-500/30"><i class="fa-solid fa-robot text-white text-xs"></i></div>
                     <div class="glass-panel p-3 rounded-2xl rounded-tl-none text-slate-200 text-xs sm:text-sm shadow-md">
-                        Motor Inteligente Ativo! O sistema agora lembra de toda a nossa conversa. O que vamos criar hoje?
+                        Motor Inteligente Ativo! Dê 2 cliques no ícone do robô no topo para gerar um app aleatório, ou descreva o que deseja abaixo.
                     </div>
                 </div>
             </div>
@@ -151,9 +151,6 @@
                     <button onclick="preparaGitHubDeploy()" class="glass-panel hover:border-white text-white font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow-lg transition-colors">
                         <i class="fa-brands fa-github"></i> <span>Deploy (Hospedar)</span>
                     </button>
-                    <button onclick="generateApp()" class="bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-bold px-3 py-1.5 rounded-lg text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 transition-all">
-                        <i class="fa-solid fa-bolt"></i> Compilar SaaS
-                    </button>
                 </div>
             </div>
 
@@ -161,7 +158,7 @@
                 <div id="app-placeholder" class="text-center w-full">
                     <div class="w-20 h-20 rounded-full glass-panel border-2 border-dashed border-dark-border flex items-center justify-center mx-auto mb-4 text-3xl text-slate-400"><i class="fa-brands fa-react"></i></div>
                     <h3 class="text-lg font-bold text-slate-200">Área de Montagem</h3>
-                    <p class="text-xs text-slate-400 mt-2">Peça para a IA construir o sistema.</p>
+                    <p class="text-xs text-slate-400 mt-2">Dê 2 cliques no robô para testar a sorte ou peça algo à IA.</p>
                 </div>
                 <iframe id="app-preview" class="w-full h-full bg-white rounded-lg sm:rounded-xl shadow-2xl hidden border-0 transition-opacity duration-300"></iframe>
                 <textarea id="code-editor" class="w-full h-full bg-[#090d16]/90 backdrop-blur-md text-emerald-400 font-mono text-xs p-4 rounded-xl border border-dark-border resize-none hidden focus:outline-none focus:border-brand-500" placeholder="// O código reativo aparecerá aqui..." oninput="syncCodeChanges(this.value)"></textarea>
@@ -222,33 +219,25 @@
     <!-- MODAL ADMIN LOGIN -->
     <div id="modal-admin-login" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden"><div class="bg-black border border-red-500/30 rounded-2xl max-w-sm p-6 text-center"><input type="password" id="admin-serial" class="w-full bg-slate-800/50 border border-red-500/50 rounded p-2 text-white text-center mb-4 tracking-widest" placeholder="CHAVE MESTRA"><button onclick="verifyAdmin()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded">ACESSAR PAINEL</button></div></div>
     
-    <!-- NOVO PAINEL ADMIN TURBINADO -->
+    <!-- PAINEL ADMIN -->
     <div id="modal-admin-dashboard" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 hidden">
         <div class="glass-panel rounded-2xl max-w-3xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
             <button onclick="closeModal('modal-admin-dashboard')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             <h2 class="text-white font-bold mb-6 flex items-center gap-2 text-xl"><i class="fa-solid fa-terminal text-brand-400"></i> Centro de Comando (Admin)</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Config API Groq -->
                 <div class="bg-slate-800/50 p-4 rounded-xl border border-dark-border">
                     <h3 class="text-white font-bold mb-2 text-sm"><i class="fa-solid fa-key text-yellow-400 mr-2"></i>Chave API (Groq)</h3>
-                    <p class="text-xs text-slate-400 mb-3">Altere a chave mestra sem mexer no código-fonte.</p>
                     <input type="password" id="admin-api-key" placeholder="gsk_..." class="w-full bg-dark-900 border border-dark-border p-2 rounded text-xs text-white mb-2 outline-none focus:border-brand-500">
                     <button onclick="saveAdminApiKey()" class="w-full bg-brand-600/20 border border-brand-500/50 hover:bg-brand-500/40 text-brand-400 text-xs font-bold py-2 rounded transition-colors">Salvar Nova Chave</button>
                 </div>
-
-                <!-- Injetor de Energia -->
                 <div class="bg-slate-800/50 p-4 rounded-xl border border-dark-border">
                     <h3 class="text-white font-bold mb-2 text-sm"><i class="fa-solid fa-bolt text-yellow-400 mr-2"></i>Injetor de Energia</h3>
-                    <p class="text-xs text-slate-400 mb-3">Adicione créditos ao sistema manualmente.</p>
                     <input type="number" id="admin-energy-amount" placeholder="Ex: 5000" class="w-full bg-dark-900 border border-dark-border p-2 rounded text-xs text-white mb-2 outline-none focus:border-yellow-500">
                     <button onclick="injectAdminEnergy()" class="w-full bg-yellow-500/20 border border-yellow-500/50 hover:bg-yellow-500/40 text-yellow-400 text-xs font-bold py-2 rounded transition-colors">Injetar Energia</button>
                 </div>
-
-                <!-- Gestão e Limpeza Geral -->
                 <div class="bg-slate-800/50 p-4 rounded-xl border border-dark-border md:col-span-2">
-                    <h3 class="text-white font-bold mb-2 text-sm"><i class="fa-solid fa-database text-brand-400 mr-2"></i>Manutenção do Sistema</h3>
-                    <p class="text-xs text-slate-400 mb-3">Ações sensíveis. Cuidado ao zerar o sistema.</p>
+                    <h3 class="text-white font-bold mb-2 text-sm"><i class="fa-solid fa-database text-brand-400 mr-2"></i>Manutenção</h3>
                     <div class="flex gap-2">
                         <button onclick="clearGlobalCache()" class="flex-1 bg-red-500/20 border border-red-500/50 hover:bg-red-500/40 text-red-400 text-xs font-bold py-2 rounded transition-colors"><i class="fa-solid fa-dumpster mr-1"></i> Zerar Cache Total</button>
                         <button onclick="window.location.reload(true)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2 rounded transition-colors"><i class="fa-solid fa-arrows-rotate mr-1"></i> Forçar Reboot</button>
@@ -376,9 +365,29 @@
         function activatePremiumAccount() { wallet.isPremium = true; localStorage.setItem('fl_premium', 'true'); updateEnergyUI(); if (window.upgradeUserInDatabase) window.upgradeUserInDatabase('pro'); }
         function consumeEnergy(amount) { if (wallet.isPremium) return true; if (wallet.energy >= amount) { wallet.energy -= amount; localStorage.setItem('fl_energy', wallet.energy); updateEnergyUI(); return true; } openModal('modal-paywall'); return false; }
 
-        // --- SISTEMA DE CONTROLE ADMIN ---
+        // --- SISTEMA DE CONTROLE ADMIN & GERAÇÃO ALEATÓRIA ---
         function countAdminClicks() { adminClicks++; clearTimeout(adminTimer); if (adminClicks >= 5) { wallet.isPremium ? openModal('modal-admin-dashboard') : openModal('modal-admin-login'); adminClicks = 0; } adminTimer = setTimeout(() => adminClicks = 0, 1000); }
         
+        function generateRandomSaaS() {
+            const ideas = [
+                "Crie um Dashboard SaaS Financeiro interativo com React e Tailwind. Use cartões de resumo (Receita, Despesas), um gráfico de barras simulado com divs e uma tabela de transações.",
+                "Desenvolva um sistema de Kanban (estilo Trello) em React com colunas 'Backlog', 'Fazendo' e 'Concluído'. Deve permitir adicionar, mover e deletar cartões.",
+                "Crie um aplicativo PDV de lanchonete em React. Grid de produtos à esquerda e carrinho de compras (cupom fiscal) à direita com botão de fechar pedido.",
+                "Construa uma plataforma de agendamento de serviços em React. Calendário simples para escolher data/hora e formulário de dados. Design em dark mode.",
+                "Desenvolva um clone minimalista do Linktree em React. Painel para inserir links e pré-visualização em tempo real imitando um celular."
+            ];
+            
+            if (isAutoCorrecting || document.getElementById('chat-input').disabled) {
+                showToast('Aguarde o agente terminar a tarefa atual.', 'error');
+                return;
+            }
+            
+            const randomPrompt = ideas[Math.floor(Math.random() * ideas.length)];
+            showToast('🎲 Roleta ativada! Construindo App aleatório...', 'info');
+            document.getElementById('chat-input').value = randomPrompt;
+            sendChatMessage();
+        }
+
         function verifyAdmin() { 
             if (document.getElementById('admin-serial').value === 'PROMPTSYS-ADM') { 
                 activatePremiumAccount(); 
@@ -455,6 +464,8 @@
                 chat.innerHTML += `<div class="flex items-start gap-3 flex-row-reverse"><div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user text-white text-xs"></i></div><div class="bg-brand-600 p-3 rounded-2xl rounded-tr-none text-white text-xs sm:text-sm shadow-md">${userMessage}</div></div>`; 
                 chat.scrollTop = chat.scrollHeight;
                 chat.innerHTML += `<div id="${lid}" class="text-brand-400 text-xs font-bold text-center animate-pulse py-2"><i class="fa-solid fa-microchip mr-1"></i> Agente compilando arquitetura...</div>`;
+                // Desabilita input
+                document.getElementById('chat-input').disabled = true;
             } else {
                 conversationMemory.push({ role: 'user', content: userMessage });
             }
@@ -491,6 +502,8 @@
             } catch (e) { 
                 if(!isSilentCorrection) document.getElementById(lid).remove(); 
                 showToast('Erro na conexão com o motor de IA.', 'error');
+            } finally {
+                document.getElementById('chat-input').disabled = false;
             }
         }
 
@@ -500,23 +513,6 @@
             if (!msg || !consumeEnergy(10)) return;
             input.value = ''; 
             processAIAgentCall(msg);
-        }
-
-        async function optimizePromptWithAI() { 
-            const input = document.getElementById('chat-input'); 
-            if(input.value) {
-                input.value = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
-                    body: JSON.stringify({ model: 'openai/gpt-oss-120b', messages: [{role: 'user', content: `Transforme este pedido em um prompt detalhado e profissional para gerar um App React/Tailwind: "${input.value}"`}] })
-                }).then(res => res.json()).then(data => data.choices[0].message.content);
-            }
-        }
-
-        function generateApp() {
-            const input = document.getElementById('chat-input');
-            if (input.value) sendChatMessage();
-            else showToast('Digite o que deseja construir no chat primeiro.', 'info');
         }
 
         function downloadAppZip() {
