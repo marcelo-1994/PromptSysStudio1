@@ -218,13 +218,52 @@
     <div id="modal-auth" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"><div class="glass-panel rounded-2xl max-w-sm p-8 text-center"><button onclick="closeModal('modal-auth')" class="absolute top-4 right-4 text-slate-400"><i class="fa-solid fa-xmark"></i></button><i class="fa-solid fa-cloud text-brand-500 text-4xl mb-4"></i><h2 class="text-xl font-bold text-white mb-4">Salvar na Nuvem</h2><button onclick="window.signInWithGoogleAction()" class="w-full bg-white hover:bg-slate-200 text-slate-900 font-bold py-3 rounded-xl flex items-center justify-center gap-2"><i class="fa-brands fa-google text-red-500"></i> Entrar com Google</button></div></div>
     <div id="modal-logout" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"><div class="glass-panel rounded-2xl max-w-xs p-6 text-center"><button onclick="closeModal('modal-logout')" class="absolute top-4 right-4 text-slate-400"><i class="fa-solid fa-xmark"></i></button><h2 id="logout-name" class="text-white font-bold mb-4">Usuário</h2><button onclick="logout()" class="w-full bg-red-500/20 hover:bg-red-500/40 border border-red-500/50 text-red-400 font-bold py-2 rounded-xl">Sair da Conta</button></div></div>
     <div id="modal-paywall" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"><div class="glass-panel rounded-2xl max-w-md w-full p-6 text-center"><button onclick="closeModal('modal-paywall')" class="absolute top-4 right-4 text-slate-400"><i class="fa-solid fa-xmark"></i></button><h2 class="text-2xl font-black text-white mb-2">Energia Esgotada</h2><p class="text-slate-400 text-sm mb-6">Assine o plano Pro para criações ilimitadas.</p><a href="https://mpago.la/2fLHcpu" target="_blank" class="block w-full bg-brand-500 hover:bg-brand-400 text-white font-bold py-3 rounded-xl shadow-lg">Assinar Ilimitado (R$ 49,90)</a></div></div>
+    
+    <!-- MODAL ADMIN LOGIN -->
     <div id="modal-admin-login" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden"><div class="bg-black border border-red-500/30 rounded-2xl max-w-sm p-6 text-center"><input type="password" id="admin-serial" class="w-full bg-slate-800/50 border border-red-500/50 rounded p-2 text-white text-center mb-4 tracking-widest" placeholder="CHAVE MESTRA"><button onclick="verifyAdmin()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-2 rounded">ACESSAR PAINEL</button></div></div>
-    <div id="modal-admin-dashboard" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 hidden"><div class="glass-panel rounded-2xl max-w-3xl w-full p-6 relative max-h-[90vh] overflow-y-auto"><button onclick="closeModal('modal-admin-dashboard')" class="absolute top-4 right-4 text-slate-400"><i class="fa-solid fa-xmark"></i></button><h2 class="text-white font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-terminal text-brand-400"></i> Painel Admin</h2><div id="admin-users-list" class="space-y-2 mb-4 bg-slate-800/50 p-4 rounded-xl border border-dark-border"></div></div></div>
+    
+    <!-- NOVO PAINEL ADMIN TURBINADO -->
+    <div id="modal-admin-dashboard" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel rounded-2xl max-w-3xl w-full p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal('modal-admin-dashboard')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h2 class="text-white font-bold mb-6 flex items-center gap-2 text-xl"><i class="fa-solid fa-terminal text-brand-400"></i> Centro de Comando (Admin)</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Config API Groq -->
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-dark-border">
+                    <h3 class="text-white font-bold mb-2 text-sm"><i class="fa-solid fa-key text-yellow-400 mr-2"></i>Chave API (Groq)</h3>
+                    <p class="text-xs text-slate-400 mb-3">Altere a chave mestra sem mexer no código-fonte.</p>
+                    <input type="password" id="admin-api-key" placeholder="gsk_..." class="w-full bg-dark-900 border border-dark-border p-2 rounded text-xs text-white mb-2 outline-none focus:border-brand-500">
+                    <button onclick="saveAdminApiKey()" class="w-full bg-brand-600/20 border border-brand-500/50 hover:bg-brand-500/40 text-brand-400 text-xs font-bold py-2 rounded transition-colors">Salvar Nova Chave</button>
+                </div>
+
+                <!-- Injetor de Energia -->
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-dark-border">
+                    <h3 class="text-white font-bold mb-2 text-sm"><i class="fa-solid fa-bolt text-yellow-400 mr-2"></i>Injetor de Energia</h3>
+                    <p class="text-xs text-slate-400 mb-3">Adicione créditos ao sistema manualmente.</p>
+                    <input type="number" id="admin-energy-amount" placeholder="Ex: 5000" class="w-full bg-dark-900 border border-dark-border p-2 rounded text-xs text-white mb-2 outline-none focus:border-yellow-500">
+                    <button onclick="injectAdminEnergy()" class="w-full bg-yellow-500/20 border border-yellow-500/50 hover:bg-yellow-500/40 text-yellow-400 text-xs font-bold py-2 rounded transition-colors">Injetar Energia</button>
+                </div>
+
+                <!-- Gestão e Limpeza Geral -->
+                <div class="bg-slate-800/50 p-4 rounded-xl border border-dark-border md:col-span-2">
+                    <h3 class="text-white font-bold mb-2 text-sm"><i class="fa-solid fa-database text-brand-400 mr-2"></i>Manutenção do Sistema</h3>
+                    <p class="text-xs text-slate-400 mb-3">Ações sensíveis. Cuidado ao zerar o sistema.</p>
+                    <div class="flex gap-2">
+                        <button onclick="clearGlobalCache()" class="flex-1 bg-red-500/20 border border-red-500/50 hover:bg-red-500/40 text-red-400 text-xs font-bold py-2 rounded transition-colors"><i class="fa-solid fa-dumpster mr-1"></i> Zerar Cache Total</button>
+                        <button onclick="window.location.reload(true)" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold py-2 rounded transition-colors"><i class="fa-solid fa-arrows-rotate mr-1"></i> Forçar Reboot</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div id="toast-container" class="fixed bottom-20 sm:bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <script>
-        const GROQ_API_KEY = "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";
+        // --- CHAVE DINÂMICA (Puxa do localStorage ou usa a padrão) ---
+        let GROQ_API_KEY = localStorage.getItem('fl_groq_key') || "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";
+        
         let localEnergy = parseInt(localStorage.getItem('fl_energy')) || 500;
         let localPremium = localStorage.getItem('fl_premium') === 'true';
         let wallet = { energy: localEnergy, isPremium: localPremium };
@@ -337,8 +376,51 @@
         function activatePremiumAccount() { wallet.isPremium = true; localStorage.setItem('fl_premium', 'true'); updateEnergyUI(); if (window.upgradeUserInDatabase) window.upgradeUserInDatabase('pro'); }
         function consumeEnergy(amount) { if (wallet.isPremium) return true; if (wallet.energy >= amount) { wallet.energy -= amount; localStorage.setItem('fl_energy', wallet.energy); updateEnergyUI(); return true; } openModal('modal-paywall'); return false; }
 
+        // --- SISTEMA DE CONTROLE ADMIN ---
         function countAdminClicks() { adminClicks++; clearTimeout(adminTimer); if (adminClicks >= 5) { wallet.isPremium ? openModal('modal-admin-dashboard') : openModal('modal-admin-login'); adminClicks = 0; } adminTimer = setTimeout(() => adminClicks = 0, 1000); }
-        function verifyAdmin() { if (document.getElementById('admin-serial').value === 'PROMPTSYS-ADM') { activatePremiumAccount(); closeModal('modal-admin-login'); openModal('modal-admin-dashboard'); } else showToast('Senha Incorreta', 'error'); }
+        
+        function verifyAdmin() { 
+            if (document.getElementById('admin-serial').value === 'PROMPTSYS-ADM') { 
+                activatePremiumAccount(); 
+                closeModal('modal-admin-login'); 
+                openModal('modal-admin-dashboard'); 
+                document.getElementById('admin-api-key').value = localStorage.getItem('fl_groq_key') || '';
+            } else { 
+                showToast('Senha Incorreta', 'error'); 
+            } 
+        }
+
+        function saveAdminApiKey() {
+            const key = document.getElementById('admin-api-key').value.trim();
+            if(key) {
+                localStorage.setItem('fl_groq_key', key);
+                GROQ_API_KEY = key;
+                showToast('Chave da API atualizada!', 'success');
+            } else {
+                showToast('A chave não pode estar vazia.', 'error');
+            }
+        }
+
+        function injectAdminEnergy() {
+            const amount = parseInt(document.getElementById('admin-energy-amount').value);
+            if(amount && amount > 0) {
+                wallet.energy += amount;
+                localStorage.setItem('fl_energy', wallet.energy);
+                updateEnergyUI();
+                showToast(`+${amount} de Energia injetada!`, 'success');
+                document.getElementById('admin-energy-amount').value = '';
+            }
+        }
+
+        function clearGlobalCache() {
+            if(confirm("ATENÇÃO: Você vai apagar TODOS os projetos locais e resetar o cache. Continuar?")) {
+                localStorage.removeItem('fl_historico_local');
+                window.appHistory = [];
+                renderHistoryUI();
+                clearChatMemory();
+                showToast('Sistema completamente formatado.', 'success');
+            }
+        }
 
         window.addEventListener('message', async (e) => {
             if (e.data && e.data.type === 'REACT_ERROR' && currentCodeToExport) {
@@ -381,7 +463,6 @@
                 const rawReply = await fetchGroqResponse();
                 let code = rawReply.replace(/```html/g, '').replace(/```/g, '').trim();
                 
-                // CORREÇÃO AQUI: Adicionado a barra invertida (<\/script>)
                 if(!code.includes('REACT_ERROR')) {
                     code = code.replace('<head>', `<head>\n<script>\nwindow.onerror = function(msg, url, line) {\n  window.parent.postMessage({ type: 'REACT_ERROR', msg: msg + ' na linha ' + line }, '*');\n  return true;\n};\n<\/script>`);
                 }
@@ -561,6 +642,7 @@
             renderHistoryUI(); 
             document.getElementById('share-url').value = window.location.origin; 
             checkPaymentStatus(); 
+            document.getElementById('admin-api-key').value = localStorage.getItem('fl_groq_key') || '';
         };
     </script>
 </body>
