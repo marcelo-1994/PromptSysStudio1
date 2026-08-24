@@ -11,7 +11,7 @@
     <meta name="apple-mobile-web-app-title" content="Fábrica Livre">
     <link rel="apple-touch-icon" href="https://placehold.co/192x192/0EA5E9/FFFFFF?text=FL">
     
-    <title>PromptSys Studio | Fábrica Livre (React Engine)</title>
+    <title>PromptSys Studio | Fábrica Livre</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
@@ -381,8 +381,9 @@
                 const rawReply = await fetchGroqResponse();
                 let code = rawReply.replace(/```html/g, '').replace(/```/g, '').trim();
                 
+                // CORREÇÃO AQUI: Adicionado a barra invertida (<\/script>)
                 if(!code.includes('REACT_ERROR')) {
-                    code = code.replace('<head>', `<head>\n<script>\nwindow.onerror = function(msg, url, line) {\n  window.parent.postMessage({ type: 'REACT_ERROR', msg: msg + ' na linha ' + line }, '*');\n  return true;\n};\n</script>`);
+                    code = code.replace('<head>', `<head>\n<script>\nwindow.onerror = function(msg, url, line) {\n  window.parent.postMessage({ type: 'REACT_ERROR', msg: msg + ' na linha ' + line }, '*');\n  return true;\n};\n<\/script>`);
                 }
 
                 currentCodeToExport = code;
