@@ -43,38 +43,18 @@
 
     <script type="text/babel" data-type="module">
         const { useState, useEffect, useContext, createContext, useRef } = React;
+        const GROQ_API_KEY = "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";
 
         // ==========================================
-        // 1. MOCKS & SERVIÇOS (Arquitetura Limpa)
-        // ==========================================
-        
-        // Mock DB Schema (Supabase Prepared)
-        const dbSchema = `
-        /* SUPABASE POSTGRESQL SCHEMA (Prepared) */
-        CREATE TABLE users (id UUID PK, email TEXT, credits INT, plan TEXT);
-        CREATE TABLE projects (id UUID PK, user_id UUID, name TEXT, status TEXT, version INT);
-        CREATE TABLE project_files (id UUID PK, project_id UUID, path TEXT, content TEXT);
-        CREATE TABLE project_messages (id UUID PK, project_id UUID, role TEXT, content TEXT, timestamp TIMESTAMP);
-        CREATE TABLE usage_records (id UUID PK, user_id UUID, operation TEXT, cost INT, timestamp TIMESTAMP);
-        `;
-
-        const TEMPLATES = [
-            { id: 't1', name: 'SaaS Dashboard', desc: 'Painel administrativo completo com gráficos.', icon: 'fa-chart-pie' },
-            { id: 't2', name: 'E-commerce', desc: 'Loja virtual com carrinho e checkout.', icon: 'fa-store' },
-            { id: 't3', name: 'CRM Básico', desc: 'Gestão de clientes e funil de vendas.', icon: 'fa-users' },
-            { id: 't4', name: 'Projeto Vazio', desc: 'Comece do zero absoluto.', icon: 'fa-file-code' }
-        ];
-
-        // ==========================================
-        // 2. CONTEXTOS GLOBAIS (Gerenciamento de Estado)
+        // CONTEXTOS GLOBAIS
         // ==========================================
         const AppContext = createContext();
 
         const AppProvider = ({ children }) => {
-            const [user, setUser] = useState(null); // null = deslogado
+            const [user, setUser] = useState(null);
             const [credits, setCredits] = useState(500);
             const [projects, setProjects] = useState([]);
-            const [currentRoute, setCurrentRoute] = useState('login'); // login, dashboard, ide, settings, status
+            const [currentRoute, setCurrentRoute] = useState('login'); 
             const [activeProject, setActiveProject] = useState(null);
             const [toast, setToast] = useState(null);
 
@@ -83,7 +63,11 @@
                 setTimeout(() => setToast(null), 3000);
             };
 
-            const login = () => { setUser({ name: 'Marcelo Trader', plan: 'PRO', email: 'admin@fabricalivre.com' }); setCurrentRoute('dashboard'); showToast('Login realizado com sucesso!', 'success'); };
+            const login = () => { 
+                setUser({ name: 'Marcelo Trader', plan: 'PRO', email: 'admin@fabricalivre.com' }); 
+                setCurrentRoute('dashboard'); 
+                showToast('Login realizado com sucesso!', 'success'); 
+            };
             const logout = () => { setUser(null); setCurrentRoute('login'); };
 
             return (
@@ -94,7 +78,7 @@
         };
 
         // ==========================================
-        // 3. COMPONENTES DE UI REUTILIZÁVEIS
+        // COMPONENTES DE UI REUTILIZÁVEIS
         // ==========================================
         const Button = ({ children, onClick, variant = 'primary', className = '', icon, disabled }) => {
             const base = "px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed";
@@ -119,7 +103,7 @@
         };
 
         // ==========================================
-        // 4. TELAS DA APLICAÇÃO
+        // TELAS DA APLICAÇÃO
         // ==========================================
 
         const LoginView = () => {
@@ -132,8 +116,7 @@
                         </div>
                         <h1 className="text-2xl font-bold text-white mb-2">Fábrica Livre Studio</h1>
                         <p className="text-slate-400 text-sm mb-8">AI App Builder Profissional</p>
-                        <Button onClick={login} className="w-full" icon="fa-google">Continuar com Google</Button>
-                        <p className="mt-6 text-xs text-slate-500">Módulo de Autenticação Supabase Preparado</p>
+                        <Button onClick={login} className="w-full" icon="fa-google">Acessar Workspace</Button>
                     </div>
                 </div>
             );
@@ -144,7 +127,6 @@
             const navItems = [
                 { id: 'dashboard', icon: 'fa-house', label: 'Dashboard' },
                 { id: 'settings', icon: 'fa-gear', label: 'Configurações' },
-                { id: 'status', icon: 'fa-server', label: 'Status do Sistema' }
             ];
 
             return (
@@ -153,7 +135,7 @@
                         <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center shadow-lg"><i className="fa-solid fa-code text-white text-xs"></i></div>
                         <div>
                             <h2 className="font-bold text-white tracking-tight">Fábrica Livre</h2>
-                            <p className="text-[10px] text-brand-400 font-mono">STUDIO v2.0</p>
+                            <p className="text-[10px] text-brand-400 font-mono">STUDIO v2.5</p>
                         </div>
                     </div>
                     
@@ -168,10 +150,9 @@
                     <div className="p-4 border-t border-dark-border bg-dark-900/50">
                         <div className="bg-dark-700 border border-dark-border rounded-xl p-4 mb-4">
                             <div className="flex justify-between items-center mb-2">
-                                <span className="text-xs text-slate-400">Créditos de IA</span>
+                                <span className="text-xs text-slate-400">Energia da IA</span>
                                 <span className="text-xs font-bold text-yellow-400"><i className="fa-solid fa-bolt mr-1"></i>{credits}</span>
                             </div>
-                            <div className="w-full bg-dark-900 rounded-full h-1.5"><div className="bg-gradient-to-r from-brand-500 to-emerald-400 h-1.5 rounded-full" style={{width: '75%'}}></div></div>
                         </div>
                         <button onClick={logout} className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-red-400 hover:bg-red-500/10 transition-colors">
                             <i className="fa-solid fa-right-from-bracket w-5 text-center"></i> Sair
@@ -182,32 +163,49 @@
         };
 
         const DashboardView = () => {
-            const { projects, setProjects, setCurrentRoute, setActiveProject } = useContext(AppContext);
+            const { projects, setProjects, setCurrentRoute, setActiveProject, showToast } = useContext(AppContext);
             const [showNewModal, setShowNewModal] = useState(false);
             const [prompt, setPrompt] = useState('');
             const [step, setStep] = useState('input'); // input, planning
 
-            const handleCreateProject = () => {
+            const handleCreateProject = async () => {
                 setStep('planning');
-                // Simula a IA planejando a arquitetura baseada no prompt
-                setTimeout(() => {
+                try {
+                    const systemPrompt = `Você é um Arquiteto de Software autônomo. Crie a estrutura inicial para este projeto: "${prompt}".
+                    Retorne APENAS um código React (App.jsx) funcional e bonito usando Tailwind CSS.
+                    Não use formatação markdown (\`\`\`jsx), entregue apenas o código cru.`;
+
+                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+                        body: JSON.stringify({ model: 'openai/gpt-oss-120b', messages: [{ role: 'user', content: systemPrompt }] })
+                    });
+                    
+                    const data = await res.json();
+                    let code = data.choices[0].message.content.replace(/```jsx/g, '').replace(/```javascript/g, '').replace(/```html/g, '').replace(/```/g, '').trim();
+
                     const newProj = {
                         id: Date.now().toString(),
-                        name: "SaaS " + Math.floor(Math.random() * 1000),
+                        name: "App_" + Math.floor(Math.random() * 10000),
                         desc: prompt,
                         status: 'development',
                         version: 1,
-                        updatedAt: 'Agora mesmo',
-                        chat: [{ role: 'ai', content: 'Olá! Entendi a sua arquitetura. O ambiente de execução React foi preparado. O que faremos primeiro?' }],
+                        updatedAt: new Date().toLocaleTimeString(),
+                        chat: [{ role: 'ai', content: 'Arquitetura montada com sucesso! O que deseja modificar neste projeto?' }],
                         vfs: {
-                            'src/App.jsx': `export default function App() {\n  return (\n    <div className="min-h-screen bg-slate-900 text-white flex items-center justify-center">\n      <h1 className="text-3xl font-bold">Projeto Iniciado 🚀</h1>\n    </div>\n  );\n}`,
-                            'src/styles.css': `/* Estilos base */\nbody { margin: 0; }`,
+                            'src/App.jsx': code,
+                            'src/styles.css': `/* Estilos base carregados */\nbody { margin: 0; }`,
                         }
                     };
+                    
                     setProjects([newProj, ...projects]);
                     setActiveProject(newProj);
                     setCurrentRoute('ide');
-                }, 2000);
+                    showToast('Projeto criado pela IA.', 'success');
+                } catch (e) {
+                    setStep('input');
+                    showToast('Erro ao conectar com a Groq API.', 'error');
+                }
             };
 
             return (
@@ -215,17 +213,15 @@
                     <div className="p-8 max-w-6xl mx-auto w-full">
                         <div className="flex justify-between items-end mb-8">
                             <div>
-                                <h1 className="text-3xl font-bold text-white mb-2">Visão Geral</h1>
-                                <p className="text-slate-400 text-sm">Gerencie seus projetos e deployments.</p>
+                                <h1 className="text-3xl font-bold text-white mb-2">Workspace</h1>
+                                <p className="text-slate-400 text-sm">Gerencie seus projetos e deployments em tempo real.</p>
                             </div>
                             <Button onClick={() => setShowNewModal(true)} icon="fa-plus">Novo Projeto</Button>
                         </div>
 
-                        {/* Estatísticas */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
                             {[ { label: 'Em Desenvolvimento', val: projects.length, icon: 'fa-laptop-code', color: 'text-brand-400' },
-                               { label: 'Publicados (Vercel/Pages)', val: '0', icon: 'fa-cloud-arrow-up', color: 'text-emerald-400' },
-                               { label: 'Versões Salvas', val: projects.length, icon: 'fa-code-commit', color: 'text-purple-400' }
+                               { label: 'Publicados', val: '0', icon: 'fa-cloud-arrow-up', color: 'text-emerald-400' }
                             ].map((stat, i) => (
                                 <div key={i} className="bg-dark-800 border border-dark-border rounded-2xl p-6 flex items-center gap-4">
                                     <div className={`w-12 h-12 rounded-xl bg-dark-900 border border-dark-border flex items-center justify-center ${stat.color} text-xl`}><i className={`fa-solid ${stat.icon}`}></i></div>
@@ -234,13 +230,12 @@
                             ))}
                         </div>
 
-                        <h2 className="text-lg font-bold text-white mb-4 border-b border-dark-border pb-2">Projetos Recentes</h2>
+                        <h2 className="text-lg font-bold text-white mb-4 border-b border-dark-border pb-2">Projetos Ativos</h2>
                         
                         {projects.length === 0 ? (
                             <div className="text-center py-20 border border-dashed border-dark-border rounded-2xl bg-dark-800/50">
                                 <div className="w-16 h-16 bg-dark-700 rounded-full flex items-center justify-center mx-auto mb-4"><i className="fa-solid fa-folder-open text-2xl text-slate-500"></i></div>
                                 <h3 className="text-white font-bold mb-2">Nenhum projeto encontrado</h3>
-                                <p className="text-slate-400 text-sm mb-6 max-w-md mx-auto">Você ainda não possui aplicações na sua fábrica. Clique em "Novo Projeto" para a IA gerar sua primeira arquitetura.</p>
                                 <Button onClick={() => setShowNewModal(true)} icon="fa-wand-magic-sparkles">Gerar com IA</Button>
                             </div>
                         ) : (
@@ -251,42 +246,31 @@
                                             <div className="w-10 h-10 rounded-lg bg-dark-700 flex items-center justify-center text-brand-400"><i className="fa-brands fa-react"></i></div>
                                             <span className="text-[10px] font-mono bg-dark-900 border border-dark-border text-slate-400 px-2 py-1 rounded">v{p.version}.0</span>
                                         </div>
-                                        <h3 className="text-white font-bold text-lg mb-1 group-hover:text-brand-400 transition-colors">{p.name}</h3>
+                                        <h3 className="text-white font-bold text-lg mb-1 group-hover:text-brand-400">{p.name}</h3>
                                         <p className="text-slate-500 text-xs mb-4 line-clamp-2">{p.desc}</p>
-                                        <div className="flex justify-between items-center text-[10px] text-slate-400 border-t border-dark-border pt-4">
-                                            <span><i className="fa-regular fa-clock mr-1"></i> {p.updatedAt}</span>
-                                            <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-500"></span> Desenv.</span>
-                                        </div>
                                     </div>
                                 ))}
                             </div>
                         )}
                     </div>
 
-                    {/* Modal Criação */}
                     {showNewModal && (
                         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
                             <div className="bg-dark-800 border border-dark-border rounded-2xl max-w-2xl w-full p-6 shadow-2xl">
                                 {step === 'input' ? (
                                     <>
                                         <div className="flex justify-between items-center mb-6">
-                                            <h2 className="text-xl font-bold text-white flex items-center gap-2"><i className="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Novo App IA</h2>
+                                            <h2 className="text-xl font-bold text-white flex items-center gap-2"><i className="fa-solid fa-wand-magic-sparkles text-brand-400"></i> Criar SaaS</h2>
                                             <button onClick={() => setShowNewModal(false)} className="text-slate-500 hover:text-white"><i className="fa-solid fa-xmark"></i></button>
                                         </div>
-                                        <p className="text-slate-400 text-sm mb-4">Descreva detalhadamente o que você deseja construir. O Agente PromptSys irá planejar a arquitetura.</p>
-                                        <textarea value={prompt} onChange={e=>setPrompt(e.target.value)} className="w-full h-32 bg-dark-900 border border-dark-border rounded-xl p-4 text-white text-sm focus:border-brand-500 focus:outline-none resize-none mb-4" placeholder="Ex: Quero um sistema de gestão financeira com dashboard, cadastro de despesas e integração de gráficos..."></textarea>
-                                        <div className="flex justify-end gap-3"><Button variant="ghost" onClick={() => setShowNewModal(false)}>Cancelar</Button><Button onClick={handleCreateProject} disabled={!prompt}>Analisar Arquitetura</Button></div>
+                                        <textarea value={prompt} onChange={e=>setPrompt(e.target.value)} className="w-full h-32 bg-dark-900 border border-dark-border rounded-xl p-4 text-white text-sm focus:border-brand-500 outline-none resize-none mb-4" placeholder="Descreva sua aplicação..."></textarea>
+                                        <div className="flex justify-end gap-3"><Button variant="ghost" onClick={() => setShowNewModal(false)}>Cancelar</Button><Button onClick={handleCreateProject} disabled={!prompt}>Gerar Código Fonte</Button></div>
                                     </>
                                 ) : (
                                     <div className="text-center py-10">
                                         <i className="fa-solid fa-microchip text-4xl text-brand-500 animate-pulse mb-4"></i>
-                                        <h2 className="text-xl font-bold text-white mb-2">Engenharia Reversa Ativa</h2>
-                                        <p className="text-slate-400 text-sm">O agente está definindo os componentes, roteamento e schema de banco de dados...</p>
-                                        <div className="mt-8 bg-dark-900 border border-dark-border rounded-lg p-4 text-left font-mono text-xs text-emerald-400 space-y-2">
-                                            <p>{'>'} Inicializando VFS (Virtual File System)...</p>
-                                            <p>{'>'} Estruturando React 18 e Tailwind...</p>
-                                            <p className="animate-pulse">{'>'} Montando App.jsx...</p>
-                                        </div>
+                                        <h2 className="text-xl font-bold text-white mb-2">Groq AI Trabalhando</h2>
+                                        <p className="text-slate-400 text-sm">Gerando componentes, roteamento e estilos...</p>
                                     </div>
                                 )}
                             </div>
@@ -296,21 +280,19 @@
             );
         };
 
-        // --- IDE SUPER COMPONENTE ---
         const ProjectWorkspaceView = () => {
-            const { activeProject, setCurrentRoute, setCredits, credits, showToast } = useContext(AppContext);
+            const { activeProject, setCurrentRoute, setCredits, showToast } = useContext(AppContext);
             const [vfs, setVfs] = useState(activeProject.vfs);
             const [activeFile, setActiveFile] = useState('src/App.jsx');
             const [previewKey, setPreviewKey] = useState(0);
             const [chat, setChat] = useState(activeProject.chat);
             const [chatInput, setChatInput] = useState('');
-            const [agentStatus, setAgentStatus] = useState('idle'); // idle, analyzing, coding
-            const [terminalLogs, setTerminalLogs] = useState([{ time: new Date().toLocaleTimeString(), msg: 'Sistema de Build Pronto. Executando React Standalone...', type: 'info' }]);
-            const [viewport, setViewport] = useState('desktop'); // desktop, tablet, mobile
+            const [agentStatus, setAgentStatus] = useState('idle');
+            const [terminalLogs, setTerminalLogs] = useState([{ time: new Date().toLocaleTimeString(), msg: 'Build Inicializada...', type: 'info' }]);
+            const [lastError, setLastError] = useState('');
 
             const addLog = (msg, type = 'info') => setTerminalLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), msg, type }]);
 
-            // Compilador MOCK para Live Preview
             const compiledHtml = `
             <!DOCTYPE html>
             <html lang="pt-BR">
@@ -343,98 +325,118 @@
 
             useEffect(() => {
                 const handleMessage = (e) => {
-                    if (e.data && e.data.type === 'ERROR') addLog(`Erro no Preview: ${e.data.msg}`, 'error');
-                    if (e.data && e.data.type === 'SUCCESS') addLog(`Build finalizado com sucesso.`, 'success');
+                    if (e.data && e.data.type === 'ERROR') {
+                        addLog(`Erro no Preview: ${e.data.msg}`, 'error');
+                        setLastError(e.data.msg);
+                    }
+                    if (e.data && e.data.type === 'SUCCESS') addLog(`Preview atualizado.`, 'success');
                 };
                 window.addEventListener('message', handleMessage);
                 return () => window.removeEventListener('message', handleMessage);
             }, []);
 
-            const handleFileChange = (e) => { setVfs({ ...vfs, [activeFile]: e.target.value }); };
-            const triggerRebuild = () => { addLog('Iniciando Hot Reload...', 'info'); setPreviewKey(prev => prev + 1); };
+            const handleFileChange = (e) => setVfs({ ...vfs, [activeFile]: e.target.value });
+            const triggerRebuild = () => setPreviewKey(prev => prev + 1);
 
-            // Mock Agente IA Contextual
-            const handleSendMessage = () => {
+            // INTEGRAÇÃO REAL DA GROQ NO CHAT DA IDE
+            const handleSendMessage = async () => {
                 if(!chatInput.trim()) return;
                 const userMsg = chatInput;
                 setChat([...chat, { role: 'user', content: userMsg }]);
                 setChatInput('');
                 setCredits(prev => prev - 10);
                 setAgentStatus('analyzing');
-                addLog(`Agente recebeu instrução: "${userMsg}"`, 'info');
+                addLog(`Agente analisando pedido...`, 'info');
 
-                setTimeout(() => {
-                    setAgentStatus('coding');
-                    addLog(`Agente modificando src/App.jsx...`, 'info');
+                try {
+                    const systemPrompt = `Você é um Engenheiro de Software Full-Stack.
+                    Modifique ou adicione código ao arquivo atual baseado no pedido: "${userMsg}".
+                    Código atual de App.jsx:\n${vfs['src/App.jsx']}\n
+                    REGRA MÁXIMA: Retorne APENAS o código React cru completo e atualizado. Sem blocos markdown (\`\`\`jsx). Use Tailwind CSS.`;
+
+                    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+                        body: JSON.stringify({ model: 'openai/gpt-oss-120b', messages: [{ role: 'user', content: systemPrompt }] })
+                    });
                     
-                    // Simulação bem simples de IA injetando código no App.jsx para efeito visual.
-                    // Numa implementação real conectada à Groq, chamaríamos a API aqui passando o VFS inteiro.
-                    const mockUpdate = `export default function App() {\n  const [count, setCount] = React.useState(0);\n  return (\n    <div className="min-h-screen bg-slate-900 text-white flex flex-col items-center justify-center p-4">\n      <h1 className="text-3xl font-bold mb-4 text-blue-400">Aplicação Atualizada ⚡</h1>\n      <p className="mb-8 text-slate-400">O Agente modificou a interface com sucesso baseado no seu pedido.</p>\n      <button onClick={() => setCount(c => c+1)} className="px-6 py-3 bg-blue-600 rounded-lg font-bold shadow-lg hover:bg-blue-500 transition-colors">Contador: {count}</button>\n    </div>\n  );\n}`;
-                    
-                    setTimeout(() => {
-                        setVfs(prev => ({ ...prev, 'src/App.jsx': mockUpdate }));
-                        setChat(prev => [...prev, { role: 'ai', content: 'Certo! Atualizei o componente App.jsx com as novas funcionalidades solicitadas. Executei a build e o preview está atualizado.' }]);
-                        setAgentStatus('idle');
-                        triggerRebuild();
-                        showToast('Arquivos modificados pela IA.', 'success');
-                    }, 2000);
-                }, 1500);
+                    const data = await res.json();
+                    let newCode = data.choices[0].message.content.replace(/```jsx/g, '').replace(/```javascript/g, '').replace(/```/g, '').trim();
+
+                    setVfs(prev => ({ ...prev, 'src/App.jsx': newCode }));
+                    setChat(prev => [...prev, { role: 'ai', content: 'Apliquei as alterações solicitadas no código. Verifique o Preview.' }]);
+                    setAgentStatus('idle');
+                    addLog('Código atualizado pela IA.', 'success');
+                    triggerRebuild();
+                } catch (e) {
+                    setAgentStatus('idle');
+                    addLog('Falha na comunicação com a API.', 'error');
+                }
             };
 
-            const triggerAutoCorrection = () => {
-                addLog('Iniciando Protocolo de Autocorreção...', 'info');
+            // INTEGRAÇÃO DE AUTOCORREÇÃO
+            const triggerAutoCorrection = async () => {
+                if(!lastError) return showToast('Nenhum erro detectado no momento.', 'info');
+                addLog('Iniciando Autocorreção...', 'info');
                 setAgentStatus('analyzing');
-                setTimeout(() => {
-                    addLog('Erro identificado no parse do Babel.', 'success');
-                    addLog('Agente aplicando patch de correção...', 'info');
-                    setAgentStatus('coding');
-                    setTimeout(() => {
-                        setAgentStatus('idle');
-                        addLog('Correção aplicada. Rebuild acionado.', 'success');
-                        triggerRebuild();
-                        showToast('Problema corrigido automaticamente.', 'success');
-                    }, 1500);
-                }, 1500);
+                
+                try {
+                    const prompt = `O código falhou com este erro: "${lastError}".
+                    Código atual:\n${vfs['src/App.jsx']}\n
+                    Corrija o erro e retorne APENAS o código React JSX corrigido, sem formatação markdown.`;
+
+                    const res = await fetch("[https://api.groq.com/openai/v1/chat/completions](https://api.groq.com/openai/v1/chat/completions)", {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+                        body: JSON.stringify({ model: 'openai/gpt-oss-120b', messages: [{ role: 'user', content: prompt }] })
+                    });
+                    
+                    const data = await res.json();
+                    let correctedCode = data.choices[0].message.content.replace(/```jsx/g, '').replace(/```javascript/g, '').replace(/```/g, '').trim();
+                    
+                    setVfs(prev => ({ ...prev, 'src/App.jsx': correctedCode }));
+                    setAgentStatus('idle');
+                    addLog('Patch de correção aplicado pela IA.', 'success');
+                    triggerRebuild();
+                    setLastError('');
+                } catch(e) {
+                    setAgentStatus('idle');
+                    addLog('Falha na autocorreção.', 'error');
+                }
             };
 
             return (
                 <div className="flex-1 flex flex-col h-full bg-dark-900 fade-in overflow-hidden">
-                    {/* IDE Topbar */}
                     <div className="h-14 bg-dark-800 border-b border-dark-border flex items-center justify-between px-4 shrink-0">
                         <div className="flex items-center gap-4">
                             <button onClick={() => setCurrentRoute('dashboard')} className="text-slate-400 hover:text-white"><i className="fa-solid fa-arrow-left"></i></button>
                             <div>
-                                <h2 className="text-white font-bold text-sm leading-tight">{activeProject.name}</h2>
-                                <p className="text-[10px] text-slate-500 font-mono">Status: {agentStatus === 'idle' ? 'Aguardando Comandos' : agentStatus === 'analyzing' ? 'Analisando...' : 'Escrevendo Código...'}</p>
+                                <h2 className="text-white font-bold text-sm">{activeProject.name}</h2>
                             </div>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="secondary" icon="fa-github" onClick={()=>showToast('Conexão GitHub Mockada. Repositório preparado.', 'info')}>GitHub</Button>
-                            <Button variant="primary" icon="fa-cloud-arrow-up" onClick={()=>showToast('Iniciando pipeline de Deploy para Vercel...', 'success')}>Deploy (Vercel)</Button>
+                            <Button variant="secondary" icon="fa-github" onClick={()=>showToast('Conecte no painel Configurações', 'info')}>Exportar Source</Button>
                         </div>
                     </div>
 
                     <div className="flex-1 flex overflow-hidden">
-                        {/* Painel Esquerdo: VFS e Chat */}
+                        {/* PAINEL ESQUERDO: CHAT & ARQUIVOS */}
                         <div className="w-[350px] bg-dark-800 border-r border-dark-border flex flex-col shrink-0">
-                            {/* Árvore de Arquivos */}
-                            <div className="h-1/3 border-b border-dark-border flex flex-col">
-                                <div className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider bg-dark-900/50">Explorer</div>
-                                <div className="flex-1 overflow-y-auto p-2 space-y-1">
-                                    <div className="text-slate-300 text-xs flex items-center gap-2 px-2 py-1"><i className="fa-solid fa-chevron-down text-[10px]"></i> src</div>
+                            <div className="h-1/4 border-b border-dark-border flex flex-col">
+                                <div className="px-4 py-2 text-xs font-bold text-slate-400 uppercase bg-dark-900/50">Files</div>
+                                <div className="flex-1 overflow-y-auto p-2">
                                     {Object.keys(vfs).map(file => (
-                                        <div key={file} onClick={() => setActiveFile(file)} className={`text-xs flex items-center gap-2 px-2 py-1.5 ml-4 rounded cursor-pointer ${activeFile === file ? 'bg-brand-600/20 text-brand-400' : 'text-slate-400 hover:bg-dark-700 hover:text-slate-200'}`}>
+                                        <div key={file} onClick={() => setActiveFile(file)} className={`text-xs flex items-center gap-2 px-2 py-1.5 ml-2 rounded cursor-pointer ${activeFile === file ? 'bg-brand-600/20 text-brand-400' : 'text-slate-400 hover:bg-dark-700 hover:text-slate-200'}`}>
                                             <i className={`fa-brands ${file.includes('jsx') ? 'fa-react text-brand-500' : 'fa-css3 text-blue-400'}`}></i> {file.replace('src/', '')}
                                         </div>
                                     ))}
                                 </div>
                             </div>
                             
-                            {/* Chat do Agente */}
                             <div className="flex-1 flex flex-col bg-dark-900/30">
-                                <div className="px-4 py-2 text-xs font-bold text-slate-400 uppercase tracking-wider bg-dark-900/50 flex justify-between">
-                                    <span>PromptSys Agent</span>
-                                    {agentStatus !== 'idle' && <span className="text-brand-400 normal-case"><i className="fa-solid fa-circle-notch fa-spin mr-1"></i> Trabalhando</span>}
+                                <div className="px-4 py-2 text-xs font-bold text-slate-400 bg-dark-900/50 flex justify-between">
+                                    <span>AGENTE PROMPTSYS</span>
+                                    {agentStatus !== 'idle' && <span className="text-brand-400 normal-case"><i className="fa-solid fa-circle-notch fa-spin mr-1"></i></span>}
                                 </div>
                                 <div className="flex-1 overflow-y-auto p-4 space-y-4">
                                     {chat.map((msg, i) => (
@@ -448,65 +450,50 @@
                                         </div>
                                     ))}
                                 </div>
-                                <div className="p-3 border-t border-dark-border bg-dark-800">
+                                <div className="p-3 bg-dark-800 border-t border-dark-border">
                                     <div className="flex bg-dark-900 border border-dark-border rounded-lg overflow-hidden focus-within:border-brand-500">
-                                        <input type="text" value={chatInput} onChange={e=>setChatInput(e.target.value)} onKeyPress={e=>e.key==='Enter' && handleSendMessage()} className="flex-1 bg-transparent px-3 py-2 text-xs text-white outline-none" placeholder="O que deseja alterar na aplicação?" disabled={agentStatus !== 'idle'} />
-                                        <button onClick={handleSendMessage} disabled={agentStatus !== 'idle' || !chatInput.trim()} className="px-3 text-brand-400 hover:bg-dark-700 disabled:opacity-50"><i className="fa-solid fa-paper-plane"></i></button>
+                                        <input type="text" value={chatInput} onChange={e=>setChatInput(e.target.value)} onKeyPress={e=>e.key==='Enter' && handleSendMessage()} className="flex-1 bg-transparent px-3 py-2 text-xs text-white outline-none" placeholder="Peça uma alteração..." disabled={agentStatus !== 'idle'} />
+                                        <button onClick={handleSendMessage} disabled={agentStatus !== 'idle'} className="px-3 text-brand-400 hover:bg-dark-700"><i className="fa-solid fa-paper-plane"></i></button>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Área Central: Editor e Terminal */}
+                        {/* PAINEL CENTRAL: EDITOR E TERMINAL */}
                         <div className="flex-1 flex flex-col min-w-0">
-                            {/* Abas do Editor */}
-                            <div className="h-10 bg-dark-900 border-b border-dark-border flex overflow-x-auto shrink-0">
-                                <div className="px-4 py-2 text-xs font-mono text-brand-400 border-t-2 border-brand-500 bg-dark-800 flex items-center gap-2 border-r border-dark-border">
-                                    <i className={`fa-brands ${activeFile.includes('jsx') ? 'fa-react' : 'fa-css3'}`}></i> {activeFile}
-                                </div>
+                            <div className="h-10 bg-dark-900 border-b border-dark-border flex overflow-x-auto shrink-0 items-center px-4">
+                                <span className="text-xs font-mono text-slate-300">{activeFile}</span>
                             </div>
-                            
-                            {/* Code Editor */}
                             <div className="flex-1 relative bg-[#0f111a]">
-                                <textarea value={vfs[activeFile]} onChange={handleFileChange} spellCheck="false" className="absolute inset-0 w-full h-full bg-transparent text-emerald-400 font-mono text-[13px] p-4 outline-none resize-none editor-textarea"></textarea>
-                                <button onClick={triggerRebuild} className="absolute bottom-4 right-4 bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-lg text-xs font-bold shadow-lg flex items-center gap-2 z-10"><i className="fa-solid fa-arrows-rotate"></i> Atualizar Preview</button>
+                                <textarea value={vfs[activeFile]} onChange={handleFileChange} spellCheck="false" className="absolute inset-0 w-full h-full bg-transparent text-emerald-400 font-mono text-[12px] p-4 outline-none resize-none editor-textarea"></textarea>
+                                <button onClick={triggerRebuild} className="absolute bottom-4 right-4 bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded text-xs shadow-lg z-10"><i className="fa-solid fa-arrows-rotate mr-1"></i> RENDERIZAR</button>
                             </div>
 
-                            {/* Terminal */}
-                            <div className="h-48 bg-black border-t border-dark-border flex flex-col shrink-0">
-                                <div className="px-4 py-1.5 bg-dark-800 border-b border-dark-border flex justify-between items-center text-xs text-slate-400 font-mono">
+                            <div className="h-40 bg-black border-t border-dark-border flex flex-col shrink-0">
+                                <div className="px-4 py-1.5 bg-dark-800 flex justify-between items-center text-xs text-slate-400 font-mono">
                                     <span>TERMINAL</span>
                                     <div className="flex gap-3">
-                                        <button onClick={triggerAutoCorrection} className="text-yellow-500 hover:text-yellow-400 flex items-center gap-1" title="Testar Autocorreção"><i className="fa-solid fa-wrench"></i> Autocorreção IA</button>
-                                        <button onClick={()=>setTerminalLogs([])} className="hover:text-white"><i className="fa-solid fa-ban"></i> Limpar</button>
+                                        <button onClick={triggerAutoCorrection} className="text-yellow-500 hover:text-yellow-400" title="Consertar Erros"><i className="fa-solid fa-wrench mr-1"></i> Autocorreção IA</button>
+                                        <button onClick={()=>setTerminalLogs([])} className="hover:text-white"><i className="fa-solid fa-ban"></i></button>
                                     </div>
                                 </div>
                                 <div className="flex-1 overflow-y-auto p-2 font-mono text-[11px] space-y-1">
                                     {terminalLogs.map((log, i) => (
                                         <div key={i} className={`flex gap-2 ${log.type === 'error' ? 'text-red-400' : log.type === 'success' ? 'text-emerald-400' : 'text-slate-400'}`}>
-                                            <span className="text-slate-600 shrink-0">[{log.time}]</span>
-                                            <span>{log.type==='error'?'❌ ':log.type==='success'?'✅ ':'> '}{log.msg}</span>
+                                            <span className="text-slate-600">[{log.time}]</span><span>{'>'} {log.msg}</span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         </div>
 
-                        {/* Painel Direito: Live Preview */}
+                        {/* PAINEL DIREITO: PREVIEW */}
                         <div className="w-[400px] xl:w-[500px] bg-dark-800 border-l border-dark-border flex flex-col shrink-0">
                             <div className="h-10 border-b border-dark-border flex items-center justify-between px-3 bg-dark-900 shrink-0">
-                                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">Live Preview</span>
-                                <div className="flex bg-dark-700 rounded p-0.5">
-                                    {['desktop', 'tablet', 'mobile'].map(v => (
-                                        <button key={v} onClick={()=>setViewport(v)} className={`px-2 py-0.5 rounded text-[10px] ${viewport === v ? 'bg-dark-500 text-white shadow' : 'text-slate-400 hover:text-white'}`}>
-                                            <i className={`fa-solid fa-${v==='desktop'?'desktop':v==='tablet'?'tablet-screen-button':'mobile-screen'}`}></i>
-                                        </button>
-                                    ))}
-                                </div>
+                                <span className="text-xs font-bold text-slate-300">LIVE PREVIEW</span>
                             </div>
-                            <div className="flex-1 bg-dark-900 p-4 flex items-center justify-center overflow-hidden">
-                                <div className={`bg-white rounded-lg overflow-hidden shadow-2xl transition-all duration-300 border border-slate-700 ${viewport === 'desktop' ? 'w-full h-full' : viewport === 'tablet' ? 'w-[768px] h-[1024px] scale-[0.6] origin-top' : 'w-[375px] h-[812px] scale-[0.8] origin-top'}`}>
-                                    {/* O Iframe chave que processa o VFS */}
+                            <div className="flex-1 bg-dark-900 flex items-center justify-center p-2">
+                                <div className="w-full h-full bg-white rounded shadow-2xl overflow-hidden border border-slate-700">
                                     <iframe key={previewKey} srcDoc={compiledHtml} className="w-full h-full border-0"></iframe>
                                 </div>
                             </div>
@@ -516,59 +503,24 @@
             );
         };
 
-        const StatusView = () => (
-            <div className="flex-1 bg-dark-900 p-8 overflow-y-auto fade-in">
-                <div className="max-w-4xl mx-auto">
-                    <h1 className="text-3xl font-bold text-white mb-2">Status do Sistema</h1>
-                    <p className="text-slate-400 text-sm mb-8">Visão detalhada da arquitetura e das funcionalidades da IDE Fábrica Livre Studio.</p>
-
-                    <div className="bg-dark-800 border border-dark-border rounded-2xl p-6 mb-6">
-                        <h2 className="text-lg font-bold text-white mb-4 border-b border-dark-border pb-2">Funcionalidades do Produto</h2>
-                        <ul className="space-y-3">
-                            <li className="flex items-center gap-3 text-sm text-slate-300"><i className="fa-solid fa-check-circle text-emerald-500"></i> Dashboard, navegação e criação de projetos implementados.</li>
-                            <li className="flex items-center gap-3 text-sm text-slate-300"><i className="fa-solid fa-check-circle text-emerald-500"></i> Virtual File System (VFS) com arquivos React (App.jsx) funcionando.</li>
-                            <li className="flex items-center gap-3 text-sm text-slate-300"><i className="fa-solid fa-check-circle text-emerald-500"></i> Editor de código conectado em tempo real ao preview via Babel Standalone.</li>
-                            <li className="flex items-center gap-3 text-sm text-slate-300"><i className="fa-solid fa-check-circle text-emerald-500"></i> Terminal de logs interceptando erros da compilação.</li>
-                            <li className="flex items-center gap-3 text-sm text-slate-300"><i className="fa-solid fa-circle text-yellow-500"></i> PromptSys Agent: Interface 100% pronta, simulando chamadas de modificação e re-renderização. (Necessita conectar API Groq na função handleSendMessage).</li>
-                            <li className="flex items-center gap-3 text-sm text-slate-300"><i className="fa-solid fa-circle text-yellow-500"></i> Autocorreção: Fluxo e UI implementados (botão no terminal). IA mockada.</li>
-                            <li className="flex items-center gap-3 text-sm text-slate-300"><i className="fa-solid fa-circle text-red-500"></i> Integração GitHub/Vercel (UI pronta, requisições de backend pendentes).</li>
-                            <li className="flex items-center gap-3 text-sm text-slate-300"><i className="fa-solid fa-circle text-red-500"></i> Integração Supabase Auth & DB (Schema desenhado no código, aguardando chaves reais).</li>
-                        </ul>
-                    </div>
-
-                    <div className="bg-dark-800 border border-dark-border rounded-2xl p-6">
-                        <h2 className="text-lg font-bold text-white mb-4 border-b border-dark-border pb-2">Arquitetura de Dados (Mock Supabase)</h2>
-                        <pre className="bg-dark-900 p-4 rounded-lg text-emerald-400 font-mono text-xs overflow-x-auto">{dbSchema}</pre>
+        const SettingsView = () => {
+            const { setCurrentRoute } = useContext(AppContext);
+            return (
+                <div className="flex-1 bg-dark-900 p-8">
+                    <button onClick={() => setCurrentRoute('dashboard')} className="text-slate-400 hover:text-white mb-6"><i className="fa-solid fa-arrow-left mr-2"></i> Voltar</button>
+                    <h1 className="text-2xl font-bold text-white mb-6">Configurações</h1>
+                    <div className="bg-dark-800 border border-dark-border rounded-2xl p-6 max-w-2xl">
+                        <h3 className="text-white font-bold mb-4">Credenciais</h3>
+                        <p className="text-slate-400 text-xs mb-4">Insira seu Token do GitHub para habilitar exportação direta.</p>
+                        <input type="password" placeholder="ghp_..." className="w-full bg-dark-900 border border-dark-border p-3 rounded text-sm text-white mb-4 outline-none" />
+                        <Button>Salvar Integrações</Button>
                     </div>
                 </div>
-            </div>
-        );
-
-        const SettingsView = () => (
-            <div className="flex-1 bg-dark-900 p-8 overflow-y-auto fade-in">
-                <div className="max-w-3xl mx-auto">
-                    <h1 className="text-3xl font-bold text-white mb-2">Configurações</h1>
-                    <p className="text-slate-400 text-sm mb-8">Gerencie sua conta e integrações externas.</p>
-
-                    <div className="space-y-6">
-                        <div className="bg-dark-800 border border-dark-border rounded-2xl p-6">
-                            <h3 className="text-white font-bold mb-4 flex items-center gap-2"><i className="fa-solid fa-user text-brand-400"></i> Perfil</h3>
-                            <div className="grid gap-4"><input type="text" value="Marcelo Trader" disabled className="bg-dark-900 border border-dark-border p-3 rounded text-sm text-slate-400 cursor-not-allowed" /><input type="email" value="admin@fabricalivre.com" disabled className="bg-dark-900 border border-dark-border p-3 rounded text-sm text-slate-400 cursor-not-allowed" /></div>
-                        </div>
-
-                        <div className="bg-dark-800 border border-dark-border rounded-2xl p-6">
-                            <h3 className="text-white font-bold mb-4 flex items-center gap-2"><i className="fa-brands fa-github text-slate-300"></i> Integração GitHub</h3>
-                            <p className="text-slate-400 text-xs mb-4">Conecte sua conta para habilitar push e versionamento automático.</p>
-                            <input type="password" placeholder="ghp_seu_token_aqui" className="w-full bg-dark-900 border border-dark-border focus:border-brand-500 p-3 rounded text-sm text-white outline-none mb-3" />
-                            <Button>Salvar Token</Button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        );
+            );
+        };
 
         // ==========================================
-        // 5. COMPONENTE RAIZ (Roteador Central)
+        // RAIZ
         // ==========================================
         const App = () => {
             const { currentRoute, user, toast } = useContext(AppContext);
@@ -582,7 +534,6 @@
                     {currentRoute === 'dashboard' && <DashboardView />}
                     {currentRoute === 'ide' && <ProjectWorkspaceView />}
                     {currentRoute === 'settings' && <SettingsView />}
-                    {currentRoute === 'status' && <StatusView />}
                     <Toast toast={toast} />
                 </div>
             );
