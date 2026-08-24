@@ -253,28 +253,53 @@
         </div>
     </div>
 
-    <!-- PAINEL ADMIN -->
+    <!-- PAINEL ADMIN COM NOVO RELATÓRIO DE SAÚDE IA -->
     <div id="modal-admin-dashboard" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-[#0b1121] border border-brand-500/30 rounded-2xl max-w-3xl w-full p-6 shadow-2xl relative flex flex-col max-h-[90vh]">
+        <div class="bg-[#0b1121] border border-brand-500/30 rounded-2xl max-w-4xl w-full p-6 shadow-2xl relative flex flex-col max-h-[90vh]">
             <button onclick="closeModal('modal-admin-dashboard')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
-            <div class="flex items-center gap-4 mb-6 border-b border-dark-border pb-4">
+            
+            <!-- Header do Admin -->
+            <div class="flex items-center gap-4 mb-6 border-b border-dark-border pb-4 shrink-0">
                 <div class="w-12 h-12 rounded-xl bg-brand-600 flex items-center justify-center text-white text-2xl shadow-lg shadow-brand-500/30"><i class="fa-solid fa-terminal"></i></div>
                 <div><h2 class="text-2xl font-bold text-white">Painel do Criador</h2><p class="text-brand-400 text-sm">Status: Energia Infinita Ativada</p></div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 overflow-y-auto pr-2">
-                <div class="bg-dark-panel border border-dark-border rounded-xl p-4">
-                    <h3 class="text-white font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-microchip text-brand-400"></i> Motor de Inteligência</h3>
-                    <select id="engine-selector" class="w-full bg-dark-bg border border-dark-border text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-brand-500 mb-2">
-                        <option value="groq">☁️ Nuvem Principal (API Groq - Padrão)</option>
-                        <option value="ngrok">🖥️ Servidor Local (Seu PC via Ngrok)</option>
-                    </select>
-                    <input type="text" id="ngrok-url" placeholder="URL do Ngrok" class="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-white text-xs mb-3 hidden">
-                    <button onclick="saveAdminSettings()" class="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 rounded-lg text-sm font-bold">Salvar Roteamento</button>
+            
+            <!-- Área Rolável de Conteúdo Admin -->
+            <div class="overflow-y-auto pr-2 flex-1 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Configurações de Motor -->
+                    <div class="bg-dark-panel border border-dark-border rounded-xl p-4">
+                        <h3 class="text-white font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-microchip text-brand-400"></i> Motor de Inteligência</h3>
+                        <select id="engine-selector" class="w-full bg-dark-bg border border-dark-border text-white text-sm rounded-lg px-3 py-2 outline-none focus:border-brand-500 mb-2">
+                            <option value="groq">☁️ Nuvem Principal (API Groq - Padrão)</option>
+                            <option value="ngrok">🖥️ Servidor Local (Seu PC via Ngrok)</option>
+                        </select>
+                        <input type="text" id="ngrok-url" placeholder="URL do Ngrok" class="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-white text-xs mb-3 hidden">
+                        <button onclick="saveAdminSettings()" class="w-full bg-brand-600 hover:bg-brand-500 text-white py-2 rounded-lg text-sm font-bold">Salvar Roteamento</button>
+                    </div>
+                    
+                    <!-- Usuários Cadastrados -->
+                    <div class="bg-dark-panel border border-dark-border rounded-xl p-4 flex flex-col h-64">
+                        <h3 class="text-white font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-users text-green-400"></i> Clientes Cadastrados</h3>
+                        <div class="flex-1 overflow-y-auto bg-dark-bg border border-dark-border rounded-lg p-2 space-y-2" id="admin-users-list"></div>
+                        <button onclick="window.fetchUsersList()" class="w-full mt-3 bg-dark-border hover:bg-slate-600 text-white py-2 rounded-lg text-sm font-bold"><i class="fa-solid fa-rotate mr-1"></i> Atualizar Lista</button>
+                    </div>
                 </div>
-                <div class="bg-dark-panel border border-dark-border rounded-xl p-4 flex flex-col h-64">
-                    <h3 class="text-white font-bold mb-3 flex items-center gap-2"><i class="fa-solid fa-users text-green-400"></i> Usuários</h3>
-                    <div class="flex-1 overflow-y-auto bg-dark-bg border border-dark-border rounded-lg p-2 space-y-2" id="admin-users-list"></div>
-                    <button onclick="window.fetchUsersList()" class="w-full mt-3 bg-dark-border hover:bg-slate-600 text-white py-2 rounded-lg text-sm font-bold"><i class="fa-solid fa-rotate mr-1"></i> Atualizar Lista</button>
+
+                <!-- NOVO: Relatório e Auditoria IA -->
+                <div class="bg-dark-panel border border-dark-border rounded-xl p-4 flex flex-col">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3 gap-3">
+                        <div>
+                            <h3 class="text-white font-bold flex items-center gap-2"><i class="fa-solid fa-stethoscope text-purple-400"></i> Auditoria de Sistema (IA)</h3>
+                            <p class="text-[10px] text-slate-400 mt-1">Análise estratégica sobre o que está 100% e o que pode evoluir na Fábrica.</p>
+                        </div>
+                        <button onclick="gerarRelatorioAdmin()" class="bg-purple-600 hover:bg-purple-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 shrink-0">
+                            <i class="fa-solid fa-brain"></i> Gerar Diagnóstico
+                        </button>
+                    </div>
+                    <div id="admin-report-content" class="bg-dark-bg border border-dark-border rounded-lg p-4 text-slate-300 text-xs sm:text-sm h-56 overflow-y-auto whitespace-pre-wrap leading-relaxed">
+                        Clique no botão acima para iniciar a auditoria em tempo real. O cérebro da IA vai ler as estatísticas atuais do código, integrações e banco de dados, e formulará um relatório de saúde técnico em formato humano.
+                    </div>
                 </div>
             </div>
         </div>
@@ -286,7 +311,6 @@
     <script>
         const GROQ_API_KEY = "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";
         
-        // Recupera o estado local da energia
         let localEnergy = parseInt(localStorage.getItem('fl_energy'));
         if (isNaN(localEnergy)) localEnergy = 500;
         let localPremium = localStorage.getItem('fl_premium') === 'true';
@@ -339,7 +363,7 @@
             }
         }
 
-        // --- SISTEMA DE CAPTURA AUTOMÁTICA DE PAGAMENTO (MERCADO PAGO) ---
+        // --- SISTEMA DE CAPTURA AUTOMÁTICA DE PAGAMENTO ---
         function checkPaymentStatus() {
             const urlParams = new URLSearchParams(window.location.search);
             const status = urlParams.get('payment_status');
@@ -437,6 +461,37 @@
             localStorage.setItem('fl_engine', currentEngine);
             localStorage.setItem('fl_ngrok_url', customNgrokUrl);
             showToast('Configurações salvas.', 'success');
+        }
+
+        // --- NOVO: GERADOR DE RELATÓRIO DE SAÚDE IA ---
+        async function gerarRelatorioAdmin() {
+            const contentDiv = document.getElementById('admin-report-content');
+            contentDiv.innerHTML = '<div class="flex flex-col items-center justify-center h-full text-purple-400 animate-pulse"><i class="fa-solid fa-spinner fa-spin text-3xl mb-3"></i><p>A IA está auditando a arquitetura do sistema...</p></div>';
+            
+            // Reúne dados atuais do sistema para enviar à IA
+            const systemData = `
+            Status Atual do SaaS "Fábrica Livre":
+            - Motor Principal de IA: ${currentEngine === 'groq' ? 'Groq Cloud (GPT-OSS-120B)' : 'Servidor Local (Ngrok)'}
+            - Quantidade de Apps na Memória do Cache Local: ${window.appHistory.length}
+            - Autenticação e Nuvem: Híbrida (Firebase Google Auth ativo + LocalStorage Fallback)
+            - UI / Layout: Tailwind CSS Nativo, Dark Mode, Renderização Iframe Segura.
+            - Status de Pagamento Admin Atual: ${wallet.isPremium ? 'Ilimitado (Modo Deus)' : 'Energia Restrita'}
+            `;
+
+            const prompt = `Aja como um Engenheiro de Software Sênior e Estrategista de Produto. Analise o status arquitetônico abaixo do meu SaaS (Fábrica Livre) e gere um relatório executivo de saúde do sistema para o dono ler. 
+            Divida o relatório em duas partes claras:
+            1. "O Que Está 100% Funcional": Liste de forma elogiável e direta o que está muito bem feito nessa estrutura.
+            2. "Evoluções Sugeridas": O que eu poderia adicionar ou melhorar no futuro para o app ficar ainda melhor e gerar mais valor.
+            Use um tom muito profissional, entusiasmado, humano e objetivo. Formate o texto de forma limpa (sem markdown pesado, use apenas texto, quebras de linha e emojis).
+            
+            Dados para Análise: ${systemData}`;
+
+            try {
+                const report = await processAIRequest(prompt);
+                contentDiv.innerHTML = `<div class="text-emerald-400 font-bold mb-2"><i class="fa-solid fa-check-double mr-1"></i> Auditoria Concluída:</div>` + report;
+            } catch(e) {
+                contentDiv.innerHTML = '<span class="text-red-400"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Erro ao gerar relatório. Verifique sua conexão com o motor de IA.</span>';
+            }
         }
 
         // --- CHAT E GERAÇÃO ---
@@ -573,7 +628,6 @@
             if(saved) window.appHistory = JSON.parse(saved);
             renderHistoryUI();
             
-            // Popula link de compartilhamento
             const shareInput = document.getElementById('share-url');
             if(shareInput) shareInput.value = window.location.origin;
             
