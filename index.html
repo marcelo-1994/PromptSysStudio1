@@ -46,11 +46,18 @@
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Botão de Compartilhar -->
+            <button onclick="openModal('modal-share')" class="flex items-center gap-1.5 bg-dark-panel border border-dark-border hover:border-green-500 transition-colors px-2.5 sm:px-3 py-1.5 rounded-lg text-slate-200 text-xs font-medium group" title="Compartilhar">
+                <i class="fa-brands fa-whatsapp text-green-400 group-hover:scale-110 transition-transform"></i> <span class="hidden md:inline">Compartilhar</span>
+            </button>
+
+            <!-- Botão da Galeria -->
             <button onclick="toggleHistoryDrawer()" class="flex items-center gap-1.5 bg-dark-panel border border-dark-border hover:border-brand-500 transition-colors px-3 py-1.5 rounded-lg text-slate-200 text-xs font-medium relative group">
                 <i class="fa-solid fa-layer-group text-brand-400"></i> <span class="hidden sm:inline">Galeria</span>
                 <span id="gallery-badge" class="absolute -top-2 -right-2 bg-brand-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
             </button>
 
+            <!-- Botão de Energia -->
             <button id="btn-energy" onclick="openModal('modal-paywall')" class="flex items-center gap-2 bg-dark-panel border border-yellow-500/30 hover:border-yellow-500 transition-colors rounded-full px-3 py-1.5 group shrink-0">
                 <i class="fa-solid fa-bolt text-yellow-400 group-hover:scale-110 transition-transform"></i>
                 <span id="energy-counter" class="font-bold text-white text-sm">500</span>
@@ -145,7 +152,28 @@
     </main>
 
     <!-- Modals -->
-    <!-- Modal Pagamento Sucesso (Auto-Liberação) -->
+    <!-- Modal Compartilhar -->
+    <div id="modal-share" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-dark-panel border border-dark-border rounded-2xl max-w-sm w-full p-6 text-center shadow-2xl relative">
+            <button onclick="closeModal('modal-share')" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <div class="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-green-500/50">
+                <i class="fa-brands fa-whatsapp text-3xl text-green-400"></i>
+            </div>
+            <h2 class="text-xl font-bold text-white mb-2">Compartilhe a Fábrica</h2>
+            <p class="text-slate-400 text-sm mb-6">Convide amigos para criar aplicativos com IA.</p>
+            
+            <div class="bg-dark-bg p-3 rounded-lg border border-dark-border flex items-center gap-2 mb-4">
+                <input type="text" value="" class="bg-transparent w-full text-slate-300 text-xs outline-none" readonly id="share-url">
+                <button onclick="copyShare()" class="text-brand-400 p-2 hover:text-brand-300 transition-colors"><i class="fa-regular fa-copy text-lg"></i></button>
+            </div>
+            
+            <button onclick="shareWhatsApp()" class="w-full bg-[#25D366] hover:bg-[#20b958] text-white font-bold py-3 rounded-xl flex items-center justify-center gap-2 transition-colors">
+                <i class="fa-brands fa-whatsapp text-xl"></i> Enviar pelo WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal Pagamento Sucesso -->
     <div id="modal-payment-success" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
         <div class="bg-dark-panel border border-yellow-500 rounded-2xl max-w-md w-full p-8 text-center shadow-2xl shadow-yellow-500/20 relative">
             <div class="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-yellow-500/50">
@@ -283,6 +311,21 @@
         function closeModal(id) { document.getElementById(id)?.classList.add('hidden'); }
         function toggleHistoryDrawer() { document.getElementById('history-drawer').classList.toggle('translate-x-full'); }
 
+        // --- SISTEMA DE COMPARTILHAMENTO ---
+        function copyShare() {
+            const input = document.getElementById('share-url');
+            input.select();
+            document.execCommand('copy');
+            showToast('Link copiado com sucesso! 🎉', 'success');
+        }
+
+        function shareWhatsApp() {
+            const url = window.location.origin;
+            const message = `Crie aplicativos incríveis com Inteligência Artificial em segundos usando apenas texto! 🚀\n\nTeste a Fábrica Livre: ${url}`;
+            window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(message)}`, '_blank');
+            closeModal('modal-share');
+        }
+
         function updateEnergyUI() {
             const counter = document.getElementById('energy-counter');
             if (wallet.isPremium) {
@@ -300,7 +343,7 @@
         function checkPaymentStatus() {
             const urlParams = new URLSearchParams(window.location.search);
             const status = urlParams.get('payment_status');
-            const plan = urlParams.get('plan'); // Lendo a "etiqueta" do plano
+            const plan = urlParams.get('plan');
 
             if (status === 'approved') {
                 if (plan === 'pro') {
@@ -310,11 +353,9 @@
                     addRechargeEnergy();
                     showPaymentSuccessModal('recarga');
                 } else {
-                    // Prevenção caso o link venha sem etiqueta
                     addRechargeEnergy();
                     showPaymentSuccessModal('recarga');
                 }
-                // Limpa a URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }
         }
@@ -354,7 +395,7 @@
             if (wallet.isPremium) return true;
             if (wallet.energy >= amount) {
                 wallet.energy -= amount;
-                localStorage.setItem('fl_energy', wallet.energy.toString()); // Salva ao gastar
+                localStorage.setItem('fl_energy', wallet.energy.toString());
                 updateEnergyUI();
                 if (window.updateEnergyInDatabase) window.updateEnergyInDatabase(wallet.energy);
                 return true;
@@ -527,11 +568,16 @@
         };
 
         window.onload = () => {
-            updateEnergyUI(); // Atualiza painel com dados locais
+            updateEnergyUI(); 
             const saved = localStorage.getItem('fl_historico_local');
             if(saved) window.appHistory = JSON.parse(saved);
             renderHistoryUI();
-            checkPaymentStatus(); // Detecta pagamentos do Mercado Pago
+            
+            // Popula link de compartilhamento
+            const shareInput = document.getElementById('share-url');
+            if(shareInput) shareInput.value = window.location.origin;
+            
+            checkPaymentStatus(); 
         };
     </script>
 
@@ -561,7 +607,6 @@
                 if (user) {
                     currentUser = user;
                     
-                    // Busca se a conta salva no firebase é premium ou tem energia guardada
                     const userRef = doc(db, 'fl_users', user.uid);
                     await setDoc(userRef, { nome: user.displayName, email: user.email, foto: user.photoURL, ultimoLogin: new Date().toLocaleString('pt-BR') }, { merge: true });
 
@@ -640,7 +685,6 @@
             }
         };
 
-        // Funções para salvar status de Pagamento no Banco de Dados Google
         window.upgradeUserInDatabase = async (tipo, novaEnergia) => {
             if (currentUser && db) {
                 let atualizacao = {};
